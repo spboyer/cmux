@@ -34,22 +34,24 @@ Build an Electron app with a three-pane layout for managing multiple terminal se
 
 ## Workplan
 
-### Phase 1: Project Setup
-- [ ] Initialize Electron Forge project with React + TypeScript template
-- [ ] Configure project structure (main process, renderer, preload)
-- [ ] Install core dependencies (xterm.js, node-pty, Monaco Editor)
-- [ ] **Install testing dependencies (Jest, ts-jest, React Testing Library, Playwright)**
-- [ ] **Configure Jest for main process and renderer (separate configs)**
-- [ ] **Configure Playwright for Electron**
-- [ ] Set up IPC communication pattern between main and renderer
-- [ ] **Write smoke test: app launches successfully (Playwright)**
-- [ ] Verify basic Electron app launches
+### Phase 1: Project Setup ✅
+- [x] Initialize Electron Forge project with React + TypeScript template
+- [x] Configure project structure (main process, renderer, preload)
+- [x] Install core dependencies (xterm.js, Monaco Editor, React)
+- [x] **Install testing dependencies (Jest, ts-jest, React Testing Library, Playwright)**
+- [x] **Configure Jest for renderer**
+- [x] **Configure Playwright for Electron**
+- [x] Set up IPC communication pattern between main and renderer
+- [x] **Write smoke test: app launches successfully**
+- [x] Verify basic Electron app launches
 
-### Phase 2: Core Layout & State Management
-- [ ] **TDD: Write tests for app state reducer (add terminal, remove terminal, set active, add file, remove file)**
-- [ ] Implement app state reducer to pass tests
-- [ ] **TDD: Write tests for state selectors (getActiveTerminal, getActiveItem, getFilesForTerminal)**
-- [ ] Implement state selectors to pass tests
+> **Note:** node-pty deferred due to Windows Spectre library build issues. Will address in Phase 3.
+
+### Phase 2: Core Layout & State Management (In Progress)
+- [x] **TDD: Write tests for app state reducer (add terminal, remove terminal, set active, add file, remove file)** ✅ 16 tests
+- [x] Implement app state reducer to pass tests
+- [x] **TDD: Write tests for state selectors (getActiveTerminal, getActiveItem, getFilesForTerminal)**
+- [x] Implement state selectors to pass tests
 - [ ] Create state context provider
 - [ ] **Write component tests for ThreePaneLayout (renders three sections)**
 - [ ] Create three-pane layout component (Left, Center, Right)
