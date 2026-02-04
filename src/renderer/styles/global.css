@@ -16,7 +16,8 @@ body {
   color: #cccccc;
 }
 
-.app {
+/* Layout */
+.three-pane-layout {
   display: flex;
   height: 100%;
   width: 100%;
@@ -47,6 +48,7 @@ body {
   flex-direction: column;
 }
 
+/* Pane headers */
 .pane-header {
   padding: 8px 12px;
   background-color: #2d2d2d;
@@ -65,6 +67,7 @@ body {
   padding: 8px;
 }
 
+/* Buttons */
 .add-btn {
   background: none;
   border: none;
@@ -77,4 +80,105 @@ body {
 
 .add-btn:hover {
   background-color: #3c3c3c;
+}
+
+/* Terminal list */
+.terminal-list {
+  list-style: none;
+}
+
+.terminal-group {
+  margin-bottom: 2px;
+}
+
+.terminal-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  gap: 6px;
+}
+
+.terminal-item:hover {
+  background-color: #2a2d2e;
+}
+
+.terminal-item.active {
+  background-color: #37373d;
+}
+
+.terminal-icon {
+  font-size: 10px;
+  color: #888;
+}
+
+.terminal-label {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* File list */
+.file-list {
+  list-style: none;
+  margin-left: 16px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.file-item:hover {
+  background-color: #2a2d2e;
+}
+
+.file-item.active {
+  background-color: #37373d;
+}
+
+.file-icon {
+  font-size: 12px;
+}
+
+.file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Empty states */
+.empty-message {
+  color: #888;
+  font-size: 12px;
+  padding: 8px;
+}
+
+/* Center pane */
+.center-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #888;
+}
+
+.terminal-placeholder,
+.file-placeholder,
+.file-tree-placeholder {
+  padding: 16px;
+  color: #888;
+}
+
+.cwd, .path, .hint {
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
 }

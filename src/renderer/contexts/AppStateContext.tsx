@@ -1,3 +1,5 @@
+import * as React from 'react';
+import { createContext, useContext, useReducer, ReactNode } from 'react';
 import { AppState, AppAction, Terminal } from '../../shared/types';
 
 export const initialState: AppState = {
@@ -119,4 +121,35 @@ export function getActiveItem(state: AppState) {
 export function getFilesForTerminal(state: AppState, terminalId: string) {
   const terminal = state.terminals.find(t => t.id === terminalId);
   return terminal?.openFiles ?? [];
+}
+
+// Context
+interface AppStateContextType {
+  state: AppState;
+  dispatch: React.Dispatch<AppAction>;
+}
+
+const AppStateContext = createContext<AppStateContextType | null>(null);
+
+interface AppStateProviderProps {
+  children: ReactNode;
+  initialState?: AppState;
+}
+
+export function AppStateProvider({ children, initialState: customInitialState }: AppStateProviderProps) {
+  const [state, dispatch] = useReducer(appReducer, customInitialState ?? initialState);
+
+  return (
+    <AppStateContext.Provider value={{ state, dispatch }}>
+      {children}
+    </AppStateContext.Provider>
+  );
+}
+
+export function useAppState() {
+  const context = useContext(AppStateContext);
+  if (!context) {
+    throw new Error('useAppState must be used within an AppStateProvider');
+  }
+  return context;
 }
