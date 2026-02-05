@@ -1,7 +1,7 @@
 {
   "name": "vibe-playground",
   "productName": "Vibe Playground",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Terminal manager with integrated file browsing for multiple repositories",
   "main": ".webpack/main",
   "private": true,
@@ -22,6 +22,13 @@
     "email": "ianphil@microsoft.com"
   },
   "license": "MIT",
+  "build": {
+    "publish": {
+      "provider": "github",
+      "owner": "ipdelete",
+      "repo": "vibe-playground"
+    }
+  },
   "devDependencies": {
     "@electron-forge/cli": "^7.11.1",
     "@electron-forge/maker-deb": "^7.11.1",
@@ -65,6 +72,7 @@
     "@xterm/addon-fit": "^0.11.0",
     "@xterm/xterm": "^5.5.0",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-updater": "^6.7.3",
     "monaco-editor": "^0.55.1",
     "monaco-editor-webpack-plugin": "^7.1.1",
     "react": "^19.2.4",

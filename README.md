@@ -29,6 +29,12 @@ A modern Electron-based terminal manager for working across multiple repositorie
 - **Center Pane**: Active terminal or file viewer
 - **Right Pane**: File tree for the current terminal's directory
 
+### 🔄 Auto-Updates
+- Automatic update checks on startup
+- Background downloads with progress indicator
+- Non-disruptive updates - install on next restart
+- Toast notifications for update status
+
 ## Installation
 
 ### Prerequisites

@@ -18,6 +18,19 @@ const config: ForgeConfig = {
     asar: true,
     executableName: 'vibe-playground',
   },
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'ipdelete',
+          name: 'vibe-playground',
+        },
+        prerelease: false,
+        draft: false,
+      },
+    },
+  ],
   rebuildConfig: {},
   makers: [
     new MakerSquirrel({}),

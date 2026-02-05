@@ -5,14 +5,59 @@ import { LeftPane } from './components/LeftPane';
 import { CenterPane } from './components/CenterPane';
 import { RightPane } from './components/RightPane';
 import { HotkeyHelp } from './components/HotkeyHelp';
+import { UpdateToast } from './components/UpdateToast';
 import { AppStateProvider, useAppState, getActiveItem } from './contexts/AppStateContext';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
+import { UpdateState } from '../shared/types';
 
 function AppContent() {
   const { state, dispatch } = useAppState();
   const hasRestoredRef = useRef(false);
   const [showHotkeyHelp, setShowHotkeyHelp] = useState(false);
   const [renamingTerminalId, setRenamingTerminalId] = useState<string | null>(null);
+  const [updateState, setUpdateState] = useState<UpdateState>({ status: 'idle' });
+  const [isUpdateDismissed, setIsUpdateDismissed] = useState(false);
+
+  // Set up auto-update listeners
+  useEffect(() => {
+    const unsubStatus = window.electronAPI.updates.onStatus((data) => {
+      setUpdateState(prev => ({
+        ...prev,
+        status: data.status as UpdateState['status'],
+        info: data.info as UpdateState['info'],
+        error: data.message,
+      }));
+      // Reset dismissed state when a new update becomes available or ready
+      if (data.status === 'available' || data.status === 'ready') {
+        setIsUpdateDismissed(false);
+      }
+    });
+
+    const unsubProgress = window.electronAPI.updates.onProgress((progress) => {
+      setUpdateState(prev => ({
+        ...prev,
+        status: 'downloading',
+        progress,
+      }));
+    });
+
+    return () => {
+      unsubStatus();
+      unsubProgress();
+    };
+  }, []);
+
+  const handleDownloadUpdate = useCallback(() => {
+    window.electronAPI.updates.download();
+  }, []);
+
+  const handleInstallUpdate = useCallback(() => {
+    window.electronAPI.updates.install();
+  }, []);
+
+  const handleDismissUpdate = useCallback(() => {
+    setIsUpdateDismissed(true);
+  }, []);
 
   // Restore session on mount
   useEffect(() => {
@@ -200,6 +245,14 @@ function AppContent() {
         />
       </div>
       <HotkeyHelp isOpen={showHotkeyHelp} onClose={() => setShowHotkeyHelp(false)} />
+      {!isUpdateDismissed && (
+        <UpdateToast
+          updateState={updateState}
+          onDownload={handleDownloadUpdate}
+          onInstall={handleInstallUpdate}
+          onDismiss={handleDismissUpdate}
+        />
+      )}
     </div>
   );
 }

@@ -53,6 +53,13 @@ export interface ElectronAPI {
     save: (data: Omit<SessionData, 'version'>) => Promise<void>;
     load: () => Promise<SessionData | null>;
   };
+  updates: {
+    check: () => Promise<void>;
+    download: () => Promise<void>;
+    install: () => void;
+    onStatus: (callback: (data: { status: string; info?: unknown; message?: string }) => void) => () => void;
+    onProgress: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
+  };
 }
 
 const electronAPI: ElectronAPI = {
@@ -102,6 +109,29 @@ const electronAPI: ElectronAPI = {
   session: {
     save: (data) => ipcRenderer.invoke('session:save', data),
     load: () => ipcRenderer.invoke('session:load'),
+  },
+  updates: {
+    check: () => ipcRenderer.invoke('updates:check'),
+    download: () => ipcRenderer.invoke('updates:download'),
+    install: () => ipcRenderer.invoke('updates:install'),
+    onStatus: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, data: { status: string; info?: unknown; message?: string }) => {
+        callback(data);
+      };
+      ipcRenderer.on('updates:status', handler);
+      return () => {
+        ipcRenderer.removeListener('updates:status', handler);
+      };
+    },
+    onProgress: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => {
+        callback(progress);
+      };
+      ipcRenderer.on('updates:progress', handler);
+      return () => {
+        ipcRenderer.removeListener('updates:progress', handler);
+      };
+    },
   },
 };
 

@@ -40,3 +40,26 @@ export type AppAction =
   | { type: 'ADD_FILE'; payload: { terminalId: string; file: OpenFile } }
   | { type: 'REMOVE_FILE'; payload: { terminalId: string; fileId: string } }
   | { type: 'RENAME_TERMINAL'; payload: { id: string; label: string } };
+
+// Auto-update types
+export type UpdateStatus = 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error' | 'dev-mode';
+
+export interface UpdateInfo {
+  version: string;
+  releaseNotes?: string | null;
+  releaseDate?: string;
+}
+
+export interface DownloadProgress {
+  percent: number;
+  bytesPerSecond: number;
+  transferred: number;
+  total: number;
+}
+
+export interface UpdateState {
+  status: UpdateStatus;
+  info?: UpdateInfo;
+  progress?: DownloadProgress;
+  error?: string;
+}

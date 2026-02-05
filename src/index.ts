@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 import { setupTerminalIPC } from './main/ipc/terminal';
 import { setupFileIPC } from './main/ipc/files';
 import { setupSessionIPC } from './main/ipc/session';
+import { setupUpdatesIPC, getUpdateService } from './main/ipc/updates';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -42,6 +43,16 @@ const createWindow = (): void => {
 
   // Set up session IPC handlers
   setupSessionIPC();
+
+  // Set up auto-update IPC handlers
+  setupUpdatesIPC(mainWindow);
+
+  // Check for updates after window is ready (give it a moment to load)
+  mainWindow.webContents.once('did-finish-load', () => {
+    setTimeout(() => {
+      getUpdateService()?.checkForUpdates();
+    }, 3000);
+  });
 };
 
 // IPC Handlers

@@ -117,7 +117,73 @@ jobs:
         shell: pwsh
         run: |
           New-Item -ItemType Directory -Force -Path staged
-          Get-ChildItem -Path out/make -Recurse -Include *.exe,*.zip | Copy-Item -Destination staged/
+          Get-ChildItem -Path out/make -Recurse -Include *.exe,*.nupkg | Copy-Item -Destination staged/
+          # Copy RELEASES file if exists (for Squirrel)
+          Get-ChildItem -Path out/make -Recurse -Filter "RELEASES" | Copy-Item -Destination staged/
+
+      - name: Generate latest.yml for electron-updater (Windows)
+        if: matrix.platform == 'windows'
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json | ConvertFrom-Json).version
+          $exe = Get-ChildItem -Path staged -Filter "*.exe" | Select-Object -First 1
+          if ($exe) {
+            $sha512 = (Get-FileHash -Path $exe.FullName -Algorithm SHA512).Hash.ToLower()
+            $size = $exe.Length
+            @"
+          version: $version
+          files:
+            - url: $($exe.Name)
+              sha512: $sha512
+              size: $size
+          path: $($exe.Name)
+          sha512: $sha512
+          "@ | Out-File -FilePath "staged/latest.yml" -Encoding utf8
+          }
+
+      - name: Generate latest-mac.yml for electron-updater (macOS)
+        if: matrix.platform == 'macos'
+        shell: bash
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          ZIP_FILE=$(find staged -name "*.zip" | head -1)
+          if [ -n "$ZIP_FILE" ]; then
+            SHA512=$(shasum -a 512 "$ZIP_FILE" | awk '{print $1}')
+            SIZE=$(stat -f%z "$ZIP_FILE")
+            FILENAME=$(basename "$ZIP_FILE")
+            cat > staged/latest-mac.yml << EOF
+          version: $VERSION
+          files:
+            - url: $FILENAME
+              sha512: $SHA512
+              size: $SIZE
+          path: $FILENAME
+          sha512: $SHA512
+          EOF
+          fi
+
+      - name: Generate latest-linux.yml for electron-updater (Linux)
+        if: matrix.platform == 'linux'
+        shell: bash
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          # Prefer AppImage, fall back to deb
+          FILE=$(find staged -name "*.AppImage" | head -1)
+          [ -z "$FILE" ] && FILE=$(find staged -name "*.deb" | head -1)
+          if [ -n "$FILE" ]; then
+            SHA512=$(sha512sum "$FILE" | awk '{print $1}')
+            SIZE=$(stat -c%s "$FILE")
+            FILENAME=$(basename "$FILE")
+            cat > staged/latest-linux.yml << EOF
+          version: $VERSION
+          files:
+            - url: $FILENAME
+              sha512: $SHA512
+              size: $SIZE
+          path: $FILENAME
+          sha512: $SHA512
+          EOF
+          fi
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
