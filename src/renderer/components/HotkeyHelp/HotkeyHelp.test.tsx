@@ -73,4 +73,32 @@ describe('HotkeyHelp', () => {
     const rows = table?.querySelectorAll('tr');
     expect(rows?.length).toBe(7); // 7 shortcuts defined
   });
+
+  it('should call onClose when Escape key is pressed', () => {
+    const onClose = jest.fn();
+    render(<HotkeyHelp isOpen={true} onClose={onClose} />);
+    
+    fireEvent.keyDown(document, { key: 'Escape' });
+    
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not respond to Escape key when modal is closed', () => {
+    const onClose = jest.fn();
+    render(<HotkeyHelp isOpen={false} onClose={onClose} />);
+    
+    fireEvent.keyDown(document, { key: 'Escape' });
+    
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('should clean up event listener on unmount', () => {
+    const onClose = jest.fn();
+    const { unmount } = render(<HotkeyHelp isOpen={true} onClose={onClose} />);
+    
+    unmount();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    
+    expect(onClose).not.toHaveBeenCalled();
+  });
 });
