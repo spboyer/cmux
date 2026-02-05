@@ -80,6 +80,40 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
       window.electronAPI.terminal.write(terminalId, data);
     });
 
+    // Intercept copy/paste shortcuts before xterm processes them
+    term.attachCustomKeyEventHandler((e: KeyboardEvent) => {
+      // Only handle keydown events, not keyup
+      if (e.type !== 'keydown') {
+        return true;
+      }
+
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifierKey = isMac ? e.metaKey : e.ctrlKey;
+
+      if (modifierKey && e.key.toLowerCase() === 'c') {
+        const selection = term.getSelection();
+        if (selection) {
+          // Copy selected text to clipboard, prevent xterm from sending SIGINT
+          e.preventDefault();
+          navigator.clipboard.writeText(selection);
+          term.clearSelection();
+          return false; // Prevent xterm from handling this key
+        }
+        // No selection - let xterm send SIGINT
+        return true;
+      } else if (modifierKey && e.key.toLowerCase() === 'v') {
+        // Paste from clipboard - prevent default browser paste AND xterm handling
+        e.preventDefault();
+        navigator.clipboard.readText().then((text) => {
+          if (text && xtermRef.current) {
+            window.electronAPI.terminal.write(terminalId, text);
+          }
+        });
+        return false; // Prevent xterm from handling this key
+      }
+      return true; // Let xterm handle all other keys
+    });
+
     // Handle terminal output from main process
     window.electronAPI.terminal.onData((id, data) => {
       if (id === terminalId && xtermRef.current) {
