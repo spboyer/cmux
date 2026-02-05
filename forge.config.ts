@@ -26,10 +26,6 @@ const config: ForgeConfig = {
   ],
   plugins: [
     new AutoUnpackNativesPlugin({}),
-    new ForgeExternalsPlugin({
-      externals: ['@homebridge/node-pty-prebuilt-multiarch'],
-      includeDeps: true,
-    }),
     new WebpackPlugin({
       mainConfig,
       devServer: {
@@ -61,6 +57,11 @@ const config: ForgeConfig = {
           },
         ],
       },
+    }),
+    // ForgeExternalsPlugin must come AFTER WebpackPlugin
+    new ForgeExternalsPlugin({
+      externals: ['@homebridge/node-pty-prebuilt-multiarch'],
+      includeDeps: true,
     }),
     // Fuses are used to enable/disable various Electron functionality
     // at package time, before code signing the application
