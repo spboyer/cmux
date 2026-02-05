@@ -4,9 +4,9 @@ import { useAppState } from '../../contexts/AppStateContext';
 import { Icon, getFileIcon } from '../Icon';
 
 interface LeftPaneProps {
-  onAddTerminal: () => void;
-  onCloseTerminal: (id: string) => void;
-  renamingTerminalId?: string | null;
+  onAddAgent: () => void;
+  onCloseAgent: (id: string) => void;
+  renamingAgentId?: string | null;
   onRenameComplete?: (id: string, newLabel: string | null) => void;
 }
 
@@ -14,17 +14,17 @@ interface ContextMenuState {
   visible: boolean;
   x: number;
   y: number;
-  terminalId: string | null;
+  agentId: string | null;
   fileId: string | null;
 }
 
-export function LeftPane({ onAddTerminal, onCloseTerminal, renamingTerminalId, onRenameComplete }: LeftPaneProps) {
+export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameComplete }: LeftPaneProps) {
   const { state, dispatch } = useAppState();
   const [contextMenu, setContextMenu] = useState<ContextMenuState>({
     visible: false,
     x: 0,
     y: 0,
-    terminalId: null,
+    agentId: null,
     fileId: null,
   });
   const [renameValue, setRenameValue] = useState('');
@@ -32,73 +32,73 @@ export function LeftPane({ onAddTerminal, onCloseTerminal, renamingTerminalId, o
 
   // Handle rename mode
   useEffect(() => {
-    if (renamingTerminalId) {
-      const terminal = state.terminals.find(t => t.id === renamingTerminalId);
-      if (terminal) {
-        setRenameValue(terminal.label);
+    if (renamingAgentId) {
+      const agent = state.agents.find(a => a.id === renamingAgentId);
+      if (agent) {
+        setRenameValue(agent.label);
         setTimeout(() => renameInputRef.current?.select(), 0);
       }
     }
-  }, [renamingTerminalId, state.terminals]);
+  }, [renamingAgentId, state.agents]);
 
-  const handleRenameKeyDown = (e: React.KeyboardEvent, terminalId: string) => {
+  const handleRenameKeyDown = (e: React.KeyboardEvent, agentId: string) => {
     if (e.key === 'Enter') {
-      onRenameComplete?.(terminalId, renameValue.trim() || null);
+      onRenameComplete?.(agentId, renameValue.trim() || null);
     } else if (e.key === 'Escape') {
-      onRenameComplete?.(terminalId, null);
+      onRenameComplete?.(agentId, null);
     }
   };
 
-  const handleRenameBlur = (terminalId: string) => {
-    onRenameComplete?.(terminalId, renameValue.trim() || null);
+  const handleRenameBlur = (agentId: string) => {
+    onRenameComplete?.(agentId, renameValue.trim() || null);
   };
 
-  const handleTerminalClick = (terminalId: string) => {
-    dispatch({ type: 'SET_ACTIVE_TERMINAL', payload: { id: terminalId } });
+  const handleAgentClick = (agentId: string) => {
+    dispatch({ type: 'SET_ACTIVE_AGENT', payload: { id: agentId } });
   };
 
-  const handleFileClick = (fileId: string, terminalId: string) => {
-    dispatch({ type: 'SET_ACTIVE_ITEM', payload: { id: fileId, terminalId } });
+  const handleFileClick = (fileId: string, agentId: string) => {
+    dispatch({ type: 'SET_ACTIVE_ITEM', payload: { id: fileId, agentId } });
   };
 
-  const handleTerminalContextMenu = (e: React.MouseEvent, terminalId: string) => {
+  const handleAgentContextMenu = (e: React.MouseEvent, agentId: string) => {
     e.preventDefault();
     setContextMenu({
       visible: true,
       x: e.clientX,
       y: e.clientY,
-      terminalId,
+      agentId,
       fileId: null,
     });
   };
 
-  const handleFileContextMenu = (e: React.MouseEvent, fileId: string, terminalId: string) => {
+  const handleFileContextMenu = (e: React.MouseEvent, fileId: string, agentId: string) => {
     e.preventDefault();
     setContextMenu({
       visible: true,
       x: e.clientX,
       y: e.clientY,
-      terminalId,
+      agentId,
       fileId,
     });
   };
 
   const closeContextMenu = () => {
-    setContextMenu({ visible: false, x: 0, y: 0, terminalId: null, fileId: null });
+    setContextMenu({ visible: false, x: 0, y: 0, agentId: null, fileId: null });
   };
 
-  const handleCloseTerminal = () => {
-    if (contextMenu.terminalId) {
-      onCloseTerminal(contextMenu.terminalId);
+  const handleCloseAgent = () => {
+    if (contextMenu.agentId) {
+      onCloseAgent(contextMenu.agentId);
     }
     closeContextMenu();
   };
 
   const handleCloseFile = () => {
-    if (contextMenu.terminalId && contextMenu.fileId) {
+    if (contextMenu.agentId && contextMenu.fileId) {
       dispatch({
         type: 'REMOVE_FILE',
-        payload: { terminalId: contextMenu.terminalId, fileId: contextMenu.fileId },
+        payload: { agentId: contextMenu.agentId, fileId: contextMenu.fileId },
       });
     }
     closeContextMenu();
@@ -116,53 +116,53 @@ export function LeftPane({ onAddTerminal, onCloseTerminal, renamingTerminalId, o
   return (
     <>
       <div className="pane-header">
-        <span>Terminals</span>
-        <button className="add-btn" onClick={onAddTerminal} title="New Terminal">
+        <span>Agents</span>
+        <button className="add-btn" onClick={onAddAgent} title="New Agent">
           <Icon name="add" size="sm" />
         </button>
       </div>
       <div className="pane-content">
-        {state.terminals.length === 0 ? (
-          <p className="empty-message">No terminals open</p>
+        {state.agents.length === 0 ? (
+          <p className="empty-message">No agents open</p>
         ) : (
-          <ul className="terminal-list">
-            {state.terminals.map(terminal => (
-              <li key={terminal.id} className="terminal-group">
+          <ul className="agent-list">
+            {state.agents.map(agent => (
+              <li key={agent.id} className="agent-group">
                 <div
-                  className={`terminal-item ${state.activeItemId === terminal.id ? 'active' : ''}`}
-                  onClick={() => handleTerminalClick(terminal.id)}
-                  onContextMenu={(e) => handleTerminalContextMenu(e, terminal.id)}
+                  className={`agent-item ${state.activeItemId === agent.id ? 'active' : ''}`}
+                  onClick={() => handleAgentClick(agent.id)}
+                  onContextMenu={(e) => handleAgentContextMenu(e, agent.id)}
                 >
-                  <span className="terminal-icon-wrapper">
+                  <span className="agent-icon-wrapper">
                     <Icon name="terminal" size="sm" />
-                    {terminal.isWorktree && (
+                    {agent.isWorktree && (
                       <span className="worktree-badge" title="Git worktree">
                         <Icon name="git-branch" size={10} />
                       </span>
                     )}
                   </span>
-                  {renamingTerminalId === terminal.id ? (
+                  {renamingAgentId === agent.id ? (
                     <input
                       ref={renameInputRef}
-                      className="terminal-rename-input"
+                      className="agent-rename-input"
                       value={renameValue}
                       onChange={(e) => setRenameValue(e.target.value)}
-                      onKeyDown={(e) => handleRenameKeyDown(e, terminal.id)}
-                      onBlur={() => handleRenameBlur(terminal.id)}
+                      onKeyDown={(e) => handleRenameKeyDown(e, agent.id)}
+                      onBlur={() => handleRenameBlur(agent.id)}
                       autoFocus
                     />
                   ) : (
-                    <span className="terminal-label">{terminal.label}</span>
+                    <span className="agent-label">{agent.label}</span>
                   )}
                 </div>
-                {terminal.openFiles.length > 0 && (
+                {agent.openFiles.length > 0 && (
                   <ul className="file-list">
-                    {terminal.openFiles.map(file => (
+                    {agent.openFiles.map(file => (
                       <li
                         key={file.id}
                         className={`file-item ${state.activeItemId === file.id ? 'active' : ''}`}
-                        onClick={() => handleFileClick(file.id, terminal.id)}
-                        onContextMenu={(e) => handleFileContextMenu(e, file.id, terminal.id)}
+                        onClick={() => handleFileClick(file.id, agent.id)}
+                        onContextMenu={(e) => handleFileContextMenu(e, file.id, agent.id)}
                       >
                         <span className="file-icon">
                           <Icon name={getFileIcon(file.name)} size="sm" />
@@ -190,9 +190,9 @@ export function LeftPane({ onAddTerminal, onCloseTerminal, renamingTerminalId, o
               Close File
             </button>
           ) : (
-            <button onClick={handleCloseTerminal}>
+            <button onClick={handleCloseAgent}>
               <Icon name="close" size="sm" />
-              Close Terminal
+              Close Agent
             </button>
           )}
         </div>

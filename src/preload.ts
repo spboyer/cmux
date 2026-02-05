@@ -15,7 +15,7 @@ export interface FileWatchEvent {
 
 export interface SessionData {
   version: number;
-  terminals: Array<{
+  agents: Array<{
     id: string;
     label: string;
     cwd: string;
@@ -23,16 +23,16 @@ export interface SessionData {
       id: string;
       path: string;
       name: string;
-      parentTerminalId: string;
+      parentAgentId: string;
     }>;
   }>;
   activeItemId: string | null;
-  activeTerminalId: string | null;
+  activeAgentId: string | null;
 }
 
 export interface ElectronAPI {
   openDirectory: () => Promise<string | null>;
-  terminal: {
+  agent: {
     create: (id: string, cwd: string) => Promise<{ id: string; isWorktree: boolean }>;
     write: (id: string, data: string) => Promise<void>;
     resize: (id: string, cols: number, rows: number) => Promise<void>;
@@ -64,27 +64,27 @@ export interface ElectronAPI {
 
 const electronAPI: ElectronAPI = {
   openDirectory: () => ipcRenderer.invoke('dialog:openDirectory'),
-  terminal: {
-    create: (id, cwd) => ipcRenderer.invoke('terminal:create', id, cwd),
-    write: (id, data) => ipcRenderer.invoke('terminal:write', id, data),
-    resize: (id, cols, rows) => ipcRenderer.invoke('terminal:resize', id, cols, rows),
-    kill: (id) => ipcRenderer.invoke('terminal:kill', id),
+  agent: {
+    create: (id, cwd) => ipcRenderer.invoke('agent:create', id, cwd),
+    write: (id, data) => ipcRenderer.invoke('agent:write', id, data),
+    resize: (id, cols, rows) => ipcRenderer.invoke('agent:resize', id, cols, rows),
+    kill: (id) => ipcRenderer.invoke('agent:kill', id),
     onData: (callback) => {
       const handler = (_event: Electron.IpcRendererEvent, id: string, data: string) => {
         callback(id, data);
       };
-      ipcRenderer.on('terminal:data', handler);
+      ipcRenderer.on('agent:data', handler);
       return () => {
-        ipcRenderer.removeListener('terminal:data', handler);
+        ipcRenderer.removeListener('agent:data', handler);
       };
     },
     onExit: (callback) => {
       const handler = (_event: Electron.IpcRendererEvent, id: string, exitCode: number) => {
         callback(id, exitCode);
       };
-      ipcRenderer.on('terminal:exit', handler);
+      ipcRenderer.on('agent:exit', handler);
       return () => {
-        ipcRenderer.removeListener('terminal:exit', handler);
+        ipcRenderer.removeListener('agent:exit', handler);
       };
     },
   },

@@ -6,8 +6,8 @@ import { CenterPane } from '../components/CenterPane/CenterPane';
 import { RightPane } from '../components/RightPane/RightPane';
 
 // Mock all electronAPI functions
-const mockCreateTerminal = jest.fn();
-const mockKillTerminal = jest.fn();
+const mockCreateAgent = jest.fn();
+const mockKillAgent = jest.fn();
 const mockReadDirectory = jest.fn();
 const mockReadFile = jest.fn();
 const mockWatchDirectory = jest.fn();
@@ -15,11 +15,11 @@ const mockUnwatchDirectory = jest.fn();
 const mockOnDirectoryChanged = jest.fn();
 const mockShowOpenDialog = jest.fn();
 
-// Mock TerminalView and FileView (complex dependencies)
-jest.mock('../components/CenterPane/TerminalView', () => ({
-  TerminalView: ({ terminalId, isActive }: { terminalId: string; isActive: boolean }) => (
-    <div data-testid={`terminal-${terminalId}`} data-active={isActive}>
-      Terminal {terminalId}
+// Mock AgentView and FileView (complex dependencies)
+jest.mock('../components/CenterPane/AgentView', () => ({
+  AgentView: ({ agentId, isActive }: { agentId: string; isActive: boolean }) => (
+    <div data-testid={`agent-${agentId}`} data-active={isActive}>
+      Agent {agentId}
     </div>
   ),
 }));
@@ -41,9 +41,9 @@ jest.mock('../components/RightPane/FileTree', () => ({
 
 beforeAll(() => {
   (window as any).electronAPI = {
-    terminal: {
-      create: mockCreateTerminal,
-      kill: mockKillTerminal,
+    agent: {
+      create: mockCreateAgent,
+      kill: mockKillAgent,
     },
     fs: {
       readDirectory: mockReadDirectory,
@@ -61,43 +61,43 @@ beforeAll(() => {
 beforeEach(() => {
   jest.clearAllMocks();
   mockOnDirectoryChanged.mockReturnValue(() => {});
-  mockCreateTerminal.mockResolvedValue('term-new');
+  mockCreateAgent.mockResolvedValue('agent-new');
 });
 
-// Track terminal ID counter for unique IDs
-let terminalCounter = 0;
+// Track agent ID counter for unique IDs
+let agentCounter = 0;
 
 // Integration component that ties LeftPane, CenterPane, and RightPane together
 function IntegrationApp() {
   const { state, dispatch } = useAppState();
-  const [renamingTerminalId, setRenamingTerminalId] = React.useState<string | null>(null);
+  const [renamingAgentId, setRenamingAgentId] = React.useState<string | null>(null);
 
-  const handleAddTerminal = async () => {
-    const terminalId = `term-${++terminalCounter}`;
-    await window.electronAPI.terminal.create(terminalId, '/test/dir');
+  const handleAddAgent = async () => {
+    const agentId = `agent-${++agentCounter}`;
+    await window.electronAPI.agent.create(agentId, '/test/dir');
     dispatch({
-      type: 'ADD_TERMINAL',
-      payload: { id: terminalId, label: 'New Terminal', cwd: '/test/dir' },
+      type: 'ADD_AGENT',
+      payload: { id: agentId, label: 'New Agent', cwd: '/test/dir' },
     });
   };
 
-  const handleCloseTerminal = (id: string) => {
-    window.electronAPI.terminal.kill(id);
-    dispatch({ type: 'REMOVE_TERMINAL', payload: { id } });
+  const handleCloseAgent = (id: string) => {
+    window.electronAPI.agent.kill(id);
+    dispatch({ type: 'REMOVE_AGENT', payload: { id } });
   };
 
   const handleFileClick = (filePath: string, fileName: string) => {
-    const activeTerminalId = state.activeTerminalId;
-    if (activeTerminalId) {
+    const activeAgentId = state.activeAgentId;
+    if (activeAgentId) {
       dispatch({
         type: 'ADD_FILE',
         payload: {
-          terminalId: activeTerminalId,
+          agentId: activeAgentId,
           file: {
             id: `file-${Date.now()}`,
             path: filePath,
             name: fileName,
-            parentTerminalId: activeTerminalId,
+            parentAgentId: activeAgentId,
           },
         },
       });
@@ -105,9 +105,9 @@ function IntegrationApp() {
   };
 
   const handleRenameComplete = (id: string, newLabel: string | null) => {
-    setRenamingTerminalId(null);
+    setRenamingAgentId(null);
     if (newLabel) {
-      dispatch({ type: 'RENAME_TERMINAL', payload: { id, label: newLabel } });
+      dispatch({ type: 'RENAME_AGENT', payload: { id, label: newLabel } });
     }
   };
 
@@ -115,9 +115,9 @@ function IntegrationApp() {
     <div className="integration-app">
       <div className="left-pane">
         <LeftPane
-          onAddTerminal={handleAddTerminal}
-          onCloseTerminal={handleCloseTerminal}
-          renamingTerminalId={renamingTerminalId}
+          onAddAgent={handleAddAgent}
+          onCloseAgent={handleCloseAgent}
+          renamingAgentId={renamingAgentId}
           onRenameComplete={handleRenameComplete}
         />
       </div>
@@ -132,7 +132,7 @@ function IntegrationApp() {
 }
 
 function renderIntegrationApp() {
-  terminalCounter = 0; // Reset counter for each test
+  agentCounter = 0; // Reset counter for each test
   return render(
     <AppStateProvider>
       <IntegrationApp />
@@ -141,32 +141,32 @@ function renderIntegrationApp() {
 }
 
 describe('App Integration', () => {
-  describe('terminal creation flow', () => {
-    it('should create a terminal and update all panes', async () => {
+  describe('agent creation flow', () => {
+    it('should create an agent and update all panes', async () => {
       renderIntegrationApp();
 
-      // Initial state - no terminals
-      expect(screen.getByText('No terminals open')).toBeInTheDocument();
-      expect(screen.getByText('Select or create a terminal')).toBeInTheDocument();
+      // Initial state - no agents
+      expect(screen.getByText('No agents open')).toBeInTheDocument();
+      expect(screen.getByText('Select or create an agent')).toBeInTheDocument();
       expect(screen.getByText('No directory selected')).toBeInTheDocument();
 
-      // Click add terminal button
+      // Click add agent button
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
+        fireEvent.click(screen.getByRole('button', { name: 'New Agent' }));
       });
 
-      // Wait for terminal to be created
+      // Wait for agent to be created
       await waitFor(() => {
-        expect(mockCreateTerminal).toHaveBeenCalledWith('term-1', '/test/dir');
+        expect(mockCreateAgent).toHaveBeenCalledWith('agent-1', '/test/dir');
       });
 
-      // Left pane should show new terminal
+      // Left pane should show new agent
       await waitFor(() => {
-        expect(screen.getByText('New Terminal')).toBeInTheDocument();
+        expect(screen.getByText('New Agent')).toBeInTheDocument();
       });
 
-      // Center pane should show terminal view
-      expect(screen.getByTestId('terminal-term-1')).toBeInTheDocument();
+      // Center pane should show agent view
+      expect(screen.getByTestId('agent-agent-1')).toBeInTheDocument();
 
       // Right pane should show file tree
       expect(screen.getByTestId('file-tree')).toBeInTheDocument();
@@ -177,9 +177,9 @@ describe('App Integration', () => {
     it('should open a file when clicked in file tree', async () => {
       renderIntegrationApp();
 
-      // Create a terminal first
+      // Create an agent first
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
+        fireEvent.click(screen.getByRole('button', { name: 'New Agent' }));
       });
 
       await waitFor(() => {
@@ -203,12 +203,12 @@ describe('App Integration', () => {
       expect(fileList).toBeInTheDocument();
     });
 
-    it('should switch between files and terminal', async () => {
+    it('should switch between files and agent', async () => {
       renderIntegrationApp();
 
-      // Create terminal
+      // Create agent
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
+        fireEvent.click(screen.getByRole('button', { name: 'New Agent' }));
       });
 
       await waitFor(() => {
@@ -225,82 +225,82 @@ describe('App Integration', () => {
         expect(screen.getByTestId('file-view')).toBeInTheDocument();
       });
 
-      // Click on terminal in left pane to switch back
+      // Click on agent in left pane to switch back
       await act(async () => {
-        fireEvent.click(screen.getByText('New Terminal'));
+        fireEvent.click(screen.getByText('New Agent'));
       });
 
-      // Terminal should be visible, file view hidden
+      // Agent should be visible, file view hidden
       await waitFor(() => {
-        expect(screen.getByTestId('terminal-term-1')).toHaveAttribute('data-active', 'true');
+        expect(screen.getByTestId('agent-agent-1')).toHaveAttribute('data-active', 'true');
       });
     });
   });
 
-  describe('terminal close flow', () => {
-    it('should close terminal and clean up state', async () => {
+  describe('agent close flow', () => {
+    it('should close agent and clean up state', async () => {
       renderIntegrationApp();
 
-      // Create terminal
+      // Create agent
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
+        fireEvent.click(screen.getByRole('button', { name: 'New Agent' }));
       });
 
       await waitFor(() => {
-        expect(screen.getByText('New Terminal')).toBeInTheDocument();
+        expect(screen.getByText('New Agent')).toBeInTheDocument();
       });
 
       // Right-click to open context menu
-      const terminalItem = screen.getByText('New Terminal').closest('.terminal-item');
+      const agentItem = screen.getByText('New Agent').closest('.agent-item');
       await act(async () => {
-        fireEvent.contextMenu(terminalItem!);
+        fireEvent.contextMenu(agentItem!);
       });
 
       // Click close
       await act(async () => {
-        fireEvent.click(screen.getByText('Close Terminal'));
+        fireEvent.click(screen.getByText('Close Agent'));
       });
 
-      // Terminal should be destroyed
-      expect(mockKillTerminal).toHaveBeenCalledWith('term-1');
+      // Agent should be destroyed
+      expect(mockKillAgent).toHaveBeenCalledWith('agent-1');
 
       // UI should reset to empty state
       await waitFor(() => {
-        expect(screen.getByText('No terminals open')).toBeInTheDocument();
-        expect(screen.getByText('Select or create a terminal')).toBeInTheDocument();
+        expect(screen.getByText('No agents open')).toBeInTheDocument();
+        expect(screen.getByText('Select or create an agent')).toBeInTheDocument();
       });
     });
   });
 
-  describe('multiple terminals', () => {
-    it('should handle multiple terminals and switch between them', async () => {
+  describe('multiple agents', () => {
+    it('should handle multiple agents and switch between them', async () => {
       renderIntegrationApp();
 
-      // Create first terminal
+      // Create first agent
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
+        fireEvent.click(screen.getByRole('button', { name: 'New Agent' }));
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('terminal-term-1')).toBeInTheDocument();
+        expect(screen.getByTestId('agent-agent-1')).toBeInTheDocument();
       });
 
-      // Create second terminal
+      // Create second agent
       await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
+        fireEvent.click(screen.getByRole('button', { name: 'New Agent' }));
       });
 
       await waitFor(() => {
-        expect(screen.getByTestId('terminal-term-2')).toBeInTheDocument();
+        expect(screen.getByTestId('agent-agent-2')).toBeInTheDocument();
       });
 
-      // Both terminals should be in left pane
-      const terminalLabels = screen.getAllByText('New Terminal');
-      expect(terminalLabels).toHaveLength(2);
+      // Both agents should be in left pane
+      const agentLabels = screen.getAllByText('New Agent');
+      expect(agentLabels).toHaveLength(2);
 
-      // Second terminal should be active (most recently created)
-      expect(screen.getByTestId('terminal-term-2')).toHaveAttribute('data-active', 'true');
-      expect(screen.getByTestId('terminal-term-1')).toHaveAttribute('data-active', 'false');
+      // Second agent should be active (most recently created)
+      expect(screen.getByTestId('agent-agent-2')).toHaveAttribute('data-active', 'true');
+      expect(screen.getByTestId('agent-agent-1')).toHaveAttribute('data-active', 'false');
     });
   });
 });

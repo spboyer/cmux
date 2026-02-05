@@ -1,41 +1,41 @@
 import * as React from 'react';
 import { useAppState, getActiveItem } from '../../contexts/AppStateContext';
-import { TerminalView } from './TerminalView';
+import { AgentView } from './AgentView';
 import { FileView } from './FileView';
 import { Icon } from '../Icon';
 
 export function CenterPane() {
   const { state } = useAppState();
   const activeItem = getActiveItem(state);
-  const terminals = state.terminals;
+  const agents = state.agents;
 
   const isShowingFile = activeItem?.type === 'file';
-  const isShowingTerminal = activeItem?.type === 'terminal';
+  const isShowingAgent = activeItem?.type === 'agent';
 
-  if (terminals.length === 0) {
+  if (agents.length === 0) {
     return (
       <div className="pane-content center-empty">
         <Icon name="terminal" size={48} />
-        <p>Select or create a terminal</p>
+        <p>Select or create an agent</p>
       </div>
     );
   }
 
-  // Always render both terminals and file view to prevent unmounting
+  // Always render both agents and file view to prevent unmounting
   // Use CSS to show/hide based on active item
   return (
     <>
-      {/* Terminals - always rendered to preserve state */}
+      {/* Agents - always rendered to preserve state */}
       <div 
-        className="pane-content terminal-pane"
-        style={{ display: isShowingTerminal ? 'block' : 'none' }}
+        className="pane-content agent-pane"
+        style={{ display: isShowingAgent ? 'block' : 'none' }}
       >
-        {terminals.map(terminal => (
-          <TerminalView
-            key={terminal.id}
-            terminalId={terminal.id}
-            cwd={terminal.cwd}
-            isActive={state.activeTerminalId === terminal.id && isShowingTerminal}
+        {agents.map(agent => (
+          <AgentView
+            key={agent.id}
+            agentId={agent.id}
+            cwd={agent.cwd}
+            isActive={state.activeAgentId === agent.id && isShowingAgent}
           />
         ))}
       </div>

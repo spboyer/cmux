@@ -14,7 +14,7 @@ function AppContent() {
   const { state, dispatch } = useAppState();
   const hasRestoredRef = useRef(false);
   const [showHotkeyHelp, setShowHotkeyHelp] = useState(false);
-  const [renamingTerminalId, setRenamingTerminalId] = useState<string | null>(null);
+  const [renamingAgentId, setRenamingAgentId] = useState<string | null>(null);
   const [updateState, setUpdateState] = useState<UpdateState>({ status: 'idle' });
   const [isUpdateDismissed, setIsUpdateDismissed] = useState(false);
 
@@ -67,28 +67,28 @@ function AppContent() {
     const restoreSession = async () => {
       try {
         const sessionData = await window.electronAPI.session.load();
-        if (sessionData && sessionData.terminals.length > 0) {
-          // Restore each terminal
-          for (const terminal of sessionData.terminals) {
+        if (sessionData && sessionData.agents.length > 0) {
+          // Restore each agent
+          for (const agent of sessionData.agents) {
             // Create the PTY process and get worktree status
-            const result = await window.electronAPI.terminal.create(terminal.id, terminal.cwd);
+            const result = await window.electronAPI.agent.create(agent.id, agent.cwd);
             
-            // Dispatch to add terminal to state
+            // Dispatch to add agent to state
             dispatch({
-              type: 'ADD_TERMINAL',
+              type: 'ADD_AGENT',
               payload: { 
-                id: terminal.id, 
-                label: terminal.label, 
-                cwd: terminal.cwd,
+                id: agent.id, 
+                label: agent.label, 
+                cwd: agent.cwd,
                 isWorktree: result.isWorktree,
               },
             });
 
-            // Restore open files for this terminal
-            for (const file of terminal.openFiles) {
+            // Restore open files for this agent
+            for (const file of agent.openFiles) {
               dispatch({
                 type: 'ADD_FILE',
-                payload: { terminalId: terminal.id, file },
+                payload: { agentId: agent.id, file },
               });
             }
           }
@@ -99,7 +99,7 @@ function AppContent() {
               type: 'SET_ACTIVE_ITEM',
               payload: { 
                 id: sessionData.activeItemId, 
-                terminalId: sessionData.activeTerminalId ?? undefined 
+                agentId: sessionData.activeAgentId ?? undefined 
               },
             });
           }
@@ -116,9 +116,9 @@ function AppContent() {
   useEffect(() => {
     const handleBeforeUnload = () => {
       window.electronAPI.session.save({
-        terminals: state.terminals,
+        agents: state.agents,
         activeItemId: state.activeItemId,
-        activeTerminalId: state.activeTerminalId,
+        activeAgentId: state.activeAgentId,
       });
     };
 
@@ -126,77 +126,77 @@ function AppContent() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [state]);
 
-  const handleAddTerminal = async () => {
+  const handleAddAgent = async () => {
     const directory = await window.electronAPI.openDirectory();
     if (directory) {
-      const id = `term-${Date.now()}`;
-      const label = directory.split(/[/\\]/).pop() || 'Terminal';
-      // Register allowed root BEFORE adding terminal so FileTree can access it
+      const id = `agent-${Date.now()}`;
+      const label = directory.split(/[/\\]/).pop() || 'Agent';
+      // Register allowed root BEFORE adding agent so FileTree can access it
       await window.electronAPI.fs.addAllowedRoot(directory);
-      // Create terminal and get worktree status
-      const result = await window.electronAPI.terminal.create(id, directory);
+      // Create agent and get worktree status
+      const result = await window.electronAPI.agent.create(id, directory);
       dispatch({
-        type: 'ADD_TERMINAL',
+        type: 'ADD_AGENT',
         payload: { id, label, cwd: directory, isWorktree: result.isWorktree },
       });
     }
   };
 
-  const handleCloseTerminal = (terminalId: string) => {
-    window.electronAPI.terminal.kill(terminalId);
-    dispatch({ type: 'REMOVE_TERMINAL', payload: { id: terminalId } });
+  const handleCloseAgent = (agentId: string) => {
+    window.electronAPI.agent.kill(agentId);
+    dispatch({ type: 'REMOVE_AGENT', payload: { id: agentId } });
   };
 
   // Keyboard shortcut handlers
-  const cycleTerminal = useCallback((direction: 1 | -1) => {
-    if (state.terminals.length === 0) return;
-    const currentIndex = state.terminals.findIndex(t => t.id === state.activeTerminalId);
-    const nextIndex = (currentIndex + direction + state.terminals.length) % state.terminals.length;
-    dispatch({ type: 'SET_ACTIVE_TERMINAL', payload: { id: state.terminals[nextIndex].id } });
-  }, [state.terminals, state.activeTerminalId, dispatch]);
+  const cycleAgent = useCallback((direction: 1 | -1) => {
+    if (state.agents.length === 0) return;
+    const currentIndex = state.agents.findIndex(a => a.id === state.activeAgentId);
+    const nextIndex = (currentIndex + direction + state.agents.length) % state.agents.length;
+    dispatch({ type: 'SET_ACTIVE_AGENT', payload: { id: state.agents[nextIndex].id } });
+  }, [state.agents, state.activeAgentId, dispatch]);
 
   const handleCloseCurrentItem = useCallback(() => {
     const activeItem = getActiveItem(state);
     if (!activeItem) return;
     
-    if (activeItem.type === 'terminal') {
-      handleCloseTerminal(activeItem.item.id);
+    if (activeItem.type === 'agent') {
+      handleCloseAgent(activeItem.item.id);
     } else if (activeItem.type === 'file') {
       dispatch({
         type: 'REMOVE_FILE',
-        payload: { terminalId: activeItem.terminal.id, fileId: activeItem.item.id },
+        payload: { agentId: activeItem.agent.id, fileId: activeItem.item.id },
       });
     }
   }, [state, dispatch]);
 
-  const handleRenameTerminal = useCallback(() => {
-    if (state.activeTerminalId) {
-      setRenamingTerminalId(state.activeTerminalId);
+  const handleRenameAgent = useCallback(() => {
+    if (state.activeAgentId) {
+      setRenamingAgentId(state.activeAgentId);
     }
-  }, [state.activeTerminalId]);
+  }, [state.activeAgentId]);
 
   const shortcuts = useMemo(() => [
-    { key: 'Tab', ctrl: true, action: () => cycleTerminal(1) },
-    { key: 'Tab', ctrl: true, shift: true, action: () => cycleTerminal(-1) },
-    { key: '\\', ctrl: true, alt: true, action: handleAddTerminal },
+    { key: 'Tab', ctrl: true, action: () => cycleAgent(1) },
+    { key: 'Tab', ctrl: true, shift: true, action: () => cycleAgent(-1) },
+    { key: '\\', ctrl: true, alt: true, action: handleAddAgent },
     { key: 'w', ctrl: true, action: handleCloseCurrentItem },
-    { key: 'F2', action: handleRenameTerminal },
+    { key: 'F2', action: handleRenameAgent },
     { key: '?', ctrl: true, shift: true, action: () => setShowHotkeyHelp(true) },
-  ], [cycleTerminal, handleCloseCurrentItem, handleRenameTerminal]);
+  ], [cycleAgent, handleCloseCurrentItem, handleRenameAgent]);
 
   useKeyboardShortcuts(shortcuts);
 
   const handleFileClick = (filePath: string, fileName: string) => {
-    // Check if file is already open in the current terminal
-    const activeTerminal = state.terminals.find(t => t.id === state.activeTerminalId);
-    if (!activeTerminal) return;
+    // Check if file is already open in the current agent
+    const activeAgent = state.agents.find(a => a.id === state.activeAgentId);
+    if (!activeAgent) return;
 
-    const existingFile = activeTerminal.openFiles.find(f => f.path === filePath);
+    const existingFile = activeAgent.openFiles.find(f => f.path === filePath);
     if (existingFile) {
       // File already open, just switch to it
       dispatch({ 
         type: 'SET_ACTIVE_ITEM', 
-        payload: { id: existingFile.id, terminalId: activeTerminal.id } 
+        payload: { id: existingFile.id, agentId: activeAgent.id } 
       });
     } else {
       // Open new file
@@ -204,18 +204,18 @@ function AppContent() {
       dispatch({
         type: 'ADD_FILE',
         payload: {
-          terminalId: activeTerminal.id,
+          agentId: activeAgent.id,
           file: {
             id: fileId,
             path: filePath,
             name: fileName,
-            parentTerminalId: activeTerminal.id,
+            parentAgentId: activeAgent.id,
           },
         },
       });
       dispatch({ 
         type: 'SET_ACTIVE_ITEM', 
-        payload: { id: fileId, terminalId: activeTerminal.id } 
+        payload: { id: fileId, agentId: activeAgent.id } 
       });
     }
   };
@@ -229,14 +229,14 @@ function AppContent() {
         <ThreePaneLayout
           leftPane={
             <LeftPane
-              onAddTerminal={handleAddTerminal}
-              onCloseTerminal={handleCloseTerminal}
-              renamingTerminalId={renamingTerminalId}
+              onAddAgent={handleAddAgent}
+              onCloseAgent={handleCloseAgent}
+              renamingAgentId={renamingAgentId}
               onRenameComplete={(id, newLabel) => {
                 if (newLabel) {
-                  dispatch({ type: 'RENAME_TERMINAL', payload: { id, label: newLabel } });
+                  dispatch({ type: 'RENAME_AGENT', payload: { id, label: newLabel } });
                 }
-                setRenamingTerminalId(null);
+                setRenamingAgentId(null);
               }}
             />
           }

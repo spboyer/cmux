@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
-import { setupTerminalIPC } from './main/ipc/terminal';
+import { setupAgentIPC } from './main/ipc/agent';
 import { setupFileIPC } from './main/ipc/files';
 import { setupSessionIPC } from './main/ipc/session';
 import { setupUpdatesIPC, getUpdateService } from './main/ipc/updates';
@@ -35,8 +35,8 @@ const createWindow = (): void => {
 
   // DevTools can be opened manually with Ctrl+Shift+I
 
-  // Set up terminal IPC handlers
-  setupTerminalIPC(mainWindow);
+  // Set up agent IPC handlers
+  setupAgentIPC(mainWindow);
   
   // Set up file system IPC handlers
   setupFileIPC();

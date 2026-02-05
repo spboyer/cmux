@@ -1,211 +1,211 @@
 import {
   appReducer,
   initialState,
-  getActiveTerminal,
+  getActiveAgent,
   getActiveItem,
-  getFilesForTerminal,
+  getFilesForAgent,
 } from './AppStateContext';
 import { AppState, OpenFile } from '../../shared/types';
 
 describe('appReducer', () => {
-  describe('ADD_TERMINAL', () => {
-    it('should add a terminal and set it as active', () => {
+  describe('ADD_AGENT', () => {
+    it('should add an agent and set it as active', () => {
       const state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
 
-      expect(state.terminals).toHaveLength(1);
-      expect(state.terminals[0].id).toBe('term-1');
-      expect(state.terminals[0].label).toBe('Terminal 1');
-      expect(state.terminals[0].cwd).toBe('/home/user');
-      expect(state.terminals[0].openFiles).toEqual([]);
-      expect(state.activeItemId).toBe('term-1');
-      expect(state.activeTerminalId).toBe('term-1');
+      expect(state.agents).toHaveLength(1);
+      expect(state.agents[0].id).toBe('agent-1');
+      expect(state.agents[0].label).toBe('Agent 1');
+      expect(state.agents[0].cwd).toBe('/home/user');
+      expect(state.agents[0].openFiles).toEqual([]);
+      expect(state.activeItemId).toBe('agent-1');
+      expect(state.activeAgentId).toBe('agent-1');
     });
 
-    it('should add multiple terminals', () => {
+    it('should add multiple agents', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
       state = appReducer(state, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-2', label: 'Terminal 2', cwd: '/home/user/project' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-2', label: 'Agent 2', cwd: '/home/user/project' },
       });
 
-      expect(state.terminals).toHaveLength(2);
-      expect(state.activeItemId).toBe('term-2');
-      expect(state.activeTerminalId).toBe('term-2');
+      expect(state.agents).toHaveLength(2);
+      expect(state.activeItemId).toBe('agent-2');
+      expect(state.activeAgentId).toBe('agent-2');
     });
   });
 
-  describe('REMOVE_TERMINAL', () => {
-    it('should remove a terminal', () => {
+  describe('REMOVE_AGENT', () => {
+    it('should remove an agent', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
       state = appReducer(state, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-2', label: 'Terminal 2', cwd: '/home/user/project' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-2', label: 'Agent 2', cwd: '/home/user/project' },
       });
       state = appReducer(state, {
-        type: 'REMOVE_TERMINAL',
-        payload: { id: 'term-1' },
+        type: 'REMOVE_AGENT',
+        payload: { id: 'agent-1' },
       });
 
-      expect(state.terminals).toHaveLength(1);
-      expect(state.terminals[0].id).toBe('term-2');
+      expect(state.agents).toHaveLength(1);
+      expect(state.agents[0].id).toBe('agent-2');
     });
 
-    it('should select next terminal when active terminal is removed', () => {
+    it('should select next agent when active agent is removed', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
       state = appReducer(state, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-2', label: 'Terminal 2', cwd: '/home/user/project' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-2', label: 'Agent 2', cwd: '/home/user/project' },
       });
       state = appReducer(state, {
-        type: 'SET_ACTIVE_TERMINAL',
-        payload: { id: 'term-1' },
+        type: 'SET_ACTIVE_AGENT',
+        payload: { id: 'agent-1' },
       });
       state = appReducer(state, {
-        type: 'REMOVE_TERMINAL',
-        payload: { id: 'term-1' },
+        type: 'REMOVE_AGENT',
+        payload: { id: 'agent-1' },
       });
 
-      expect(state.activeItemId).toBe('term-2');
-      expect(state.activeTerminalId).toBe('term-2');
+      expect(state.activeItemId).toBe('agent-2');
+      expect(state.activeAgentId).toBe('agent-2');
     });
 
-    it('should set activeTerminalId to null when last terminal is removed', () => {
+    it('should set activeAgentId to null when last agent is removed', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
       state = appReducer(state, {
-        type: 'REMOVE_TERMINAL',
-        payload: { id: 'term-1' },
+        type: 'REMOVE_AGENT',
+        payload: { id: 'agent-1' },
       });
 
-      expect(state.terminals).toHaveLength(0);
+      expect(state.agents).toHaveLength(0);
       expect(state.activeItemId).toBeNull();
-      expect(state.activeTerminalId).toBeNull();
+      expect(state.activeAgentId).toBeNull();
     });
   });
 
-  describe('SET_ACTIVE_TERMINAL', () => {
-    it('should set the active terminal', () => {
+  describe('SET_ACTIVE_AGENT', () => {
+    it('should set the active agent', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
       state = appReducer(state, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-2', label: 'Terminal 2', cwd: '/home/user/project' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-2', label: 'Agent 2', cwd: '/home/user/project' },
       });
       state = appReducer(state, {
-        type: 'SET_ACTIVE_TERMINAL',
-        payload: { id: 'term-1' },
+        type: 'SET_ACTIVE_AGENT',
+        payload: { id: 'agent-1' },
       });
 
-      expect(state.activeItemId).toBe('term-1');
-      expect(state.activeTerminalId).toBe('term-1');
+      expect(state.activeItemId).toBe('agent-1');
+      expect(state.activeAgentId).toBe('agent-1');
     });
   });
 
   describe('ADD_FILE', () => {
-    it('should add a file to a terminal', () => {
+    it('should add a file to an agent', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
 
       const file: OpenFile = {
         id: 'file-1',
         path: '/home/user/test.ts',
         name: 'test.ts',
-        parentTerminalId: 'term-1',
+        parentAgentId: 'agent-1',
       };
 
       state = appReducer(state, {
         type: 'ADD_FILE',
-        payload: { terminalId: 'term-1', file },
+        payload: { agentId: 'agent-1', file },
       });
 
-      expect(state.terminals[0].openFiles).toHaveLength(1);
-      expect(state.terminals[0].openFiles[0].id).toBe('file-1');
+      expect(state.agents[0].openFiles).toHaveLength(1);
+      expect(state.agents[0].openFiles[0].id).toBe('file-1');
       expect(state.activeItemId).toBe('file-1');
     });
   });
 
   describe('REMOVE_FILE', () => {
-    it('should remove a file from a terminal', () => {
+    it('should remove a file from an agent', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
 
       const file: OpenFile = {
         id: 'file-1',
         path: '/home/user/test.ts',
         name: 'test.ts',
-        parentTerminalId: 'term-1',
+        parentAgentId: 'agent-1',
       };
 
       state = appReducer(state, {
         type: 'ADD_FILE',
-        payload: { terminalId: 'term-1', file },
+        payload: { agentId: 'agent-1', file },
       });
 
       state = appReducer(state, {
         type: 'REMOVE_FILE',
-        payload: { terminalId: 'term-1', fileId: 'file-1' },
+        payload: { agentId: 'agent-1', fileId: 'file-1' },
       });
 
-      expect(state.terminals[0].openFiles).toHaveLength(0);
-      expect(state.activeItemId).toBe('term-1');
+      expect(state.agents[0].openFiles).toHaveLength(0);
+      expect(state.activeItemId).toBe('agent-1');
     });
   });
 
-  describe('RENAME_TERMINAL', () => {
-    it('should rename a terminal', () => {
+  describe('RENAME_AGENT', () => {
+    it('should rename an agent', () => {
       let state = appReducer(initialState, {
-        type: 'ADD_TERMINAL',
-        payload: { id: 'term-1', label: 'Terminal 1', cwd: '/home/user' },
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
       });
 
       state = appReducer(state, {
-        type: 'RENAME_TERMINAL',
-        payload: { id: 'term-1', label: 'My Project' },
+        type: 'RENAME_AGENT',
+        payload: { id: 'agent-1', label: 'My Project' },
       });
 
-      expect(state.terminals[0].label).toBe('My Project');
+      expect(state.agents[0].label).toBe('My Project');
     });
   });
 });
 
 describe('selectors', () => {
-  describe('getActiveTerminal', () => {
-    it('should return null when no terminals exist', () => {
-      expect(getActiveTerminal(initialState)).toBeNull();
+  describe('getActiveAgent', () => {
+    it('should return null when no agents exist', () => {
+      expect(getActiveAgent(initialState)).toBeNull();
     });
 
-    it('should return the active terminal', () => {
+    it('should return the active agent', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
-          { id: 'term-2', label: 'Terminal 2', cwd: '/home/project', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+          { id: 'agent-2', label: 'Agent 2', cwd: '/home/project', openFiles: [] },
         ],
-        activeItemId: 'term-2',
-        activeTerminalId: 'term-2',
+        activeItemId: 'agent-2',
+        activeAgentId: 'agent-2',
       };
 
-      const result = getActiveTerminal(state);
-      expect(result?.id).toBe('term-2');
+      const result = getActiveAgent(state);
+      expect(result?.id).toBe('agent-2');
     });
   });
 
@@ -214,16 +214,16 @@ describe('selectors', () => {
       expect(getActiveItem(initialState)).toBeNull();
     });
 
-    it('should return terminal when active item is a terminal', () => {
+    it('should return agent when active item is an agent', () => {
       const state: AppState = {
-        terminals: [{ id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] }],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        agents: [{ id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] }],
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
       const result = getActiveItem(state);
-      expect(result?.type).toBe('terminal');
-      expect(result?.item.id).toBe('term-1');
+      expect(result?.type).toBe('agent');
+      expect(result?.item.id).toBe('agent-1');
     });
 
     it('should return file when active item is a file', () => {
@@ -231,13 +231,13 @@ describe('selectors', () => {
         id: 'file-1',
         path: '/home/test.ts',
         name: 'test.ts',
-        parentTerminalId: 'term-1',
+        parentAgentId: 'agent-1',
       };
 
       const state: AppState = {
-        terminals: [{ id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [file] }],
+        agents: [{ id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [file] }],
         activeItemId: 'file-1',
-        activeTerminalId: 'term-1',
+        activeAgentId: 'agent-1',
       };
 
       const result = getActiveItem(state);
@@ -246,26 +246,26 @@ describe('selectors', () => {
     });
   });
 
-  describe('getFilesForTerminal', () => {
-    it('should return empty array when terminal not found', () => {
-      expect(getFilesForTerminal(initialState, 'nonexistent')).toEqual([]);
+  describe('getFilesForAgent', () => {
+    it('should return empty array when agent not found', () => {
+      expect(getFilesForAgent(initialState, 'nonexistent')).toEqual([]);
     });
 
-    it('should return files for terminal', () => {
+    it('should return files for agent', () => {
       const file: OpenFile = {
         id: 'file-1',
         path: '/home/test.ts',
         name: 'test.ts',
-        parentTerminalId: 'term-1',
+        parentAgentId: 'agent-1',
       };
 
       const state: AppState = {
-        terminals: [{ id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [file] }],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        agents: [{ id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [file] }],
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      const result = getFilesForTerminal(state, 'term-1');
+      const result = getFilesForAgent(state, 'agent-1');
       expect(result).toHaveLength(1);
       expect(result[0].id).toBe('file-1');
     });

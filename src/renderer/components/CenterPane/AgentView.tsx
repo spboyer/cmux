@@ -4,14 +4,14 @@ import { Terminal } from '@xterm/xterm';
 import { FitAddon } from '@xterm/addon-fit';
 import '@xterm/xterm/css/xterm.css';
 
-interface TerminalViewProps {
-  terminalId: string;
+interface AgentViewProps {
+  agentId: string;
   cwd: string;
   isActive: boolean;
 }
 
-export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
-  const terminalRef = useRef<HTMLDivElement>(null);
+export function AgentView({ agentId, cwd, isActive }: AgentViewProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const xtermRef = useRef<Terminal | null>(null);
   const fitAddonRef = useRef<FitAddon | null>(null);
   const initializedRef = useRef(false);
@@ -25,24 +25,24 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
     }
     
     resizeTimeoutRef.current = setTimeout(() => {
-      if (fitAddonRef.current && xtermRef.current && terminalRef.current) {
+      if (fitAddonRef.current && xtermRef.current && containerRef.current) {
         // Only fit if container has dimensions
-        const { offsetWidth, offsetHeight } = terminalRef.current;
+        const { offsetWidth, offsetHeight } = containerRef.current;
         if (offsetWidth > 0 && offsetHeight > 0) {
           try {
             fitAddonRef.current.fit();
             const { cols, rows } = xtermRef.current;
-            window.electronAPI.terminal.resize(terminalId, cols, rows);
+            window.electronAPI.agent.resize(agentId, cols, rows);
           } catch (e) {
             // Ignore fit errors during rapid resize
           }
         }
       }
     }, 100); // 100ms debounce
-  }, [terminalId]);
+  }, [agentId]);
 
   useEffect(() => {
-    if (!terminalRef.current || initializedRef.current) return;
+    if (!containerRef.current || initializedRef.current) return;
 
     // Create terminal
     const term = new Terminal({
@@ -61,7 +61,7 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
     const fitAddon = new FitAddon();
     term.loadAddon(fitAddon);
 
-    term.open(terminalRef.current);
+    term.open(containerRef.current);
     
     xtermRef.current = term;
     fitAddonRef.current = fitAddon;
@@ -71,14 +71,14 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
     initTimeoutRef.current = setTimeout(() => {
       fitAddon.fit();
       // Create PTY in main process with correct size
-      window.electronAPI.terminal.create(terminalId, cwd);
+      window.electronAPI.agent.create(agentId, cwd);
       // Send initial size
-      window.electronAPI.terminal.resize(terminalId, term.cols, term.rows);
+      window.electronAPI.agent.resize(agentId, term.cols, term.rows);
     }, 50);
 
     // Handle terminal input - store disposable for cleanup
     const onDataDisposable = term.onData((data) => {
-      window.electronAPI.terminal.write(terminalId, data);
+      window.electronAPI.agent.write(agentId, data);
     });
 
     // Intercept copy/paste shortcuts before xterm processes them
@@ -107,7 +107,7 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
         e.preventDefault();
         navigator.clipboard.readText().then((text) => {
           if (text && xtermRef.current) {
-            window.electronAPI.terminal.write(terminalId, text);
+            window.electronAPI.agent.write(agentId, text);
           }
         });
         return false; // Prevent xterm from handling this key
@@ -116,16 +116,16 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
     });
 
     // Handle terminal output from main process
-    const cleanupOnData = window.electronAPI.terminal.onData((id, data) => {
-      if (id === terminalId && xtermRef.current) {
+    const cleanupOnData = window.electronAPI.agent.onData((id, data) => {
+      if (id === agentId && xtermRef.current) {
         xtermRef.current.write(data);
       }
     });
 
     // Handle terminal exit
-    const cleanupOnExit = window.electronAPI.terminal.onExit((id, exitCode) => {
-      if (id === terminalId) {
-        console.log(`Terminal ${terminalId} exited with code ${exitCode}`);
+    const cleanupOnExit = window.electronAPI.agent.onExit((id, exitCode) => {
+      if (id === agentId) {
+        console.log(`Agent ${agentId} exited with code ${exitCode}`);
       }
     });
 
@@ -133,7 +133,7 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
     const resizeObserver = new ResizeObserver(() => {
       handleResize();
     });
-    resizeObserver.observe(terminalRef.current);
+    resizeObserver.observe(containerRef.current);
 
     return () => {
       // Cancel pending init timeout to prevent double PTY creation
@@ -169,7 +169,7 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
       // Reset initialization flag so terminal can be recreated if component remounts
       initializedRef.current = false;
     };
-  }, [terminalId, cwd, handleResize]);
+  }, [agentId, cwd, handleResize]);
 
   // Fit terminal when becomes active
   useEffect(() => {
@@ -184,8 +184,8 @@ export function TerminalView({ terminalId, cwd, isActive }: TerminalViewProps) {
 
   return (
     <div
-      ref={terminalRef}
-      className="terminal-container"
+      ref={containerRef}
+      className="agent-container"
       style={{
         width: '100%',
         height: '100%',

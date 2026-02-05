@@ -14,115 +14,115 @@ const renderWithProvider = (ui: React.ReactElement, initialState?: AppState) => 
 
 describe('LeftPane', () => {
   it('should render header with title', () => {
-    renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />);
-    expect(screen.getByText('Terminals')).toBeInTheDocument();
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />);
+    expect(screen.getByText('Agents')).toBeInTheDocument();
   });
 
   it('should render add button', () => {
-    renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />);
-    expect(screen.getByRole('button', { name: 'New Terminal' })).toBeInTheDocument();
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />);
+    expect(screen.getByRole('button', { name: 'New Agent' })).toBeInTheDocument();
   });
 
-  it('should call onAddTerminal when + button is clicked', () => {
-    const onAddTerminal = jest.fn();
-    renderWithProvider(<LeftPane onAddTerminal={onAddTerminal} onCloseTerminal={() => {}} />);
+  it('should call onAddAgent when + button is clicked', () => {
+    const onAddAgent = jest.fn();
+    renderWithProvider(<LeftPane onAddAgent={onAddAgent} onCloseAgent={() => {}} />);
     
-    fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
-    expect(onAddTerminal).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: 'New Agent' }));
+    expect(onAddAgent).toHaveBeenCalledTimes(1);
   });
 
-  it('should show empty message when no terminals', () => {
-    renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />);
-    expect(screen.getByText('No terminals open')).toBeInTheDocument();
+  it('should show empty message when no agents', () => {
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />);
+    expect(screen.getByText('No agents open')).toBeInTheDocument();
   });
 
-  it('should render terminal list', () => {
+  it('should render agent list', () => {
     const state: AppState = {
-      terminals: [
-        { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
-        { id: 'term-2', label: 'Terminal 2', cwd: '/project', openFiles: [] },
+      agents: [
+        { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+        { id: 'agent-2', label: 'Agent 2', cwd: '/project', openFiles: [] },
       ],
-      activeItemId: 'term-1',
-      activeTerminalId: 'term-1',
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
     };
 
-    renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
     
-    expect(screen.getByText('Terminal 1')).toBeInTheDocument();
-    expect(screen.getByText('Terminal 2')).toBeInTheDocument();
+    expect(screen.getByText('Agent 1')).toBeInTheDocument();
+    expect(screen.getByText('Agent 2')).toBeInTheDocument();
   });
 
-  it('should highlight active terminal', () => {
+  it('should highlight active agent', () => {
     const state: AppState = {
-      terminals: [
-        { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+      agents: [
+        { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
       ],
-      activeItemId: 'term-1',
-      activeTerminalId: 'term-1',
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
     };
 
-    renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
     
-    const terminalItem = screen.getByText('Terminal 1').closest('.terminal-item');
-    expect(terminalItem).toHaveClass('active');
+    const agentItem = screen.getByText('Agent 1').closest('.agent-item');
+    expect(agentItem).toHaveClass('active');
   });
 
-  it('should show files nested under terminal', () => {
+  it('should show files nested under agent', () => {
     const state: AppState = {
-      terminals: [
+      agents: [
         {
-          id: 'term-1',
-          label: 'Terminal 1',
+          id: 'agent-1',
+          label: 'Agent 1',
           cwd: '/home',
           openFiles: [
-            { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentTerminalId: 'term-1' },
+            { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentAgentId: 'agent-1' },
           ],
         },
       ],
-      activeItemId: 'term-1',
-      activeTerminalId: 'term-1',
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
     };
 
-    renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
     
     expect(screen.getByText('test.ts')).toBeInTheDocument();
   });
 
   describe('context menu', () => {
-    it('should show context menu on terminal right-click', () => {
+    it('should show context menu on agent right-click', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
-      const terminalItem = screen.getByText('Terminal 1').closest('.terminal-item');
-      fireEvent.contextMenu(terminalItem!);
+      const agentItem = screen.getByText('Agent 1').closest('.agent-item');
+      fireEvent.contextMenu(agentItem!);
       
-      expect(screen.getByText('Close Terminal')).toBeInTheDocument();
+      expect(screen.getByText('Close Agent')).toBeInTheDocument();
     });
 
     it('should show context menu on file right-click', () => {
       const state: AppState = {
-        terminals: [
+        agents: [
           {
-            id: 'term-1',
-            label: 'Terminal 1',
+            id: 'agent-1',
+            label: 'Agent 1',
             cwd: '/home',
             openFiles: [
-              { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentTerminalId: 'term-1' },
+              { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentAgentId: 'agent-1' },
             ],
           },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
       const fileItem = screen.getByText('test.ts').closest('.file-item');
       fireEvent.contextMenu(fileItem!);
@@ -130,62 +130,62 @@ describe('LeftPane', () => {
       expect(screen.getByText('Close File')).toBeInTheDocument();
     });
 
-    it('should call onCloseTerminal when Close Terminal is clicked', () => {
-      const onCloseTerminal = jest.fn();
+    it('should call onCloseAgent when Close Agent is clicked', () => {
+      const onCloseAgent = jest.fn();
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={onCloseTerminal} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={onCloseAgent} />, state);
       
-      const terminalItem = screen.getByText('Terminal 1').closest('.terminal-item');
-      fireEvent.contextMenu(terminalItem!);
-      fireEvent.click(screen.getByText('Close Terminal'));
+      const agentItem = screen.getByText('Agent 1').closest('.agent-item');
+      fireEvent.contextMenu(agentItem!);
+      fireEvent.click(screen.getByText('Close Agent'));
       
-      expect(onCloseTerminal).toHaveBeenCalledWith('term-1');
+      expect(onCloseAgent).toHaveBeenCalledWith('agent-1');
     });
 
     it('should close context menu when clicking outside', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
-      const terminalItem = screen.getByText('Terminal 1').closest('.terminal-item');
-      fireEvent.contextMenu(terminalItem!);
-      expect(screen.getByText('Close Terminal')).toBeInTheDocument();
+      const agentItem = screen.getByText('Agent 1').closest('.agent-item');
+      fireEvent.contextMenu(agentItem!);
+      expect(screen.getByText('Close Agent')).toBeInTheDocument();
       
       // Click outside
       fireEvent.click(window);
       
-      expect(screen.queryByText('Close Terminal')).not.toBeInTheDocument();
+      expect(screen.queryByText('Close Agent')).not.toBeInTheDocument();
     });
   });
 
-  describe('terminal rename', () => {
-    it('should show input when renamingTerminalId is set', () => {
+  describe('agent rename', () => {
+    it('should show input when renamingAgentId is set', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
       renderWithProvider(
         <LeftPane 
-          onAddTerminal={() => {}} 
-          onCloseTerminal={() => {}}
-          renamingTerminalId="term-1"
+          onAddAgent={() => {}} 
+          onCloseAgent={() => {}}
+          renamingAgentId="agent-1"
           onRenameComplete={() => {}}
         />, 
         state
@@ -193,24 +193,24 @@ describe('LeftPane', () => {
       
       const input = screen.getByRole('textbox');
       expect(input).toBeInTheDocument();
-      expect(input).toHaveValue('Terminal 1');
+      expect(input).toHaveValue('Agent 1');
     });
 
     it('should call onRenameComplete with new value on Enter', () => {
       const onRenameComplete = jest.fn();
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
       renderWithProvider(
         <LeftPane 
-          onAddTerminal={() => {}} 
-          onCloseTerminal={() => {}}
-          renamingTerminalId="term-1"
+          onAddAgent={() => {}} 
+          onCloseAgent={() => {}}
+          renamingAgentId="agent-1"
           onRenameComplete={onRenameComplete}
         />, 
         state
@@ -220,24 +220,24 @@ describe('LeftPane', () => {
       fireEvent.change(input, { target: { value: 'New Name' } });
       fireEvent.keyDown(input, { key: 'Enter' });
       
-      expect(onRenameComplete).toHaveBeenCalledWith('term-1', 'New Name');
+      expect(onRenameComplete).toHaveBeenCalledWith('agent-1', 'New Name');
     });
 
     it('should call onRenameComplete with null on Escape', () => {
       const onRenameComplete = jest.fn();
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
       renderWithProvider(
         <LeftPane 
-          onAddTerminal={() => {}} 
-          onCloseTerminal={() => {}}
-          renamingTerminalId="term-1"
+          onAddAgent={() => {}} 
+          onCloseAgent={() => {}}
+          renamingAgentId="agent-1"
           onRenameComplete={onRenameComplete}
         />, 
         state
@@ -246,24 +246,24 @@ describe('LeftPane', () => {
       const input = screen.getByRole('textbox');
       fireEvent.keyDown(input, { key: 'Escape' });
       
-      expect(onRenameComplete).toHaveBeenCalledWith('term-1', null);
+      expect(onRenameComplete).toHaveBeenCalledWith('agent-1', null);
     });
 
     it('should call onRenameComplete on blur', () => {
       const onRenameComplete = jest.fn();
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
       renderWithProvider(
         <LeftPane 
-          onAddTerminal={() => {}} 
-          onCloseTerminal={() => {}}
-          renamingTerminalId="term-1"
+          onAddAgent={() => {}} 
+          onCloseAgent={() => {}}
+          renamingAgentId="agent-1"
           onRenameComplete={onRenameComplete}
         />, 
         state
@@ -273,37 +273,37 @@ describe('LeftPane', () => {
       fireEvent.change(input, { target: { value: 'Blurred Name' } });
       fireEvent.blur(input);
       
-      expect(onRenameComplete).toHaveBeenCalledWith('term-1', 'Blurred Name');
+      expect(onRenameComplete).toHaveBeenCalledWith('agent-1', 'Blurred Name');
     });
   });
 
   describe('worktree indicator', () => {
-    it('should show worktree badge when terminal is in a worktree', () => {
+    it('should show worktree badge when agent is in a worktree', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'feature-branch', cwd: '/home/worktree', openFiles: [], isWorktree: true },
+        agents: [
+          { id: 'agent-1', label: 'feature-branch', cwd: '/home/worktree', openFiles: [], isWorktree: true },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
       const badge = document.querySelector('.worktree-badge');
       expect(badge).toBeInTheDocument();
       expect(badge).toHaveAttribute('title', 'Git worktree');
     });
 
-    it('should not show worktree badge for regular terminals', () => {
+    it('should not show worktree badge for regular agents', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [], isWorktree: false },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [], isWorktree: false },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
       const badge = document.querySelector('.worktree-badge');
       expect(badge).not.toBeInTheDocument();
@@ -311,59 +311,59 @@ describe('LeftPane', () => {
 
     it('should not show worktree badge when isWorktree is undefined', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
       const badge = document.querySelector('.worktree-badge');
       expect(badge).not.toBeInTheDocument();
     });
   });
 
-  describe('terminal selection', () => {
-    it('should dispatch SET_ACTIVE_TERMINAL when terminal is clicked', () => {
+  describe('agent selection', () => {
+    it('should dispatch SET_ACTIVE_AGENT when agent is clicked', () => {
       const state: AppState = {
-        terminals: [
-          { id: 'term-1', label: 'Terminal 1', cwd: '/home', openFiles: [] },
-          { id: 'term-2', label: 'Terminal 2', cwd: '/project', openFiles: [] },
+        agents: [
+          { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+          { id: 'agent-2', label: 'Agent 2', cwd: '/project', openFiles: [] },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
-      fireEvent.click(screen.getByText('Terminal 2'));
+      fireEvent.click(screen.getByText('Agent 2'));
       
-      // After click, term-2 should be active (check via class)
-      const terminalItem = screen.getByText('Terminal 2').closest('.terminal-item');
-      expect(terminalItem).toHaveClass('active');
+      // After click, agent-2 should be active (check via class)
+      const agentItem = screen.getByText('Agent 2').closest('.agent-item');
+      expect(agentItem).toHaveClass('active');
     });
   });
 
   describe('file selection', () => {
     it('should highlight active file', () => {
       const state: AppState = {
-        terminals: [
+        agents: [
           {
-            id: 'term-1',
-            label: 'Terminal 1',
+            id: 'agent-1',
+            label: 'Agent 1',
             cwd: '/home',
             openFiles: [
-              { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentTerminalId: 'term-1' },
+              { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentAgentId: 'agent-1' },
             ],
           },
         ],
         activeItemId: 'file-1',
-        activeTerminalId: 'term-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
       const fileItem = screen.getByText('test.ts').closest('.file-item');
       expect(fileItem).toHaveClass('active');
@@ -371,21 +371,21 @@ describe('LeftPane', () => {
 
     it('should set file as active when clicked', () => {
       const state: AppState = {
-        terminals: [
+        agents: [
           {
-            id: 'term-1',
-            label: 'Terminal 1',
+            id: 'agent-1',
+            label: 'Agent 1',
             cwd: '/home',
             openFiles: [
-              { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentTerminalId: 'term-1' },
+              { id: 'file-1', name: 'test.ts', path: '/home/test.ts', parentAgentId: 'agent-1' },
             ],
           },
         ],
-        activeItemId: 'term-1',
-        activeTerminalId: 'term-1',
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
       };
 
-      renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />, state);
+      renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
       
       fireEvent.click(screen.getByText('test.ts'));
       

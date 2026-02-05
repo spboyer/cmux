@@ -24,33 +24,33 @@ jest.mock('child_process', () => ({
 const mockExecSync = child_process.execSync as jest.MockedFunction<typeof child_process.execSync>;
 
 // Import after mocking
-import { terminalService } from './TerminalService';
+import { agentService } from './AgentService';
 
-describe('TerminalService', () => {
+describe('AgentService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    // Reset terminals map by killing all existing terminals
-    for (const id of terminalService.getAllTerminals()) {
-      terminalService.kill(id);
+    // Reset agents map by killing all existing agents
+    for (const id of agentService.getAllAgents()) {
+      agentService.kill(id);
     }
   });
 
   describe('create', () => {
-    it('should create a new terminal and return the ID', () => {
-      const id = terminalService.create('test-1', '/home/user');
+    it('should create a new agent and return the ID', () => {
+      const id = agentService.create('test-1', '/home/user');
 
       expect(id).toBe('test-1');
       expect(mockSpawn).toHaveBeenCalledTimes(1);
-      expect(terminalService.getTerminal('test-1')).toBeDefined();
+      expect(agentService.getAgent('test-1')).toBeDefined();
     });
 
-    it('should return existing terminal ID when creating duplicate', () => {
-      // Create first terminal
-      terminalService.create('test-dup', '/home/user');
+    it('should return existing agent ID when creating duplicate', () => {
+      // Create first agent
+      agentService.create('test-dup', '/home/user');
       expect(mockSpawn).toHaveBeenCalledTimes(1);
 
       // Try to create duplicate
-      const id = terminalService.create('test-dup', '/home/user');
+      const id = agentService.create('test-dup', '/home/user');
 
       expect(id).toBe('test-dup');
       // Should NOT spawn a new PTY
@@ -58,12 +58,12 @@ describe('TerminalService', () => {
     });
 
     it('should not spawn new PTY process for existing ID', () => {
-      terminalService.create('test-no-dup', '/home/user');
+      agentService.create('test-no-dup', '/home/user');
       const firstCallCount = mockSpawn.mock.calls.length;
 
       // Create with same ID multiple times
-      terminalService.create('test-no-dup', '/different/path');
-      terminalService.create('test-no-dup', '/another/path');
+      agentService.create('test-no-dup', '/different/path');
+      agentService.create('test-no-dup', '/another/path');
 
       // spawn should not have been called again
       expect(mockSpawn).toHaveBeenCalledTimes(firstCallCount);
@@ -71,52 +71,52 @@ describe('TerminalService', () => {
   });
 
   describe('write', () => {
-    it('should write data to terminal', () => {
-      terminalService.create('test-write', '/home/user');
-      const terminal = terminalService.getTerminal('test-write');
+    it('should write data to agent', () => {
+      agentService.create('test-write', '/home/user');
+      const agent = agentService.getAgent('test-write');
 
-      terminalService.write('test-write', 'ls -la');
+      agentService.write('test-write', 'ls -la');
 
-      expect(terminal?.pty.write).toHaveBeenCalledWith('ls -la');
+      expect(agent?.pty.write).toHaveBeenCalledWith('ls -la');
     });
 
-    it('should not throw for non-existent terminal', () => {
-      expect(() => terminalService.write('non-existent', 'data')).not.toThrow();
+    it('should not throw for non-existent agent', () => {
+      expect(() => agentService.write('non-existent', 'data')).not.toThrow();
     });
   });
 
   describe('resize', () => {
-    it('should resize terminal', () => {
-      terminalService.create('test-resize', '/home/user');
-      const terminal = terminalService.getTerminal('test-resize');
+    it('should resize agent', () => {
+      agentService.create('test-resize', '/home/user');
+      const agent = agentService.getAgent('test-resize');
 
-      terminalService.resize('test-resize', 120, 40);
+      agentService.resize('test-resize', 120, 40);
 
-      expect(terminal?.pty.resize).toHaveBeenCalledWith(120, 40);
+      expect(agent?.pty.resize).toHaveBeenCalledWith(120, 40);
     });
   });
 
   describe('kill', () => {
-    it('should kill terminal and remove from map', () => {
-      terminalService.create('test-kill', '/home/user');
-      const terminal = terminalService.getTerminal('test-kill');
+    it('should kill agent and remove from map', () => {
+      agentService.create('test-kill', '/home/user');
+      const agent = agentService.getAgent('test-kill');
 
-      terminalService.kill('test-kill');
+      agentService.kill('test-kill');
 
-      expect(terminal?.pty.kill).toHaveBeenCalled();
-      expect(terminalService.getTerminal('test-kill')).toBeUndefined();
+      expect(agent?.pty.kill).toHaveBeenCalled();
+      expect(agentService.getAgent('test-kill')).toBeUndefined();
     });
   });
 
-  describe('getAllTerminals', () => {
-    it('should return all terminal IDs', () => {
-      terminalService.create('term-a', '/home/user');
-      terminalService.create('term-b', '/home/user');
+  describe('getAllAgents', () => {
+    it('should return all agent IDs', () => {
+      agentService.create('agent-a', '/home/user');
+      agentService.create('agent-b', '/home/user');
 
-      const ids = terminalService.getAllTerminals();
+      const ids = agentService.getAllAgents();
 
-      expect(ids).toContain('term-a');
-      expect(ids).toContain('term-b');
+      expect(ids).toContain('agent-a');
+      expect(ids).toContain('agent-b');
     });
   });
 
@@ -130,7 +130,7 @@ describe('TerminalService', () => {
         .mockReturnValueOnce('.git/worktrees/feature-branch\n')  // git-dir
         .mockReturnValueOnce('/repo/.git\n');                     // git-common-dir
 
-      const result = terminalService.isGitWorktree('/repo/worktrees/feature-branch');
+      const result = agentService.isGitWorktree('/repo/worktrees/feature-branch');
 
       expect(result).toBe(true);
       expect(mockExecSync).toHaveBeenCalledTimes(2);
@@ -141,7 +141,7 @@ describe('TerminalService', () => {
         .mockReturnValueOnce('.git\n')  // git-dir
         .mockReturnValueOnce('.git\n'); // git-common-dir
 
-      const result = terminalService.isGitWorktree('/repo');
+      const result = agentService.isGitWorktree('/repo');
 
       expect(result).toBe(false);
     });
@@ -151,7 +151,7 @@ describe('TerminalService', () => {
         throw new Error('fatal: not a git repository');
       });
 
-      const result = terminalService.isGitWorktree('/not-a-repo');
+      const result = agentService.isGitWorktree('/not-a-repo');
 
       expect(result).toBe(false);
     });
@@ -161,7 +161,7 @@ describe('TerminalService', () => {
         throw new Error('git: command not found');
       });
 
-      const result = terminalService.isGitWorktree('/some/path');
+      const result = agentService.isGitWorktree('/some/path');
 
       expect(result).toBe(false);
     });

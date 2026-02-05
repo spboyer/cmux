@@ -18,11 +18,11 @@ describe('HotkeyHelp', () => {
   it('should display all keyboard shortcuts', () => {
     render(<HotkeyHelp isOpen={true} onClose={() => {}} />);
     
-    expect(screen.getByText('Next terminal')).toBeInTheDocument();
-    expect(screen.getByText('Previous terminal')).toBeInTheDocument();
-    expect(screen.getByText('New terminal')).toBeInTheDocument();
-    expect(screen.getByText('Close current terminal/file')).toBeInTheDocument();
-    expect(screen.getByText('Rename terminal')).toBeInTheDocument();
+    expect(screen.getByText('Next agent')).toBeInTheDocument();
+    expect(screen.getByText('Previous agent')).toBeInTheDocument();
+    expect(screen.getByText('New agent')).toBeInTheDocument();
+    expect(screen.getByText('Close current agent/file')).toBeInTheDocument();
+    expect(screen.getByText('Rename agent')).toBeInTheDocument();
     expect(screen.getByText('Show this help')).toBeInTheDocument();
     expect(screen.getByText('Open DevTools')).toBeInTheDocument();
   });

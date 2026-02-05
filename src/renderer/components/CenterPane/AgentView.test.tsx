@@ -35,16 +35,16 @@ class MockResizeObserver {
 (global as any).ResizeObserver = MockResizeObserver;
 
 // Import after mocks
-import { TerminalView } from './TerminalView';
+import { AgentView } from './AgentView';
 
-describe('TerminalView', () => {
+describe('AgentView', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     
     // Extend the existing electronAPI mock with our test-specific functions
     // onData and onExit now return cleanup functions
-    (window.electronAPI as any).terminal = {
+    (window.electronAPI as any).agent = {
       create: jest.fn().mockResolvedValue('test-id'),
       write: jest.fn().mockResolvedValue(undefined),
       resize: jest.fn().mockResolvedValue(undefined),
@@ -59,30 +59,30 @@ describe('TerminalView', () => {
     jest.useRealTimers();
   });
 
-  it('should render terminal container', () => {
-    render(<TerminalView terminalId="test-1" cwd="/home/user" isActive={true} />);
-    expect(document.querySelector('.terminal-container')).toBeTruthy();
+  it('should render agent container', () => {
+    render(<AgentView agentId="test-1" cwd="/home/user" isActive={true} />);
+    expect(document.querySelector('.agent-container')).toBeTruthy();
   });
 
   it('should register IPC listeners on mount', async () => {
-    render(<TerminalView terminalId="test-2" cwd="/home/user" isActive={true} />);
+    render(<AgentView agentId="test-2" cwd="/home/user" isActive={true} />);
 
     // Advance timers to trigger the initial setup
     await act(async () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(window.electronAPI.terminal.onData).toHaveBeenCalled();
+    expect(window.electronAPI.agent.onData).toHaveBeenCalled();
   });
 
-  it('should create terminal in main process', async () => {
-    render(<TerminalView terminalId="test-3" cwd="/home/user" isActive={true} />);
+  it('should create agent in main process', async () => {
+    render(<AgentView agentId="test-3" cwd="/home/user" isActive={true} />);
 
-    // Advance timers to trigger terminal creation
+    // Advance timers to trigger agent creation
     await act(async () => {
       jest.advanceTimersByTime(100);
     });
 
-    expect(window.electronAPI.terminal.create).toHaveBeenCalledWith('test-3', '/home/user');
+    expect(window.electronAPI.agent.create).toHaveBeenCalledWith('test-3', '/home/user');
   });
 });

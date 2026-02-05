@@ -29,7 +29,7 @@ test.describe('Application', () => {
 
     // Verify left pane header
     const leftHeader = await window.textContent('.left-pane .pane-header');
-    expect(leftHeader).toContain('Terminals');
+    expect(leftHeader).toContain('Agents');
 
     // Verify + button exists
     const addBtn = await window.$('.add-btn');
@@ -37,13 +37,13 @@ test.describe('Application', () => {
   });
 
   test('should show empty state messages initially', async () => {
-    // Left pane should show no terminals message
+    // Left pane should show no agents message
     const emptyMessage = await window.textContent('.left-pane .empty-message');
-    expect(emptyMessage).toContain('No terminals open');
+    expect(emptyMessage).toContain('No agents open');
 
-    // Center pane should show create terminal prompt
+    // Center pane should show create agent prompt
     const centerPrompt = await window.textContent('.center-pane .center-empty');
-    expect(centerPrompt).toContain('Select or create a terminal');
+    expect(centerPrompt).toContain('Select or create an agent');
 
     // Right pane should show no directory message
     const rightMessage = await window.textContent('.right-pane .empty-message');
@@ -67,7 +67,7 @@ test.describe('Application', () => {
     }
   });
 
-  test('should have functional add terminal button', async () => {
+  test('should have functional add agent button', async () => {
     const addBtn = await window.$('.add-btn');
     expect(addBtn).not.toBeNull();
     
@@ -79,7 +79,7 @@ test.describe('Application', () => {
   test('should display correct pane headers', async () => {
     // Left pane header
     const leftHeader = await window.textContent('.left-pane .pane-header span');
-    expect(leftHeader).toBe('Terminals');
+    expect(leftHeader).toBe('Agents');
 
     // Right pane header
     const rightHeader = await window.textContent('.right-pane .pane-header span');

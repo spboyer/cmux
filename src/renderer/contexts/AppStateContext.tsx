@@ -1,17 +1,17 @@
 import * as React from 'react';
 import { createContext, useContext, useReducer, ReactNode } from 'react';
-import { AppState, AppAction, Terminal } from '../../shared/types';
+import { AppState, AppAction, Agent } from '../../shared/types';
 
 export const initialState: AppState = {
-  terminals: [],
+  agents: [],
   activeItemId: null,
-  activeTerminalId: null,
+  activeAgentId: null,
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
-    case 'ADD_TERMINAL': {
-      const newTerminal: Terminal = {
+    case 'ADD_AGENT': {
+      const newAgent: Agent = {
         id: action.payload.id,
         label: action.payload.label,
         cwd: action.payload.cwd,
@@ -20,33 +20,33 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       };
       return {
         ...state,
-        terminals: [...state.terminals, newTerminal],
-        activeItemId: newTerminal.id,
-        activeTerminalId: newTerminal.id,
+        agents: [...state.agents, newAgent],
+        activeItemId: newAgent.id,
+        activeAgentId: newAgent.id,
       };
     }
 
-    case 'REMOVE_TERMINAL': {
-      const filteredTerminals = state.terminals.filter(t => t.id !== action.payload.id);
-      const wasActive = state.activeTerminalId === action.payload.id;
-      const newActiveTerminalId = wasActive
-        ? filteredTerminals[0]?.id ?? null
-        : state.activeTerminalId;
-      const newActiveItemId = wasActive ? newActiveTerminalId : state.activeItemId;
+    case 'REMOVE_AGENT': {
+      const filteredAgents = state.agents.filter(a => a.id !== action.payload.id);
+      const wasActive = state.activeAgentId === action.payload.id;
+      const newActiveAgentId = wasActive
+        ? filteredAgents[0]?.id ?? null
+        : state.activeAgentId;
+      const newActiveItemId = wasActive ? newActiveAgentId : state.activeItemId;
 
       return {
         ...state,
-        terminals: filteredTerminals,
+        agents: filteredAgents,
         activeItemId: newActiveItemId,
-        activeTerminalId: newActiveTerminalId,
+        activeAgentId: newActiveAgentId,
       };
     }
 
-    case 'SET_ACTIVE_TERMINAL': {
+    case 'SET_ACTIVE_AGENT': {
       return {
         ...state,
         activeItemId: action.payload.id,
-        activeTerminalId: action.payload.id,
+        activeAgentId: action.payload.id,
       };
     }
 
@@ -54,17 +54,17 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         activeItemId: action.payload.id,
-        activeTerminalId: action.payload.terminalId ?? state.activeTerminalId,
+        activeAgentId: action.payload.agentId ?? state.activeAgentId,
       };
     }
 
     case 'ADD_FILE': {
       return {
         ...state,
-        terminals: state.terminals.map(t =>
-          t.id === action.payload.terminalId
-            ? { ...t, openFiles: [...t.openFiles, action.payload.file] }
-            : t
+        agents: state.agents.map(a =>
+          a.id === action.payload.agentId
+            ? { ...a, openFiles: [...a.openFiles, action.payload.file] }
+            : a
         ),
         activeItemId: action.payload.file.id,
       };
@@ -75,20 +75,20 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 
       return {
         ...state,
-        terminals: state.terminals.map(t =>
-          t.id === action.payload.terminalId
-            ? { ...t, openFiles: t.openFiles.filter(f => f.id !== action.payload.fileId) }
-            : t
+        agents: state.agents.map(a =>
+          a.id === action.payload.agentId
+            ? { ...a, openFiles: a.openFiles.filter(f => f.id !== action.payload.fileId) }
+            : a
         ),
-        activeItemId: wasActive ? action.payload.terminalId : state.activeItemId,
+        activeItemId: wasActive ? action.payload.agentId : state.activeItemId,
       };
     }
 
-    case 'RENAME_TERMINAL': {
+    case 'RENAME_AGENT': {
       return {
         ...state,
-        terminals: state.terminals.map(t =>
-          t.id === action.payload.id ? { ...t, label: action.payload.label } : t
+        agents: state.agents.map(a =>
+          a.id === action.payload.id ? { ...a, label: action.payload.label } : a
         ),
       };
     }
@@ -99,29 +99,29 @@ export function appReducer(state: AppState, action: AppAction): AppState {
 }
 
 // Selectors
-export function getActiveTerminal(state: AppState) {
-  return state.terminals.find(t => t.id === state.activeTerminalId) ?? null;
+export function getActiveAgent(state: AppState) {
+  return state.agents.find(a => a.id === state.activeAgentId) ?? null;
 }
 
 export function getActiveItem(state: AppState) {
-  const terminal = state.terminals.find(t => t.id === state.activeItemId);
-  if (terminal) {
-    return { type: 'terminal' as const, item: terminal };
+  const agent = state.agents.find(a => a.id === state.activeItemId);
+  if (agent) {
+    return { type: 'agent' as const, item: agent };
   }
 
-  for (const t of state.terminals) {
-    const file = t.openFiles.find(f => f.id === state.activeItemId);
+  for (const a of state.agents) {
+    const file = a.openFiles.find(f => f.id === state.activeItemId);
     if (file) {
-      return { type: 'file' as const, item: file, terminal: t };
+      return { type: 'file' as const, item: file, agent: a };
     }
   }
 
   return null;
 }
 
-export function getFilesForTerminal(state: AppState, terminalId: string) {
-  const terminal = state.terminals.find(t => t.id === terminalId);
-  return terminal?.openFiles ?? [];
+export function getFilesForAgent(state: AppState, agentId: string) {
+  const agent = state.agents.find(a => a.id === agentId);
+  return agent?.openFiles ?? [];
 }
 
 // Context

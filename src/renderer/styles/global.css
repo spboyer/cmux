@@ -132,15 +132,15 @@ body {
 }
 
 /* Terminal list */
-.terminal-list {
+.agent-list {
   list-style: none;
 }
 
-.terminal-group {
+.agent-group {
   margin-bottom: var(--space-1);
 }
 
-.terminal-item {
+.agent-item {
   display: flex;
   align-items: center;
   padding: var(--space-2) var(--space-3);
@@ -152,16 +152,16 @@ body {
   margin: 0 var(--space-1);
 }
 
-.terminal-item:hover {
+.agent-item:hover {
   background-color: var(--bg-hover);
 }
 
-.terminal-item.active {
+.agent-item.active {
   background-color: var(--accent-glow);
   border-left-color: var(--accent);
 }
 
-.terminal-icon-wrapper {
+.agent-icon-wrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -169,7 +169,7 @@ body {
   flex-shrink: 0;
 }
 
-.terminal-item.active .terminal-icon-wrapper {
+.agent-item.active .agent-icon-wrapper {
   color: var(--accent);
 }
 
@@ -181,7 +181,7 @@ body {
   line-height: 1;
 }
 
-.terminal-label {
+.agent-label {
   font-size: var(--text-base);
   font-weight: var(--font-medium);
   overflow: hidden;
@@ -190,7 +190,7 @@ body {
   color: var(--text-secondary);
 }
 
-.terminal-item.active .terminal-label {
+.agent-item.active .agent-label {
   color: var(--text-primary);
 }
 
@@ -268,7 +268,7 @@ body {
   opacity: 0.3;
 }
 
-.terminal-placeholder,
+.agent-placeholder,
 .file-placeholder,
 .file-tree-placeholder {
   padding: var(--space-4);
@@ -283,27 +283,27 @@ body {
   font-family: var(--font-mono);
 }
 
-/* Terminal */
-.terminal-pane {
+/* Agent */
+.agent-pane {
   padding: 0;
   height: 100%;
   overflow: hidden;
   background-color: var(--bg-deep);
 }
 
-.terminal-container {
+.agent-container {
   height: 100%;
   width: 100%;
   overflow: hidden;
 }
 
-.terminal-container .xterm {
+.agent-container .xterm {
   height: 100%;
   width: 100%;
   padding: var(--space-2);
 }
 
-.terminal-container .xterm-viewport {
+.agent-container .xterm-viewport {
   overflow-y: auto;
 }
 
@@ -502,8 +502,8 @@ body {
   background: transparent;
 }
 
-/* Terminal rename input */
-.terminal-rename-input {
+/* Agent rename input */
+.agent-rename-input {
   background-color: var(--bg-surface);
   border: 1px solid var(--accent);
   border-radius: var(--radius-sm);

@@ -1,19 +1,19 @@
 # Vibe Playground
 
-A modern Electron-based terminal manager for working across multiple repositories simultaneously. Features a three-pane layout with integrated file browsing and syntax-highlighted file viewing.
+A modern Electron-based agent manager for working across multiple repositories simultaneously. Features a three-pane layout with integrated file browsing and syntax-highlighted file viewing.
 
-![Terminal View](img/terminal-screenshot.png)
+![Agent View](img/terminal-screenshot.png)
 
 ## Features
 
-### 🖥️ Multi-Terminal Management
-- Open multiple terminal sessions, each in a different directory/repository
+### 🖥️ Multi-Agent Management
+- Open multiple agent sessions, each in a different directory/repository
 - Full PTY support via node-pty - TUI apps like `vim`, `htop`, and GitHub Copilot CLI work perfectly
-- Terminal state preserved when switching between views
-- Quick switching between terminals via the left sidebar
+- Agent state preserved when switching between views
+- Quick switching between agents via the left sidebar
 
 ### 📁 Integrated File Browser
-- File tree view showing the current terminal's working directory
+- File tree view showing the current agent's working directory
 - Expandable folders with lazy loading
 - Click files to view them with syntax highlighting
 
@@ -25,9 +25,9 @@ A modern Electron-based terminal manager for working across multiple repositorie
 ![File View](img/file-screenshot.png)
 
 ### 🎨 Three-Pane Layout
-- **Left Pane**: Terminal and file list - see all open terminals and their associated files
-- **Center Pane**: Active terminal or file viewer
-- **Right Pane**: File tree for the current terminal's directory
+- **Left Pane**: Agent and file list - see all open agents and their associated files
+- **Center Pane**: Active agent or file viewer
+- **Right Pane**: File tree for the current agent's directory
 
 ### 🔄 Auto-Updates
 - Automatic update checks on startup
@@ -57,19 +57,19 @@ npm start
 
 ## Usage
 
-1. **Create a Terminal**: Click the `+` button in the left pane and select a directory
+1. **Create an Agent**: Click the `+` button in the left pane and select a directory
 2. **Run Commands**: Type in the terminal as you normally would - full shell support
 3. **Browse Files**: Use the right pane to navigate the file tree
 4. **Open Files**: Click any file to view it with syntax highlighting
-5. **Switch Views**: Click terminals or files in the left pane to switch between them
-6. **Close Items**: Right-click on terminals or files for context menu options
+5. **Switch Views**: Click agents or files in the left pane to switch between them
+6. **Close Items**: Right-click on agents or files for context menu options
 
 ### Keyboard Shortcuts
-- `Ctrl+Tab` - Next terminal
-- `Ctrl+Shift+Tab` - Previous terminal
-- `Ctrl+Alt+\` - New terminal
-- `Ctrl+W` - Close current terminal/file
-- `F2` - Rename terminal
+- `Ctrl+Tab` - Next agent
+- `Ctrl+Shift+Tab` - Previous agent
+- `Ctrl+Alt+\` - New agent
+- `Ctrl+W` - Close current agent/file
+- `F2` - Rename agent
 - `Ctrl+?` - Show keyboard shortcuts help
 - `Ctrl+Shift+I` - Open DevTools
 
@@ -94,10 +94,10 @@ src/
 │   └── types.ts            # Shared TypeScript types
 ├── main/
 │   ├── services/
-│   │   ├── TerminalService.ts   # PTY management
-│   │   └── FileService.ts       # File system operations
+│   │   ├── AgentService.ts     # PTY management
+│   │   └── FileService.ts      # File system operations
 │   └── ipc/
-│       ├── terminal.ts     # Terminal IPC handlers
+│       ├── agent.ts        # Agent IPC handlers
 │       └── files.ts        # File IPC handlers
 └── renderer/
     ├── App.tsx             # Main React component
@@ -105,8 +105,8 @@ src/
     │   └── AppStateContext.tsx  # State management
     ├── components/
     │   ├── Layout/         # Three-pane layout
-    │   ├── LeftPane/       # Terminal/file list
-    │   ├── CenterPane/     # Terminal & file viewer
+    │   ├── LeftPane/       # Agent/file list
+    │   ├── CenterPane/     # Agent & file viewer
     │   └── RightPane/      # File tree
     └── styles/
         └── global.css      # Application styles
@@ -130,7 +130,7 @@ npm run make
 
 ## Known Limitations
 
-- Terminal resize may have slight delay during rapid window resizing
+- Agent resize may have slight delay during rapid window resizing
 - Some complex TUI applications may have minor rendering differences compared to native terminals
 
 ## License

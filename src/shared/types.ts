@@ -1,4 +1,4 @@
-export interface Terminal {
+export interface Agent {
   id: string;
   label: string;
   cwd: string;
@@ -10,7 +10,7 @@ export interface OpenFile {
   id: string;
   path: string;
   name: string;
-  parentTerminalId: string;
+  parentAgentId: string;
 }
 
 export interface FileWatchEvent {
@@ -20,26 +20,26 @@ export interface FileWatchEvent {
 }
 
 export interface AppState {
-  terminals: Terminal[];
+  agents: Agent[];
   activeItemId: string | null;
-  activeTerminalId: string | null;
+  activeAgentId: string | null;
 }
 
 export interface SessionData {
   version: number;
-  terminals: Terminal[];
+  agents: Agent[];
   activeItemId: string | null;
-  activeTerminalId: string | null;
+  activeAgentId: string | null;
 }
 
 export type AppAction =
-  | { type: 'ADD_TERMINAL'; payload: { id: string; label: string; cwd: string; isWorktree?: boolean } }
-  | { type: 'REMOVE_TERMINAL'; payload: { id: string } }
-  | { type: 'SET_ACTIVE_TERMINAL'; payload: { id: string } }
-  | { type: 'SET_ACTIVE_ITEM'; payload: { id: string; terminalId?: string } }
-  | { type: 'ADD_FILE'; payload: { terminalId: string; file: OpenFile } }
-  | { type: 'REMOVE_FILE'; payload: { terminalId: string; fileId: string } }
-  | { type: 'RENAME_TERMINAL'; payload: { id: string; label: string } };
+  | { type: 'ADD_AGENT'; payload: { id: string; label: string; cwd: string; isWorktree?: boolean } }
+  | { type: 'REMOVE_AGENT'; payload: { id: string } }
+  | { type: 'SET_ACTIVE_AGENT'; payload: { id: string } }
+  | { type: 'SET_ACTIVE_ITEM'; payload: { id: string; agentId?: string } }
+  | { type: 'ADD_FILE'; payload: { agentId: string; file: OpenFile } }
+  | { type: 'REMOVE_FILE'; payload: { agentId: string; fileId: string } }
+  | { type: 'RENAME_AGENT'; payload: { id: string; label: string } };
 
 // Auto-update types
 export type UpdateStatus = 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error' | 'dev-mode';

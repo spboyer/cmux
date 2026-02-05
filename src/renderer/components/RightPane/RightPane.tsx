@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useAppState, getActiveTerminal } from '../../contexts/AppStateContext';
+import { useAppState, getActiveAgent } from '../../contexts/AppStateContext';
 import { FileTree } from './FileTree';
 import { Icon } from '../Icon';
 
@@ -9,7 +9,7 @@ interface RightPaneProps {
 
 export function RightPane({ onFileClick }: RightPaneProps) {
   const { state } = useAppState();
-  const activeTerminal = getActiveTerminal(state);
+  const activeAgent = getActiveAgent(state);
   const [refreshTrigger, setRefreshTrigger] = React.useState(0);
 
   const handleRefresh = () => {
@@ -22,7 +22,7 @@ export function RightPane({ onFileClick }: RightPaneProps) {
     onFileClick(filePath, fileName);
   };
 
-  if (!activeTerminal) {
+  if (!activeAgent) {
     return (
       <>
         <div className="pane-header">
@@ -50,7 +50,7 @@ export function RightPane({ onFileClick }: RightPaneProps) {
       </div>
       <div className="pane-content file-tree-container">
         <FileTree 
-          rootPath={activeTerminal.cwd} 
+          rootPath={activeAgent.cwd} 
           onFileClick={handleFileClick}
           refreshTrigger={refreshTrigger}
         />

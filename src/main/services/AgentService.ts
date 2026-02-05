@@ -1,16 +1,16 @@
-// TerminalService using node-pty for proper PTY support
+// AgentService using node-pty for proper PTY support
 import * as pty from '@homebridge/node-pty-prebuilt-multiarch';
 import * as os from 'os';
 import { execSync } from 'child_process';
 
-interface TerminalInstance {
+interface AgentInstance {
   id: string;
   pty: pty.IPty;
   cwd: string;
 }
 
-class TerminalService {
-  private terminals: Map<string, TerminalInstance> = new Map();
+class AgentService {
+  private agents: Map<string, AgentInstance> = new Map();
 
   getDefaultShell(): string {
     if (os.platform() === 'win32') {
@@ -36,8 +36,8 @@ class TerminalService {
   }
 
   create(id: string, cwd: string): string {
-    // Return existing terminal if already created (prevents duplicate PTY on session restore)
-    if (this.terminals.has(id)) {
+    // Return existing agent if already created (prevents duplicate PTY on session restore)
+    if (this.agents.has(id)) {
       return id;
     }
 
@@ -51,62 +51,62 @@ class TerminalService {
       env: process.env as { [key: string]: string },
     });
 
-    const instance: TerminalInstance = {
+    const instance: AgentInstance = {
       id,
       pty: ptyProcess,
       cwd,
     };
 
-    this.terminals.set(id, instance);
+    this.agents.set(id, instance);
     return id;
   }
 
   write(id: string, data: string): void {
-    const terminal = this.terminals.get(id);
-    if (terminal) {
-      terminal.pty.write(data);
+    const agent = this.agents.get(id);
+    if (agent) {
+      agent.pty.write(data);
     }
   }
 
   resize(id: string, cols: number, rows: number): void {
-    const terminal = this.terminals.get(id);
-    if (terminal) {
-      terminal.pty.resize(cols, rows);
+    const agent = this.agents.get(id);
+    if (agent) {
+      agent.pty.resize(cols, rows);
     }
   }
 
   kill(id: string): void {
-    const terminal = this.terminals.get(id);
-    if (terminal) {
-      terminal.pty.kill();
-      this.terminals.delete(id);
+    const agent = this.agents.get(id);
+    if (agent) {
+      agent.pty.kill();
+      this.agents.delete(id);
     }
   }
 
   onData(id: string, callback: (data: string) => void): void {
-    const terminal = this.terminals.get(id);
-    if (terminal) {
-      terminal.pty.onData(callback);
+    const agent = this.agents.get(id);
+    if (agent) {
+      agent.pty.onData(callback);
     }
   }
 
   onExit(id: string, callback: (exitCode: number) => void): void {
-    const terminal = this.terminals.get(id);
-    if (terminal) {
-      terminal.pty.onExit(({ exitCode }) => {
+    const agent = this.agents.get(id);
+    if (agent) {
+      agent.pty.onExit(({ exitCode }) => {
         callback(exitCode);
-        this.terminals.delete(id);
+        this.agents.delete(id);
       });
     }
   }
 
-  getTerminal(id: string): TerminalInstance | undefined {
-    return this.terminals.get(id);
+  getAgent(id: string): AgentInstance | undefined {
+    return this.agents.get(id);
   }
 
-  getAllTerminals(): string[] {
-    return Array.from(this.terminals.keys());
+  getAllAgents(): string[] {
+    return Array.from(this.agents.keys());
   }
 }
 
-export const terminalService = new TerminalService();
+export const agentService = new AgentService();

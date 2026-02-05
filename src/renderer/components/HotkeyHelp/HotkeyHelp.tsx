@@ -7,11 +7,11 @@ interface HotkeyHelpProps {
 }
 
 const shortcuts = [
-  { keys: 'Ctrl + Tab', description: 'Next terminal' },
-  { keys: 'Ctrl + Shift + Tab', description: 'Previous terminal' },
-  { keys: 'Ctrl + Alt + \\', description: 'New terminal' },
-  { keys: 'Ctrl + W', description: 'Close current terminal/file' },
-  { keys: 'F2', description: 'Rename terminal' },
+  { keys: 'Ctrl + Tab', description: 'Next agent' },
+  { keys: 'Ctrl + Shift + Tab', description: 'Previous agent' },
+  { keys: 'Ctrl + Alt + \\', description: 'New agent' },
+  { keys: 'Ctrl + W', description: 'Close current agent/file' },
+  { keys: 'F2', description: 'Rename agent' },
   { keys: 'Ctrl + ?', description: 'Show this help' },
   { keys: 'Ctrl + Shift + I', description: 'Open DevTools' },
 ];
