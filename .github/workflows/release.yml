@@ -133,12 +133,17 @@ jobs:
             @"
           version: $version
           files:
-            - url: $($exe.Name)
+            - url: $($exe.Name.Replace(' ', '.'))
               sha512: $sha512
               size: $size
-          path: $($exe.Name)
+          path: $($exe.Name.Replace(' ', '.'))
           sha512: $sha512
           "@ | Out-File -FilePath "staged/latest.yml" -Encoding utf8
+            # Rename exe to match (spaces to dots)
+            $newName = $exe.Name.Replace(' ', '.')
+            if ($exe.Name -ne $newName) {
+              Rename-Item -Path $exe.FullName -NewName $newName
+            }
           }
 
       - name: Generate latest-mac.yml for electron-updater (macOS)
