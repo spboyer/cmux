@@ -22,7 +22,7 @@ A modern Electron-based agent manager for working across multiple repositories s
 - Support for TypeScript, JavaScript, JSON, Markdown, CSS, HTML, Python, YAML, and more
 - Line numbers and minimap navigation
 
-![File View](img/file-screenshot.png)
+![File View](img/agent-file-screenshot.png)
 
 ### 🎨 Three-Pane Layout
 - **Left Pane**: Agent and file list - see all open agents and their associated files
