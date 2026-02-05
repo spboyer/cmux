@@ -33,7 +33,7 @@ export interface SessionData {
 export interface ElectronAPI {
   openDirectory: () => Promise<string | null>;
   terminal: {
-    create: (id: string, cwd: string) => Promise<string>;
+    create: (id: string, cwd: string) => Promise<{ id: string; isWorktree: boolean }>;
     write: (id: string, data: string) => Promise<void>;
     resize: (id: string, cols: number, rows: number) => Promise<void>;
     kill: (id: string) => Promise<void>;
