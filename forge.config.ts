@@ -13,11 +13,33 @@ import { mainConfig } from './webpack.main.config';
 import { rendererConfig } from './webpack.renderer.config';
 import { preloadConfig } from './webpack.preload.config';
 
+const enableMacOSSigning = process.platform === 'darwin' && process.env.ENABLE_MACOS_SIGNING === 'true';
+const enableMacOSNotarization =
+  enableMacOSSigning &&
+  Boolean(process.env.APPLE_ID) &&
+  Boolean(process.env.APPLE_ID_PASSWORD) &&
+  Boolean(process.env.APPLE_TEAM_ID);
+
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     executableName: 'vibe-playground',
     extraResource: ['./app-update.yml'],
+    ...(enableMacOSSigning
+      ? {
+          // Triggers @electron/osx-sign; identity auto-discovered from keychain.
+          osxSign: {},
+          ...(enableMacOSNotarization
+            ? {
+                osxNotarize: {
+                  appleId: process.env.APPLE_ID!,
+                  appleIdPassword: process.env.APPLE_ID_PASSWORD!,
+                  teamId: process.env.APPLE_TEAM_ID!,
+                },
+              }
+            : {}),
+        }
+      : {}),
   },
   publishers: [
     {
