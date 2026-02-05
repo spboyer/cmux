@@ -15,6 +15,13 @@ const createWindow = (): void => {
   mainWindow = new BrowserWindow({
     height: 800,
     width: 1200,
+    backgroundColor: '#0d1117',
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#161b22',
+      symbolColor: '#8b949e',
+      height: 32,
+    },
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       contextIsolation: true,

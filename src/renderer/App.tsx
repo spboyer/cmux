@@ -61,16 +61,23 @@ function AppContent() {
   };
 
   return (
-    <ThreePaneLayout
-      leftPane={
-        <LeftPane
-          onAddTerminal={handleAddTerminal}
-          onCloseTerminal={handleCloseTerminal}
+    <div className="app-container">
+      <div className="title-bar">
+        <span className="title-bar-text">Multi-Repo Terminal</span>
+      </div>
+      <div className="app-content">
+        <ThreePaneLayout
+          leftPane={
+            <LeftPane
+              onAddTerminal={handleAddTerminal}
+              onCloseTerminal={handleCloseTerminal}
+            />
+          }
+          centerPane={<CenterPane />}
+          rightPane={<RightPane onFileClick={handleFileClick} />}
         />
-      }
-      centerPane={<CenterPane />}
-      rightPane={<RightPane onFileClick={handleFileClick} />}
-    />
+      </div>
+    </div>
   );
 }
 

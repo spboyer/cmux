@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { useAppState } from '../../contexts/AppStateContext';
+import { Icon, getFileIcon } from '../Icon';
 
 interface LeftPaneProps {
   onAddTerminal: () => void;
@@ -89,7 +90,9 @@ export function LeftPane({ onAddTerminal, onCloseTerminal }: LeftPaneProps) {
     <>
       <div className="pane-header">
         <span>Terminals</span>
-        <button className="add-btn" onClick={onAddTerminal}>+</button>
+        <button className="add-btn" onClick={onAddTerminal} title="New Terminal">
+          <Icon name="add" size="sm" />
+        </button>
       </div>
       <div className="pane-content">
         {state.terminals.length === 0 ? (
@@ -103,7 +106,9 @@ export function LeftPane({ onAddTerminal, onCloseTerminal }: LeftPaneProps) {
                   onClick={() => handleTerminalClick(terminal.id)}
                   onContextMenu={(e) => handleTerminalContextMenu(e, terminal.id)}
                 >
-                  <span className="terminal-icon">▸</span>
+                  <span className="terminal-icon">
+                    <Icon name="terminal" size="sm" />
+                  </span>
                   <span className="terminal-label">{terminal.label}</span>
                 </div>
                 {terminal.openFiles.length > 0 && (
@@ -115,7 +120,9 @@ export function LeftPane({ onAddTerminal, onCloseTerminal }: LeftPaneProps) {
                         onClick={() => handleFileClick(file.id, terminal.id)}
                         onContextMenu={(e) => handleFileContextMenu(e, file.id, terminal.id)}
                       >
-                        <span className="file-icon">📄</span>
+                        <span className="file-icon">
+                          <Icon name={getFileIcon(file.name)} size="sm" />
+                        </span>
                         <span className="file-name">{file.name}</span>
                       </li>
                     ))}
@@ -134,9 +141,15 @@ export function LeftPane({ onAddTerminal, onCloseTerminal }: LeftPaneProps) {
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
           {contextMenu.fileId ? (
-            <button onClick={handleCloseFile}>Close File</button>
+            <button onClick={handleCloseFile}>
+              <Icon name="close" size="sm" />
+              Close File
+            </button>
           ) : (
-            <button onClick={handleCloseTerminal}>Close Terminal</button>
+            <button onClick={handleCloseTerminal}>
+              <Icon name="close" size="sm" />
+              Close Terminal
+            </button>
           )}
         </div>
       )}

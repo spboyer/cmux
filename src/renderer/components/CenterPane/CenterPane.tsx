@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useAppState, getActiveItem } from '../../contexts/AppStateContext';
 import { TerminalView } from './TerminalView';
 import { FileView } from './FileView';
+import { Icon } from '../Icon';
 
 export function CenterPane() {
   const { state } = useAppState();
@@ -14,6 +15,7 @@ export function CenterPane() {
   if (terminals.length === 0) {
     return (
       <div className="pane-content center-empty">
+        <Icon name="terminal" size={48} />
         <p>Select or create a terminal</p>
       </div>
     );

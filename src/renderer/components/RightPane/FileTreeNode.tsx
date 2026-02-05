@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Icon, getFileIcon } from '../Icon';
 
 interface FileEntry {
   name: string;
@@ -42,10 +43,7 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
     }
   };
 
-  const indent = level * 16;
-  const icon = entry.isDirectory 
-    ? (isExpanded ? '📂' : '📁') 
-    : getFileIcon(entry.name);
+  const indent = level * 16 + 8;
 
   return (
     <div>
@@ -57,9 +55,20 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
         tabIndex={0}
         onKeyDown={(e) => e.key === 'Enter' && handleClick()}
       >
-        <span className="file-icon">{icon}</span>
+        {entry.isDirectory && (
+          <span className="chevron">
+            <Icon name={isExpanded ? 'chevron-down' : 'chevron-right'} size="sm" />
+          </span>
+        )}
+        <span className="file-icon">
+          {entry.isDirectory ? (
+            <Icon name={isExpanded ? 'folder-opened' : 'folder'} size="sm" />
+          ) : (
+            <Icon name={getFileIcon(entry.name)} size="sm" />
+          )}
+        </span>
         <span className="file-name">{entry.name}</span>
-        {loading && <span className="loading">...</span>}
+        {loading && <span className="loading">loading...</span>}
       </div>
       {entry.isDirectory && isExpanded && (
         <div className="file-tree-children">
@@ -79,29 +88,5 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
     </div>
   );
 };
-
-function getFileIcon(filename: string): string {
-  const ext = filename.split('.').pop()?.toLowerCase();
-  switch (ext) {
-    case 'ts':
-    case 'tsx':
-      return '🔷';
-    case 'js':
-    case 'jsx':
-      return '🟨';
-    case 'json':
-      return '📋';
-    case 'md':
-      return '📝';
-    case 'css':
-      return '🎨';
-    case 'html':
-      return '🌐';
-    case 'gitignore':
-      return '🙈';
-    default:
-      return '📄';
-  }
-}
 
 export default FileTreeNode;

@@ -20,14 +20,14 @@ describe('LeftPane', () => {
 
   it('should render add button', () => {
     renderWithProvider(<LeftPane onAddTerminal={() => {}} onCloseTerminal={() => {}} />);
-    expect(screen.getByRole('button', { name: '+' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'New Terminal' })).toBeInTheDocument();
   });
 
   it('should call onAddTerminal when + button is clicked', () => {
     const onAddTerminal = jest.fn();
     renderWithProvider(<LeftPane onAddTerminal={onAddTerminal} onCloseTerminal={() => {}} />);
     
-    fireEvent.click(screen.getByRole('button', { name: '+' }));
+    fireEvent.click(screen.getByRole('button', { name: 'New Terminal' }));
     expect(onAddTerminal).toHaveBeenCalledTimes(1);
   });
 
