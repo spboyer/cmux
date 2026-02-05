@@ -5,12 +5,14 @@ const mockAutoUpdater = new EventEmitter() as EventEmitter & {
   checkForUpdates: jest.Mock;
   downloadUpdate: jest.Mock;
   quitAndInstall: jest.Mock;
+  setFeedURL: jest.Mock;
   autoDownload: boolean;
   autoInstallOnAppQuit: boolean;
 };
 mockAutoUpdater.checkForUpdates = jest.fn();
 mockAutoUpdater.downloadUpdate = jest.fn();
 mockAutoUpdater.quitAndInstall = jest.fn();
+mockAutoUpdater.setFeedURL = jest.fn();
 mockAutoUpdater.autoDownload = false;
 mockAutoUpdater.autoInstallOnAppQuit = true;
 

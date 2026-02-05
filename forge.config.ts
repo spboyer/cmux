@@ -17,6 +17,7 @@ const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
     executableName: 'vibe-playground',
+    extraResource: ['./app-update.yml'],
   },
   publishers: [
     {

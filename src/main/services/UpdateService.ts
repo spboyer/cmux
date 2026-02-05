@@ -1,5 +1,6 @@
 import { app } from 'electron';
 import { autoUpdater, UpdateInfo, ProgressInfo } from 'electron-updater';
+import * as path from 'path';
 
 export type UpdateStatusType = 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error' | 'dev-mode';
 
@@ -20,6 +21,15 @@ export class UpdateService {
     // Configure auto-updater
     autoUpdater.autoDownload = false;
     autoUpdater.autoInstallOnAppQuit = true;
+
+    // Point to app-update.yml in resources folder (added via extraResource in forge.config.ts)
+    if (app.isPackaged) {
+      autoUpdater.setFeedURL({
+        provider: 'github',
+        owner: 'ipdelete',
+        repo: 'vibe-playground',
+      });
+    }
 
     // Set up event handlers
     this.setupEventHandlers();
