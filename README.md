@@ -2,7 +2,7 @@
 
 A modern Electron-based agent manager for working across multiple repositories simultaneously. Features a three-pane layout with integrated file browsing and syntax-highlighted file viewing.
 
-![Agent View](img/terminal-screenshot.png)
+![Agent View](img/agent-screenshot.png)
 
 ## Features
 
