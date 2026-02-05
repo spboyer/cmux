@@ -7,6 +7,12 @@ export interface FileEntry {
   children?: FileEntry[];
 }
 
+export interface FileWatchEvent {
+  type: 'change' | 'rename';
+  directory: string;
+  filename: string | null;
+}
+
 export interface ElectronAPI {
   openDirectory: () => Promise<string | null>;
   terminal: {
@@ -20,6 +26,10 @@ export interface ElectronAPI {
   fs: {
     readDirectory: (dirPath: string) => Promise<FileEntry[]>;
     readFile: (filePath: string) => Promise<string>;
+    watchDirectory: (dirPath: string) => Promise<boolean>;
+    unwatchDirectory: (dirPath: string) => Promise<void>;
+    unwatchAll: () => Promise<void>;
+    onDirectoryChanged: (callback: (event: FileWatchEvent) => void) => () => void;
   };
 }
 
@@ -40,6 +50,19 @@ const electronAPI: ElectronAPI = {
   fs: {
     readDirectory: (dirPath) => ipcRenderer.invoke('fs:readDirectory', dirPath),
     readFile: (filePath) => ipcRenderer.invoke('fs:readFile', filePath),
+    watchDirectory: (dirPath) => ipcRenderer.invoke('fs:watchDirectory', dirPath),
+    unwatchDirectory: (dirPath) => ipcRenderer.invoke('fs:unwatchDirectory', dirPath),
+    unwatchAll: () => ipcRenderer.invoke('fs:unwatchAll'),
+    onDirectoryChanged: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, watchEvent: FileWatchEvent) => {
+        callback(watchEvent);
+      };
+      ipcRenderer.on('fs:directoryChanged', handler);
+      // Return cleanup function
+      return () => {
+        ipcRenderer.removeListener('fs:directoryChanged', handler);
+      };
+    },
   },
 };
 

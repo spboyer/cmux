@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icon, getFileIcon } from '../Icon';
 
 interface FileEntry {
@@ -15,6 +15,7 @@ interface FileTreeNodeProps {
   onDirectoryToggle: (path: string, isExpanded: boolean) => void;
   expandedDirs: Set<string>;
   loadChildren: (path: string) => Promise<FileEntry[]>;
+  getChildren: (path: string) => FileEntry[];
 }
 
 export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
@@ -24,17 +25,25 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
   onDirectoryToggle,
   expandedDirs,
   loadChildren,
+  getChildren,
 }) => {
-  const [children, setChildren] = useState<FileEntry[]>(entry.children || []);
   const [loading, setLoading] = useState(false);
   const isExpanded = expandedDirs.has(entry.path);
+  const children = getChildren(entry.path);
+
+  // Load children when directory is expanded and not yet loaded
+  useEffect(() => {
+    if (entry.isDirectory && isExpanded && children.length === 0) {
+      setLoading(true);
+      loadChildren(entry.path).finally(() => setLoading(false));
+    }
+  }, [entry.isDirectory, entry.path, isExpanded, children.length, loadChildren]);
 
   const handleClick = async () => {
     if (entry.isDirectory) {
       if (!isExpanded && children.length === 0) {
         setLoading(true);
-        const loadedChildren = await loadChildren(entry.path);
-        setChildren(loadedChildren);
+        await loadChildren(entry.path);
         setLoading(false);
       }
       onDirectoryToggle(entry.path, !isExpanded);
@@ -81,6 +90,7 @@ export const FileTreeNode: React.FC<FileTreeNodeProps> = ({
               onDirectoryToggle={onDirectoryToggle}
               expandedDirs={expandedDirs}
               loadChildren={loadChildren}
+              getChildren={getChildren}
             />
           ))}
         </div>

@@ -12,6 +12,12 @@ export interface OpenFile {
   parentTerminalId: string;
 }
 
+export interface FileWatchEvent {
+  type: 'change' | 'rename';
+  directory: string;
+  filename: string | null;
+}
+
 export interface AppState {
   terminals: Terminal[];
   activeItemId: string | null;

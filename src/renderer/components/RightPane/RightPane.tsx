@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useAppState, getActiveTerminal } from '../../contexts/AppStateContext';
 import { FileTree } from './FileTree';
+import { Icon } from '../Icon';
 
 interface RightPaneProps {
   onFileClick: (filePath: string, fileName: string) => void;
@@ -9,6 +10,11 @@ interface RightPaneProps {
 export function RightPane({ onFileClick }: RightPaneProps) {
   const { state } = useAppState();
   const activeTerminal = getActiveTerminal(state);
+  const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
 
   const handleFileClick = (filePath: string) => {
     // Extract filename from path
@@ -33,11 +39,20 @@ export function RightPane({ onFileClick }: RightPaneProps) {
     <>
       <div className="pane-header">
         <span>Files</span>
+        <button 
+          className="refresh-button" 
+          onClick={handleRefresh}
+          title="Refresh file tree"
+          aria-label="Refresh file tree"
+        >
+          <Icon name="refresh" size="sm" />
+        </button>
       </div>
       <div className="pane-content file-tree-container">
         <FileTree 
           rootPath={activeTerminal.cwd} 
           onFileClick={handleFileClick}
+          refreshTrigger={refreshTrigger}
         />
       </div>
     </>
