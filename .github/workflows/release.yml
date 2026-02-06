@@ -99,15 +99,17 @@ jobs:
         run: npm ci
 
       - name: Import Apple code-signing certs (macOS)
-        if: matrix.platform == 'macos' && secrets.MACOS_CERTIFICATE_P12_BASE64 != ''
+        if: matrix.platform == 'macos'
+        id: macos-certs
         uses: apple-actions/import-codesign-certs@v3
+        continue-on-error: true
         with:
           # Base64-encoded .p12 containing a "Developer ID Application" cert
           p12-file-base64: ${{ secrets.MACOS_CERTIFICATE_P12_BASE64 }}
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
 
       - name: Build and package (macOS signed + notarized)
-        if: matrix.platform == 'macos' && secrets.MACOS_CERTIFICATE_P12_BASE64 != ''
+        if: matrix.platform == 'macos' && steps.macos-certs.outcome == 'success'
         run: npm run make
         env:
           ENABLE_MACOS_SIGNING: 'true'
@@ -116,7 +118,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
 
       - name: Build and package (macOS unsigned)
-        if: matrix.platform == 'macos' && secrets.MACOS_CERTIFICATE_P12_BASE64 == ''
+        if: matrix.platform == 'macos' && steps.macos-certs.outcome != 'success'
         run: npm run make
 
       - name: Build and package (non-macOS)
