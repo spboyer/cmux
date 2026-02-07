@@ -44,6 +44,8 @@ describe('RightPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -64,6 +66,8 @@ describe('RightPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -90,6 +94,8 @@ describe('RightPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -112,6 +118,8 @@ describe('RightPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -135,6 +143,8 @@ describe('RightPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state1);
@@ -155,6 +165,8 @@ describe('RightPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state2);
@@ -173,6 +185,8 @@ describe('RightPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);

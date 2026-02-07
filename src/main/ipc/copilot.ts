@@ -4,7 +4,11 @@ import { CopilotService } from '../services/CopilotService';
 const copilotService = new CopilotService();
 
 export function setupCopilotIPC(mainWindow: BrowserWindow): void {
-  ipcMain.handle('copilot:send', async (_event, conversationId: string, message: string, messageId: string) => {
+  ipcMain.handle('copilot:listModels', async () => {
+    return copilotService.listModels();
+  });
+
+  ipcMain.handle('copilot:send', async (_event, conversationId: string, message: string, messageId: string, model?: string) => {
     await copilotService.sendMessage(
       conversationId,
       message,
@@ -18,6 +22,7 @@ export function setupCopilotIPC(mainWindow: BrowserWindow): void {
       (msgId, error) => {
         mainWindow.webContents.send('copilot:error', msgId, error);
       },
+      model,
     );
   });
 }

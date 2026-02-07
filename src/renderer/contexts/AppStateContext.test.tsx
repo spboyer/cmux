@@ -267,6 +267,36 @@ describe('appReducer', () => {
       expect(state.chatLoading).toBe(true);
     });
   });
+
+  describe('SET_AVAILABLE_MODELS', () => {
+    it('should set available models', () => {
+      const models = [{ id: 'gpt-4o', name: 'GPT-4o' }, { id: 'claude-sonnet', name: 'Claude Sonnet' }];
+      const state = appReducer(initialState, {
+        type: 'SET_AVAILABLE_MODELS',
+        payload: { models },
+      });
+      expect(state.availableModels).toEqual(models);
+    });
+  });
+
+  describe('SET_SELECTED_MODEL', () => {
+    it('should set selected model', () => {
+      const state = appReducer(initialState, {
+        type: 'SET_SELECTED_MODEL',
+        payload: { model: 'gpt-4o' },
+      });
+      expect(state.selectedModel).toBe('gpt-4o');
+    });
+
+    it('should clear selected model', () => {
+      const stateWithModel = { ...initialState, selectedModel: 'gpt-4o' };
+      const state = appReducer(stateWithModel, {
+        type: 'SET_SELECTED_MODEL',
+        payload: { model: null },
+      });
+      expect(state.selectedModel).toBeNull();
+    });
+  });
 });
 
 describe('selectors', () => {
@@ -288,6 +318,8 @@ describe('selectors', () => {
         chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getActiveAgent(state);
@@ -310,6 +342,8 @@ describe('selectors', () => {
         chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getActiveItem(state);
@@ -334,6 +368,8 @@ describe('selectors', () => {
         chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getActiveItem(state);
@@ -364,6 +400,8 @@ describe('selectors', () => {
         chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getFilesForAgent(state, 'agent-1');

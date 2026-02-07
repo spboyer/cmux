@@ -13,9 +13,15 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export interface ModelInfo {
+  id: string;
+  name: string;
+}
+
 export interface Conversation {
   id: string;
   title: string;
+  model?: string;
   createdAt: number;
   updatedAt: number;
 }
@@ -23,6 +29,7 @@ export interface Conversation {
 export interface ConversationData {
   id: string;
   title: string;
+  model?: string;
   messages: ChatMessage[];
   createdAt: number;
   updatedAt: number;
@@ -52,6 +59,8 @@ export interface AppState {
   activeConversationId: string | null;
   chatMessages: ChatMessage[];
   chatLoading: boolean;
+  availableModels: ModelInfo[];
+  selectedModel: string | null;
 }
 
 export interface SessionData {
@@ -79,7 +88,9 @@ export type AppAction =
   | { type: 'REMOVE_CONVERSATION'; payload: { id: string } }
   | { type: 'RENAME_CONVERSATION'; payload: { id: string; title: string } }
   | { type: 'SET_ACTIVE_CONVERSATION'; payload: { id: string | null } }
-  | { type: 'SET_CHAT_MESSAGES'; payload: { messages: ChatMessage[] } };
+  | { type: 'SET_CHAT_MESSAGES'; payload: { messages: ChatMessage[] } }
+  | { type: 'SET_AVAILABLE_MODELS'; payload: { models: ModelInfo[] } }
+  | { type: 'SET_SELECTED_MODEL'; payload: { model: string | null } };
 
 // Auto-update types
 export type UpdateStatus = 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error' | 'dev-mode';

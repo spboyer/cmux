@@ -68,11 +68,19 @@ export function RightPane({ onFileClick }: RightPaneProps) {
     const data = await window.electronAPI.conversation.load(id);
     if (data) {
       dispatch({ type: 'SET_CHAT_MESSAGES', payload: { messages: data.messages } });
+      if (data.model) {
+        dispatch({ type: 'SET_SELECTED_MODEL', payload: { model: data.model } });
+      }
     }
   };
 
   const handleNewConversation = () => {
     dispatch({ type: 'SET_ACTIVE_CONVERSATION', payload: { id: null } });
+    // Reset to last-used model for new conversations
+    const lastUsed = localStorage.getItem('lastUsedModel');
+    if (lastUsed) {
+      dispatch({ type: 'SET_SELECTED_MODEL', payload: { model: lastUsed } });
+    }
   };
 
   const handleContextMenu = (e: React.MouseEvent, conversationId: string) => {

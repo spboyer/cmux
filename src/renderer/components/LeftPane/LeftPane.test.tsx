@@ -51,6 +51,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
     const chatItem = screen.getByText('Copilot Chat').closest('.chat-nav-item');
@@ -70,6 +72,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -90,6 +94,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -117,6 +123,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -137,6 +145,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -166,6 +176,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -189,6 +201,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={onCloseAgent} />, state);
@@ -212,6 +226,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -240,6 +256,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(
@@ -270,6 +288,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(
@@ -302,6 +322,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(
@@ -333,6 +355,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(
@@ -366,6 +390,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -387,6 +413,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -407,6 +435,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -430,6 +460,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -462,6 +494,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -489,6 +523,8 @@ describe('LeftPane', () => {
       chatLoading: false,
       conversations: [],
       activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);

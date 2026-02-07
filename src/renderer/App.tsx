@@ -118,6 +118,10 @@ function AppContent() {
           const convData = await window.electronAPI.conversation.load(sessionData.activeConversationId);
           if (convData) {
             dispatch({ type: 'SET_CHAT_MESSAGES', payload: { messages: convData.messages } });
+            // Restore the conversation's model selection
+            if (convData.model) {
+              dispatch({ type: 'SET_SELECTED_MODEL', payload: { model: convData.model } });
+            }
           }
           // Restore chat view mode if that was the last active view
           if (!sessionData.activeItemId && sessionData.activeConversationId) {

@@ -67,9 +67,9 @@ export interface ElectronAPI {
     load: () => Promise<SessionData | null>;
   };
   conversation: {
-    list: () => Promise<Array<{ id: string; title: string; createdAt: number; updatedAt: number }>>;
-    load: (id: string) => Promise<{ id: string; title: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number } | null>;
-    save: (data: { id: string; title: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number }) => Promise<void>;
+    list: () => Promise<Array<{ id: string; title: string; model?: string; createdAt: number; updatedAt: number }>>;
+    load: (id: string) => Promise<{ id: string; title: string; model?: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number } | null>;
+    save: (data: { id: string; title: string; model?: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number }) => Promise<void>;
     delete: (id: string) => Promise<void>;
     rename: (id: string, title: string) => Promise<void>;
   };
@@ -81,7 +81,8 @@ export interface ElectronAPI {
     onProgress: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
   };
   copilot: {
-    send: (conversationId: string, message: string, messageId: string) => Promise<void>;
+    listModels: () => Promise<Array<{ id: string; name: string }>>;
+    send: (conversationId: string, message: string, messageId: string, model?: string) => Promise<void>;
     onChunk: (callback: (messageId: string, content: string) => void) => () => void;
     onDone: (callback: (messageId: string) => void) => () => void;
     onError: (callback: (messageId: string, error: string) => void) => () => void;
@@ -183,7 +184,8 @@ const electronAPI: ElectronAPI = {
     },
   },
   copilot: {
-    send: (conversationId, message, messageId) => ipcRenderer.invoke('copilot:send', conversationId, message, messageId),
+    listModels: () => ipcRenderer.invoke('copilot:listModels'),
+    send: (conversationId, message, messageId, model) => ipcRenderer.invoke('copilot:send', conversationId, message, messageId, model),
     onChunk: (callback) => {
       const handler = (_event: Electron.IpcRendererEvent, messageId: string, content: string) => {
         callback(messageId, content);

@@ -10,6 +10,7 @@ async function loadSdk() {
 export class CopilotService {
   private client: CopilotClientType | null = null;
   private sessions: Map<string, CopilotSessionType> = new Map();
+  private sessionModels: Map<string, string> = new Map();
 
   async start(): Promise<void> {
     const { CopilotClient } = await loadSdk();
@@ -17,14 +18,32 @@ export class CopilotService {
     await this.client.start();
   }
 
-  private async getOrCreateSession(conversationId: string): Promise<CopilotSessionType> {
+  async listModels(): Promise<Array<{ id: string; name: string }>> {
+    if (!this.client) {
+      await this.start();
+    }
+    const models = await this.client!.listModels();
+    return models.map(m => ({ id: m.id, name: m.name }));
+  }
+
+  private async getOrCreateSession(conversationId: string, model?: string): Promise<CopilotSessionType> {
+    const existingModel = this.sessionModels.get(conversationId);
+    // Recreate session if model changed
+    if (model && existingModel && existingModel !== model) {
+      await this.destroySession(conversationId);
+    }
+
     let session = this.sessions.get(conversationId);
     if (!session) {
       if (!this.client) {
         await this.start();
       }
-      session = await this.client!.createSession();
+      const config = model ? { model } : undefined;
+      session = await this.client!.createSession(config);
       this.sessions.set(conversationId, session);
+      if (model) {
+        this.sessionModels.set(conversationId, model);
+      }
     }
     return session;
   }
@@ -34,6 +53,7 @@ export class CopilotService {
     if (session) {
       await session.destroy().catch(() => {});
       this.sessions.delete(conversationId);
+      this.sessionModels.delete(conversationId);
     }
   }
 
@@ -44,9 +64,10 @@ export class CopilotService {
     onChunk: (messageId: string, content: string) => void,
     onDone: (messageId: string, fullContent?: string) => void,
     onError: (messageId: string, error: string) => void,
+    model?: string,
   ): Promise<void> {
     try {
-      const session = await this.getOrCreateSession(conversationId);
+      const session = await this.getOrCreateSession(conversationId, model);
 
       let receivedChunks = false;
 
@@ -78,6 +99,7 @@ export class CopilotService {
       await session.destroy().catch(() => {});
       this.sessions.delete(id);
     }
+    this.sessionModels.clear();
     if (this.client) {
       await this.client.stop().catch(() => {});
       this.client = null;

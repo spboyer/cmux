@@ -56,6 +56,7 @@ beforeAll(() => {
       showOpenDialog: mockShowOpenDialog,
     },
     copilot: {
+      listModels: jest.fn().mockResolvedValue([]),
       send: jest.fn(),
       onChunk: jest.fn().mockReturnValue(() => {}),
       onDone: jest.fn().mockReturnValue(() => {}),

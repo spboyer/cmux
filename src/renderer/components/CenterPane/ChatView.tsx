@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, useCallback } from 'react';
 import { useAppState } from '../../contexts/AppStateContext';
 import { Icon } from '../Icon';
 
@@ -13,8 +13,10 @@ export function ChatView() {
   const { state, dispatch } = useAppState();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const [inputValue, setInputValue] = React.useState('');
+  const [inputValue, setInputValue] = useState('');
   const conversationIdRef = useRef<string | null>(state.activeConversationId);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   // Keep ref in sync with state
   useEffect(() => {
@@ -32,8 +34,38 @@ export function ChatView() {
     }
   }, [state.chatLoading]);
 
+  // Fetch available models on mount
+  useEffect(() => {
+    if (state.availableModels.length > 0) return;
+    window.electronAPI.copilot.listModels()
+      .then(models => {
+        dispatch({ type: 'SET_AVAILABLE_MODELS', payload: { models } });
+        // Default to last-used model from localStorage, or first model
+        if (!state.selectedModel) {
+          const lastUsed = localStorage.getItem('lastUsedModel');
+          const defaultModel = lastUsed && models.some(m => m.id === lastUsed)
+            ? lastUsed
+            : models[0]?.id ?? null;
+          dispatch({ type: 'SET_SELECTED_MODEL', payload: { model: defaultModel } });
+        }
+      })
+      .catch(() => { /* models unavailable — picker will be hidden */ });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Close picker on outside click
+  useEffect(() => {
+    if (!pickerOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [pickerOpen]);
+
   // Save conversation to disk after streaming completes
-  const saveConversation = React.useCallback((messages: typeof state.chatMessages) => {
+  const saveConversation = useCallback((messages: typeof state.chatMessages) => {
     const convId = conversationIdRef.current;
     if (!convId) return;
     const conv = state.conversations.find(c => c.id === convId);
@@ -42,11 +74,12 @@ export function ChatView() {
     window.electronAPI.conversation.save({
       id: convId,
       title: conv.title,
+      model: state.selectedModel ?? undefined,
       messages,
       createdAt: conv.createdAt,
       updatedAt: Date.now(),
     });
-  }, [state.conversations]);
+  }, [state.conversations, state.selectedModel]);
 
   // Listen for streaming chunks from main process
   useEffect(() => {
@@ -119,8 +152,13 @@ export function ChatView() {
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: { message: assistantMessage } });
     dispatch({ type: 'SET_CHAT_LOADING', payload: { loading: true } });
 
+    // Remember last-used model
+    if (state.selectedModel) {
+      localStorage.setItem('lastUsedModel', state.selectedModel);
+    }
+
     // Send to main process via IPC
-    window.electronAPI.copilot.send(convId, content, assistantMessage.id);
+    window.electronAPI.copilot.send(convId, content, assistantMessage.id, state.selectedModel ?? undefined);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -132,6 +170,9 @@ export function ChatView() {
       handleSend();
     }
   };
+
+  const selectedModelName = state.availableModels.find(m => m.id === state.selectedModel)?.name
+    ?? state.selectedModel ?? 'Model';
 
   return (
     <div className="chat-view">
@@ -153,24 +194,56 @@ export function ChatView() {
         <div ref={messagesEndRef} />
       </div>
       <div className="chat-input-area">
-        <textarea
-          ref={inputRef}
-          className="chat-input"
-          value={inputValue}
-          onChange={e => setInputValue(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ask Copilot..."
-          disabled={state.chatLoading}
-          rows={1}
-        />
-        <button
-          className="chat-send-btn"
-          onClick={handleSend}
-          disabled={!inputValue.trim() || state.chatLoading}
-          title="Send message"
-        >
-          <Icon name="chevron-right" size="sm" />
-        </button>
+        <div className="chat-input-row">
+          <textarea
+            ref={inputRef}
+            className="chat-input"
+            value={inputValue}
+            onChange={e => setInputValue(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask Copilot..."
+            disabled={state.chatLoading}
+            rows={1}
+          />
+          <button
+            className="chat-send-btn"
+            onClick={handleSend}
+            disabled={!inputValue.trim() || state.chatLoading}
+            title="Send message"
+          >
+            <Icon name="chevron-right" size="sm" />
+          </button>
+        </div>
+        {state.availableModels.length > 0 && (
+          <div className="chat-input-footer">
+            <div className="model-picker" ref={pickerRef}>
+              <button
+                className="model-picker-btn"
+                onClick={() => setPickerOpen(prev => !prev)}
+                disabled={state.chatLoading}
+                title="Select model"
+              >
+                {selectedModelName} ▾
+              </button>
+              {pickerOpen && (
+                <div className="model-picker-dropdown">
+                  {state.availableModels.map(m => (
+                    <button
+                      key={m.id}
+                      className={`model-picker-item${m.id === state.selectedModel ? ' active' : ''}`}
+                      onClick={() => {
+                        dispatch({ type: 'SET_SELECTED_MODEL', payload: { model: m.id } });
+                        setPickerOpen(false);
+                      }}
+                    >
+                      {m.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

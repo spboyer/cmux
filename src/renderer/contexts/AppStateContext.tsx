@@ -11,6 +11,8 @@ export const initialState: AppState = {
   activeConversationId: null,
   chatMessages: [],
   chatLoading: false,
+  availableModels: [],
+  selectedModel: null,
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -180,6 +182,20 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         chatMessages: action.payload.messages,
+      };
+    }
+
+    case 'SET_AVAILABLE_MODELS': {
+      return {
+        ...state,
+        availableModels: action.payload.models,
+      };
+    }
+
+    case 'SET_SELECTED_MODEL': {
+      return {
+        ...state,
+        selectedModel: action.payload.model,
       };
     }
 
