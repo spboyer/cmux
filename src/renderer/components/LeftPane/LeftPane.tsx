@@ -138,7 +138,7 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
             {state.agents.map(agent => (
               <li key={agent.id} className="agent-group">
                 <div
-                  className={`agent-item ${state.activeItemId === agent.id ? 'active' : ''}`}
+                  className={`agent-item ${state.viewMode === 'agents' && state.activeItemId === agent.id ? 'active' : ''}`}
                   onClick={() => handleAgentClick(agent.id)}
                   onContextMenu={(e) => handleAgentContextMenu(e, agent.id)}
                 >
@@ -169,7 +169,7 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
                     {agent.openFiles.map(file => (
                       <li
                         key={file.id}
-                        className={`file-item ${state.activeItemId === file.id ? 'active' : ''}`}
+                        className={`file-item ${state.viewMode === 'agents' && state.activeItemId === file.id ? 'active' : ''}`}
                         onClick={() => handleFileClick(file.id, agent.id)}
                         onContextMenu={(e) => handleFileContextMenu(e, file.id, agent.id)}
                       >
