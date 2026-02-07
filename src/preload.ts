@@ -83,6 +83,7 @@ export interface ElectronAPI {
   copilot: {
     listModels: () => Promise<Array<{ id: string; name: string }>>;
     send: (conversationId: string, message: string, messageId: string, model?: string) => Promise<void>;
+    stop: (conversationId: string, messageId: string) => Promise<void>;
     onChunk: (callback: (messageId: string, content: string) => void) => () => void;
     onDone: (callback: (messageId: string) => void) => () => void;
     onError: (callback: (messageId: string, error: string) => void) => () => void;
@@ -186,6 +187,7 @@ const electronAPI: ElectronAPI = {
   copilot: {
     listModels: () => ipcRenderer.invoke('copilot:listModels'),
     send: (conversationId, message, messageId, model) => ipcRenderer.invoke('copilot:send', conversationId, message, messageId, model),
+    stop: (conversationId, messageId) => ipcRenderer.invoke('copilot:stop', conversationId, messageId),
     onChunk: (callback) => {
       const handler = (_event: Electron.IpcRendererEvent, messageId: string, content: string) => {
         callback(messageId, content);

@@ -35,6 +35,8 @@ A modern Electron-based agent manager for working across multiple repositories s
 - Non-disruptive updates - install on next restart
 - Toast notifications for update status
 
+![Copilot Chat](img/agent-chat.png)
+
 ### 💬 Copilot Chat
 - Integrated GitHub Copilot chat powered by `@github/copilot-sdk`
 - Multiple conversations with automatic naming from first message

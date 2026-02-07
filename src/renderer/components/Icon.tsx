@@ -37,7 +37,9 @@ export type IconName =
   | 'package'
   | 'lock'
   | 'image'
-  | 'library';
+  | 'library'
+  | 'send'
+  | 'stop-circle';
 
 interface IconProps {
   name: IconName;

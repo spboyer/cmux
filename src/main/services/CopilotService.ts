@@ -11,6 +11,7 @@ export class CopilotService {
   private client: CopilotClientType | null = null;
   private sessions: Map<string, CopilotSessionType> = new Map();
   private sessionModels: Map<string, string> = new Map();
+  private activeAbortControllers: Map<string, AbortController> = new Map();
 
   async start(): Promise<void> {
     const { CopilotClient } = await loadSdk();
@@ -66,6 +67,9 @@ export class CopilotService {
     onError: (messageId: string, error: string) => void,
     model?: string,
   ): Promise<void> {
+    const abortController = new AbortController();
+    this.activeAbortControllers.set(conversationId, abortController);
+
     try {
       const session = await this.getOrCreateSession(conversationId, model);
 
@@ -73,6 +77,7 @@ export class CopilotService {
 
       // Stream deltas as they arrive
       const unsubDelta = session.on('assistant.message_delta', (event) => {
+        if (abortController.signal.aborted) return;
         receivedChunks = true;
         onChunk(messageId, event.data.deltaContent);
       });
@@ -82,6 +87,8 @@ export class CopilotService {
 
       unsubDelta();
 
+      if (abortController.signal.aborted) return;
+
       // If no streaming chunks were received, send the full response content
       if (!receivedChunks && response?.data.content) {
         onChunk(messageId, response.data.content);
@@ -89,9 +96,29 @@ export class CopilotService {
 
       onDone(messageId);
     } catch (err) {
+      if (abortController.signal.aborted) return;
       const message = err instanceof Error ? err.message : String(err);
       onError(messageId, message);
+    } finally {
+      this.activeAbortControllers.delete(conversationId);
     }
+  }
+
+  async cancelMessage(
+    conversationId: string,
+    messageId: string,
+    onDone: (messageId: string) => void,
+  ): Promise<void> {
+    const controller = this.activeAbortControllers.get(conversationId);
+    if (controller) {
+      controller.abort();
+      this.activeAbortControllers.delete(conversationId);
+    }
+    const session = this.sessions.get(conversationId);
+    if (session) {
+      await session.abort().catch(() => {});
+    }
+    onDone(messageId);
   }
 
   async stop(): Promise<void> {

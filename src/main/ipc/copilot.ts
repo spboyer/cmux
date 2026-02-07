@@ -25,6 +25,16 @@ export function setupCopilotIPC(mainWindow: BrowserWindow): void {
       model,
     );
   });
+
+  ipcMain.handle('copilot:stop', async (_event, conversationId: string, messageId: string) => {
+    await copilotService.cancelMessage(
+      conversationId,
+      messageId,
+      (msgId) => {
+        mainWindow.webContents.send('copilot:done', msgId);
+      },
+    );
+  });
 }
 
 export function getCopilotService(): CopilotService {

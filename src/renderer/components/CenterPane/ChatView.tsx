@@ -161,6 +161,17 @@ export function ChatView() {
     window.electronAPI.copilot.send(convId, content, assistantMessage.id, state.selectedModel ?? undefined);
   };
 
+  const handleStop = () => {
+    if (!state.chatLoading) return;
+    const convId = conversationIdRef.current;
+    if (!convId) return;
+    // Find the last assistant message (the one being streamed)
+    const lastAssistant = [...state.chatMessages].reverse().find(m => m.role === 'assistant');
+    if (lastAssistant) {
+      window.electronAPI.copilot.stop(convId, lastAssistant.id);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     // Stop propagation to prevent global shortcuts from firing
     e.stopPropagation();
@@ -202,16 +213,15 @@ export function ChatView() {
             onChange={e => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask Copilot..."
-            disabled={state.chatLoading}
             rows={1}
           />
           <button
-            className="chat-send-btn"
-            onClick={handleSend}
-            disabled={!inputValue.trim() || state.chatLoading}
-            title="Send message"
+            className={`chat-send-btn${state.chatLoading ? ' stop' : ''}`}
+            onClick={state.chatLoading ? handleStop : handleSend}
+            disabled={!state.chatLoading && !inputValue.trim()}
+            title={state.chatLoading ? 'Stop generation' : 'Send message'}
           >
-            <Icon name="chevron-right" size="sm" />
+            <Icon name={state.chatLoading ? 'stop-circle' : 'send'} size="sm" />
           </button>
         </div>
         {state.availableModels.length > 0 && (

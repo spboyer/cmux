@@ -867,6 +867,17 @@ kbd {
   cursor: not-allowed;
 }
 
+.chat-send-btn.stop {
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+.chat-send-btn.stop:hover {
+  background-color: rgba(255, 80, 80, 0.1);
+  color: #f55;
+  border-color: #f55;
+}
+
 .chat-input-footer {
   display: flex;
   align-items: center;
