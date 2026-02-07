@@ -21,6 +21,12 @@ jest.mock('./FileView', () => ({
   ),
 }));
 
+jest.mock('./ChatView', () => ({
+  ChatView: () => (
+    <div data-testid="chat-view">Mock ChatView</div>
+  ),
+}));
+
 const renderWithProvider = (ui: React.ReactElement, initialState?: AppState) => {
   return render(
     <AppStateProvider initialState={initialState}>
@@ -43,6 +49,13 @@ describe('CenterPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -59,6 +72,13 @@ describe('CenterPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -83,6 +103,13 @@ describe('CenterPane', () => {
       ],
       activeItemId: 'file-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -105,6 +132,13 @@ describe('CenterPane', () => {
       ],
       activeItemId: 'file-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
@@ -120,11 +154,63 @@ describe('CenterPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
 
     const agentPane = container.querySelector('.agent-pane');
     expect(agentPane).toHaveStyle({ display: 'block' });
+  });
+
+  it('should show ChatView when viewMode is chat', () => {
+    const state: AppState = {
+      agents: [
+        { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+      ],
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
+      viewMode: 'chat',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
+    };
+
+    const { container } = renderWithProvider(<CenterPane />, state);
+
+    expect(screen.getByTestId('chat-view')).toBeInTheDocument();
+    const chatPane = container.querySelector('.chat-pane');
+    expect(chatPane).toHaveStyle({ display: 'flex' });
+    const agentPane = container.querySelector('.agent-pane');
+    expect(agentPane).toHaveStyle({ display: 'none' });
+  });
+
+  it('should show ChatView even with zero agents', () => {
+    const state: AppState = {
+      agents: [],
+      activeItemId: null,
+      activeAgentId: null,
+      viewMode: 'chat',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
+    };
+
+    renderWithProvider(<CenterPane />, state);
+
+    expect(screen.getByTestId('chat-view')).toBeInTheDocument();
+    expect(screen.queryByText('Select or create an agent')).not.toBeInTheDocument();
   });
 });

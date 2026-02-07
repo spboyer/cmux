@@ -32,6 +32,7 @@ export interface SessionData {
   }>;
   activeItemId: string | null;
   activeAgentId: string | null;
+  activeConversationId: string | null;
 }
 
 export interface ElectronAPI {
@@ -65,12 +66,27 @@ export interface ElectronAPI {
     save: (data: Omit<SessionData, 'version'>) => Promise<void>;
     load: () => Promise<SessionData | null>;
   };
+  conversation: {
+    list: () => Promise<Array<{ id: string; title: string; model?: string; createdAt: number; updatedAt: number }>>;
+    load: (id: string) => Promise<{ id: string; title: string; model?: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number } | null>;
+    save: (data: { id: string; title: string; model?: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number }) => Promise<void>;
+    delete: (id: string) => Promise<void>;
+    rename: (id: string, title: string) => Promise<void>;
+  };
   updates: {
     check: () => Promise<void>;
     download: () => Promise<void>;
     install: () => void;
     onStatus: (callback: (data: { status: string; info?: unknown; message?: string }) => void) => () => void;
     onProgress: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
+  };
+  copilot: {
+    listModels: () => Promise<Array<{ id: string; name: string }>>;
+    send: (conversationId: string, message: string, messageId: string, model?: string) => Promise<void>;
+    stop: (conversationId: string, messageId: string) => Promise<void>;
+    onChunk: (callback: (messageId: string, content: string) => void) => () => void;
+    onDone: (callback: (messageId: string) => void) => () => void;
+    onError: (callback: (messageId: string, error: string) => void) => () => void;
   };
 }
 
@@ -138,6 +154,13 @@ const electronAPI: ElectronAPI = {
     save: (data) => ipcRenderer.invoke('session:save', data),
     load: () => ipcRenderer.invoke('session:load'),
   },
+  conversation: {
+    list: () => ipcRenderer.invoke('conversation:list'),
+    load: (id) => ipcRenderer.invoke('conversation:load', id),
+    save: (data) => ipcRenderer.invoke('conversation:save', data),
+    delete: (id) => ipcRenderer.invoke('conversation:delete', id),
+    rename: (id, title) => ipcRenderer.invoke('conversation:rename', id, title),
+  },
   updates: {
     check: () => ipcRenderer.invoke('updates:check'),
     download: () => ipcRenderer.invoke('updates:download'),
@@ -158,6 +181,38 @@ const electronAPI: ElectronAPI = {
       ipcRenderer.on('updates:progress', handler);
       return () => {
         ipcRenderer.removeListener('updates:progress', handler);
+      };
+    },
+  },
+  copilot: {
+    listModels: () => ipcRenderer.invoke('copilot:listModels'),
+    send: (conversationId, message, messageId, model) => ipcRenderer.invoke('copilot:send', conversationId, message, messageId, model),
+    stop: (conversationId, messageId) => ipcRenderer.invoke('copilot:stop', conversationId, messageId),
+    onChunk: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, messageId: string, content: string) => {
+        callback(messageId, content);
+      };
+      ipcRenderer.on('copilot:chunk', handler);
+      return () => {
+        ipcRenderer.removeListener('copilot:chunk', handler);
+      };
+    },
+    onDone: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, messageId: string) => {
+        callback(messageId);
+      };
+      ipcRenderer.on('copilot:done', handler);
+      return () => {
+        ipcRenderer.removeListener('copilot:done', handler);
+      };
+    },
+    onError: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, messageId: string, error: string) => {
+        callback(messageId, error);
+      };
+      ipcRenderer.on('copilot:error', handler);
+      return () => {
+        ipcRenderer.removeListener('copilot:error', handler);
       };
     },
   },

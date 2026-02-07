@@ -186,6 +186,117 @@ describe('appReducer', () => {
       expect(state.agents[0].label).toBe('My Project');
     });
   });
+
+  describe('SET_VIEW_MODE', () => {
+    it('should set view mode to chat', () => {
+      const state = appReducer(initialState, {
+        type: 'SET_VIEW_MODE',
+        payload: { mode: 'chat' },
+      });
+      expect(state.viewMode).toBe('chat');
+    });
+
+    it('should set view mode back to agents', () => {
+      let state = appReducer(initialState, {
+        type: 'SET_VIEW_MODE',
+        payload: { mode: 'chat' },
+      });
+      state = appReducer(state, {
+        type: 'SET_VIEW_MODE',
+        payload: { mode: 'agents' },
+      });
+      expect(state.viewMode).toBe('agents');
+    });
+  });
+
+  describe('SET_ACTIVE_AGENT switches viewMode', () => {
+    it('should set viewMode to agents when selecting an agent', () => {
+      let state = appReducer(initialState, {
+        type: 'ADD_AGENT',
+        payload: { id: 'agent-1', label: 'Agent 1', cwd: '/home/user' },
+      });
+      state = appReducer(state, {
+        type: 'SET_VIEW_MODE',
+        payload: { mode: 'chat' },
+      });
+      state = appReducer(state, {
+        type: 'SET_ACTIVE_AGENT',
+        payload: { id: 'agent-1' },
+      });
+      expect(state.viewMode).toBe('agents');
+    });
+  });
+
+  describe('ADD_CHAT_MESSAGE', () => {
+    it('should add a chat message', () => {
+      const message = { id: 'msg-1', role: 'user' as const, content: 'Hello', timestamp: Date.now() };
+      const state = appReducer(initialState, {
+        type: 'ADD_CHAT_MESSAGE',
+        payload: { message },
+      });
+      expect(state.chatMessages).toHaveLength(1);
+      expect(state.chatMessages[0].content).toBe('Hello');
+    });
+  });
+
+  describe('APPEND_CHAT_CHUNK', () => {
+    it('should append content to a specific message', () => {
+      const message = { id: 'msg-1', role: 'assistant' as const, content: '', timestamp: Date.now() };
+      let state = appReducer(initialState, {
+        type: 'ADD_CHAT_MESSAGE',
+        payload: { message },
+      });
+      state = appReducer(state, {
+        type: 'APPEND_CHAT_CHUNK',
+        payload: { messageId: 'msg-1', content: 'Hello' },
+      });
+      state = appReducer(state, {
+        type: 'APPEND_CHAT_CHUNK',
+        payload: { messageId: 'msg-1', content: ' world' },
+      });
+      expect(state.chatMessages[0].content).toBe('Hello world');
+    });
+  });
+
+  describe('SET_CHAT_LOADING', () => {
+    it('should set chat loading state', () => {
+      const state = appReducer(initialState, {
+        type: 'SET_CHAT_LOADING',
+        payload: { loading: true },
+      });
+      expect(state.chatLoading).toBe(true);
+    });
+  });
+
+  describe('SET_AVAILABLE_MODELS', () => {
+    it('should set available models', () => {
+      const models = [{ id: 'gpt-4o', name: 'GPT-4o' }, { id: 'claude-sonnet', name: 'Claude Sonnet' }];
+      const state = appReducer(initialState, {
+        type: 'SET_AVAILABLE_MODELS',
+        payload: { models },
+      });
+      expect(state.availableModels).toEqual(models);
+    });
+  });
+
+  describe('SET_SELECTED_MODEL', () => {
+    it('should set selected model', () => {
+      const state = appReducer(initialState, {
+        type: 'SET_SELECTED_MODEL',
+        payload: { model: 'gpt-4o' },
+      });
+      expect(state.selectedModel).toBe('gpt-4o');
+    });
+
+    it('should clear selected model', () => {
+      const stateWithModel = { ...initialState, selectedModel: 'gpt-4o' };
+      const state = appReducer(stateWithModel, {
+        type: 'SET_SELECTED_MODEL',
+        payload: { model: null },
+      });
+      expect(state.selectedModel).toBeNull();
+    });
+  });
 });
 
 describe('selectors', () => {
@@ -202,6 +313,13 @@ describe('selectors', () => {
         ],
         activeItemId: 'agent-2',
         activeAgentId: 'agent-2',
+        viewMode: 'agents',
+        chatMessages: [],
+        chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getActiveAgent(state);
@@ -219,6 +337,13 @@ describe('selectors', () => {
         agents: [{ id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] }],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+        viewMode: 'agents',
+        chatMessages: [],
+        chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getActiveItem(state);
@@ -238,6 +363,13 @@ describe('selectors', () => {
         agents: [{ id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [file] }],
         activeItemId: 'file-1',
         activeAgentId: 'agent-1',
+        viewMode: 'agents',
+        chatMessages: [],
+        chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getActiveItem(state);
@@ -263,6 +395,13 @@ describe('selectors', () => {
         agents: [{ id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [file] }],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+        viewMode: 'agents',
+        chatMessages: [],
+        chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
       };
 
       const result = getFilesForAgent(state, 'agent-1');

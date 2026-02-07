@@ -122,6 +122,15 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
         </button>
       </div>
       <div className="pane-content">
+        {/* Persistent Chat button */}
+        <div
+          className={`chat-nav-item ${state.viewMode === 'chat' ? 'active' : ''}`}
+          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: { mode: 'chat' } })}
+        >
+          <Icon name="copilot" size="sm" />
+          <span className="chat-nav-label">Copilot Chat</span>
+        </div>
+
         {state.agents.length === 0 ? (
           <p className="empty-message">No agents open</p>
         ) : (
@@ -129,7 +138,7 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
             {state.agents.map(agent => (
               <li key={agent.id} className="agent-group">
                 <div
-                  className={`agent-item ${state.activeItemId === agent.id ? 'active' : ''}`}
+                  className={`agent-item ${state.viewMode === 'agents' && state.activeItemId === agent.id ? 'active' : ''}`}
                   onClick={() => handleAgentClick(agent.id)}
                   onContextMenu={(e) => handleAgentContextMenu(e, agent.id)}
                 >
@@ -160,7 +169,7 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
                     {agent.openFiles.map(file => (
                       <li
                         key={file.id}
-                        className={`file-item ${state.activeItemId === file.id ? 'active' : ''}`}
+                        className={`file-item ${state.viewMode === 'agents' && state.activeItemId === file.id ? 'active' : ''}`}
                         onClick={() => handleFileClick(file.id, agent.id)}
                         onContextMenu={(e) => handleFileContextMenu(e, file.id, agent.id)}
                       >

@@ -6,6 +6,13 @@ export const initialState: AppState = {
   agents: [],
   activeItemId: null,
   activeAgentId: null,
+  viewMode: 'agents',
+  conversations: [],
+  activeConversationId: null,
+  chatMessages: [],
+  chatLoading: false,
+  availableModels: [],
+  selectedModel: null,
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -47,6 +54,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         activeItemId: action.payload.id,
         activeAgentId: action.payload.id,
+        viewMode: 'agents',
       };
     }
 
@@ -55,6 +63,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         ...state,
         activeItemId: action.payload.id,
         activeAgentId: action.payload.agentId ?? state.activeAgentId,
+        viewMode: 'agents',
       };
     }
 
@@ -90,6 +99,103 @@ export function appReducer(state: AppState, action: AppAction): AppState {
         agents: state.agents.map(a =>
           a.id === action.payload.id ? { ...a, label: action.payload.label } : a
         ),
+      };
+    }
+
+    case 'SET_VIEW_MODE': {
+      return {
+        ...state,
+        viewMode: action.payload.mode,
+      };
+    }
+
+    case 'ADD_CHAT_MESSAGE': {
+      return {
+        ...state,
+        chatMessages: [...state.chatMessages, action.payload.message],
+      };
+    }
+
+    case 'APPEND_CHAT_CHUNK': {
+      return {
+        ...state,
+        chatMessages: state.chatMessages.map(m =>
+          m.id === action.payload.messageId
+            ? { ...m, content: m.content + action.payload.content }
+            : m
+        ),
+      };
+    }
+
+    case 'SET_CHAT_LOADING': {
+      return {
+        ...state,
+        chatLoading: action.payload.loading,
+      };
+    }
+
+    case 'SET_CONVERSATIONS': {
+      return {
+        ...state,
+        conversations: action.payload.conversations,
+      };
+    }
+
+    case 'ADD_CONVERSATION': {
+      return {
+        ...state,
+        conversations: [action.payload.conversation, ...state.conversations],
+        activeConversationId: action.payload.conversation.id,
+        chatMessages: [],
+      };
+    }
+
+    case 'REMOVE_CONVERSATION': {
+      const filtered = state.conversations.filter(c => c.id !== action.payload.id);
+      const wasActive = state.activeConversationId === action.payload.id;
+      return {
+        ...state,
+        conversations: filtered,
+        activeConversationId: wasActive ? (filtered[0]?.id ?? null) : state.activeConversationId,
+        chatMessages: wasActive ? [] : state.chatMessages,
+      };
+    }
+
+    case 'RENAME_CONVERSATION': {
+      return {
+        ...state,
+        conversations: state.conversations.map(c =>
+          c.id === action.payload.id ? { ...c, title: action.payload.title } : c
+        ),
+      };
+    }
+
+    case 'SET_ACTIVE_CONVERSATION': {
+      return {
+        ...state,
+        activeConversationId: action.payload.id,
+        chatMessages: [],
+      };
+    }
+
+    case 'SET_CHAT_MESSAGES': {
+      return {
+        ...state,
+        chatMessages: action.payload.messages,
+      };
+    }
+
+    case 'SET_AVAILABLE_MODELS': {
+      return {
+        ...state,
+        availableModels: action.payload.models,
+      };
+    }
+
+    case 'SET_SELECTED_MODEL': {
+      return {
+        ...state,
+        selectedModel: action.payload.model,
       };
     }
 

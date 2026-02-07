@@ -14,6 +14,8 @@ export type IconName =
   | 'symbol-file'
   | 'json'
   | 'markdown'
+  | 'copilot'
+  | 'comment-discussion'
   | 'refresh'
   | 'ellipsis'
   | 'search'
@@ -35,7 +37,9 @@ export type IconName =
   | 'package'
   | 'lock'
   | 'image'
-  | 'library';
+  | 'library'
+  | 'send'
+  | 'stop-circle';
 
 interface IconProps {
   name: IconName;
