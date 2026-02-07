@@ -39,6 +39,9 @@ describe('RightPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -54,6 +57,9 @@ describe('RightPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -75,6 +81,9 @@ describe('RightPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -92,6 +101,9 @@ describe('RightPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -110,6 +122,9 @@ describe('RightPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state1);
@@ -125,9 +140,30 @@ describe('RightPane', () => {
       ],
       activeItemId: 'agent-2',
       activeAgentId: 'agent-2',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state2);
     expect(screen.getByTestId('file-tree')).toHaveAttribute('data-root', '/project');
+  });
+
+  it('should show Chat header when viewMode is chat', () => {
+    const state: AppState = {
+      agents: [
+        { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+      ],
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
+      viewMode: 'chat',
+      chatMessages: [],
+      chatLoading: false,
+    };
+
+    renderWithProvider(<RightPane onFileClick={() => {}} />, state);
+
+    expect(screen.getByText('Chat')).toBeInTheDocument();
+    expect(screen.queryByTestId('file-tree')).not.toBeInTheDocument();
   });
 });

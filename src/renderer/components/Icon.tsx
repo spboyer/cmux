@@ -14,6 +14,8 @@ export type IconName =
   | 'symbol-file'
   | 'json'
   | 'markdown'
+  | 'copilot'
+  | 'comment-discussion'
   | 'refresh'
   | 'ellipsis'
   | 'search'

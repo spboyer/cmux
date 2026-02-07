@@ -72,6 +72,12 @@ export interface ElectronAPI {
     onStatus: (callback: (data: { status: string; info?: unknown; message?: string }) => void) => () => void;
     onProgress: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
   };
+  copilot: {
+    send: (message: string, messageId: string) => Promise<void>;
+    onChunk: (callback: (messageId: string, content: string) => void) => () => void;
+    onDone: (callback: (messageId: string) => void) => () => void;
+    onError: (callback: (messageId: string, error: string) => void) => () => void;
+  };
 }
 
 const electronAPI: ElectronAPI = {
@@ -158,6 +164,36 @@ const electronAPI: ElectronAPI = {
       ipcRenderer.on('updates:progress', handler);
       return () => {
         ipcRenderer.removeListener('updates:progress', handler);
+      };
+    },
+  },
+  copilot: {
+    send: (message, messageId) => ipcRenderer.invoke('copilot:send', message, messageId),
+    onChunk: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, messageId: string, content: string) => {
+        callback(messageId, content);
+      };
+      ipcRenderer.on('copilot:chunk', handler);
+      return () => {
+        ipcRenderer.removeListener('copilot:chunk', handler);
+      };
+    },
+    onDone: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, messageId: string) => {
+        callback(messageId);
+      };
+      ipcRenderer.on('copilot:done', handler);
+      return () => {
+        ipcRenderer.removeListener('copilot:done', handler);
+      };
+    },
+    onError: (callback) => {
+      const handler = (_event: Electron.IpcRendererEvent, messageId: string, error: string) => {
+        callback(messageId, error);
+      };
+      ipcRenderer.on('copilot:error', handler);
+      return () => {
+        ipcRenderer.removeListener('copilot:error', handler);
       };
     },
   },

@@ -55,6 +55,12 @@ beforeAll(() => {
     dialog: {
       showOpenDialog: mockShowOpenDialog,
     },
+    copilot: {
+      send: jest.fn(),
+      onChunk: jest.fn().mockReturnValue(() => {}),
+      onDone: jest.fn().mockReturnValue(() => {}),
+      onError: jest.fn().mockReturnValue(() => {}),
+    },
   };
 });
 

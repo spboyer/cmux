@@ -6,6 +6,13 @@ export interface Agent {
   isWorktree?: boolean;
 }
 
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: number;
+}
+
 export interface OpenFile {
   id: string;
   path: string;
@@ -19,10 +26,15 @@ export interface FileWatchEvent {
   filename: string | null;
 }
 
+export type ViewMode = 'agents' | 'chat';
+
 export interface AppState {
   agents: Agent[];
   activeItemId: string | null;
   activeAgentId: string | null;
+  viewMode: ViewMode;
+  chatMessages: ChatMessage[];
+  chatLoading: boolean;
 }
 
 export interface SessionData {
@@ -39,7 +51,11 @@ export type AppAction =
   | { type: 'SET_ACTIVE_ITEM'; payload: { id: string; agentId?: string } }
   | { type: 'ADD_FILE'; payload: { agentId: string; file: OpenFile } }
   | { type: 'REMOVE_FILE'; payload: { agentId: string; fileId: string } }
-  | { type: 'RENAME_AGENT'; payload: { id: string; label: string } };
+  | { type: 'RENAME_AGENT'; payload: { id: string; label: string } }
+  | { type: 'SET_VIEW_MODE'; payload: { mode: ViewMode } }
+  | { type: 'ADD_CHAT_MESSAGE'; payload: { message: ChatMessage } }
+  | { type: 'APPEND_CHAT_CHUNK'; payload: { messageId: string; content: string } }
+  | { type: 'SET_CHAT_LOADING'; payload: { loading: boolean } };
 
 // Auto-update types
 export type UpdateStatus = 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error' | 'dev-mode';

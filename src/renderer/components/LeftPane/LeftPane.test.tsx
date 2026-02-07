@@ -36,6 +36,25 @@ describe('LeftPane', () => {
     expect(screen.getByText('No agents open')).toBeInTheDocument();
   });
 
+  it('should render Copilot Chat button', () => {
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />);
+    expect(screen.getByText('Copilot Chat')).toBeInTheDocument();
+  });
+
+  it('should highlight chat button when viewMode is chat', () => {
+    const state: AppState = {
+      agents: [],
+      activeItemId: null,
+      activeAgentId: null,
+      viewMode: 'chat',
+      chatMessages: [],
+      chatLoading: false,
+    };
+    renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
+    const chatItem = screen.getByText('Copilot Chat').closest('.chat-nav-item');
+    expect(chatItem).toHaveClass('active');
+  });
+
   it('should render agent list', () => {
     const state: AppState = {
       agents: [
@@ -44,6 +63,9 @@ describe('LeftPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -59,6 +81,9 @@ describe('LeftPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -81,6 +106,9 @@ describe('LeftPane', () => {
       ],
       activeItemId: 'agent-1',
       activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -96,6 +124,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -120,6 +151,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -138,6 +172,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={onCloseAgent} />, state);
@@ -156,6 +193,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -179,6 +219,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(
@@ -204,6 +247,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(
@@ -231,6 +277,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(
@@ -257,6 +306,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(
@@ -285,6 +337,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -301,6 +356,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -316,6 +374,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -334,6 +395,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -361,6 +425,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'file-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -383,6 +450,9 @@ describe('LeftPane', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);

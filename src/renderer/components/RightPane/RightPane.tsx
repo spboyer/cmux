@@ -22,6 +22,19 @@ export function RightPane({ onFileClick }: RightPaneProps) {
     onFileClick(filePath, fileName);
   };
 
+  if (state.viewMode === 'chat') {
+    return (
+      <>
+        <div className="pane-header">
+          <span>Chat</span>
+        </div>
+        <div className="pane-content">
+          <p className="empty-message">Conversation history coming soon</p>
+        </div>
+      </>
+    );
+  }
+
   if (!activeAgent) {
     return (
       <>

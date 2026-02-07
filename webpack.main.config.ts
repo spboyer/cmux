@@ -17,8 +17,9 @@ export const mainConfig: Configuration = {
   resolve: {
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.css', '.json'],
   },
-  // Don't bundle node-pty - it has native modules that need to be loaded at runtime
+  // Don't bundle node-pty or copilot-sdk - they have native/ESM modules that need to be loaded at runtime
   externals: {
     '@homebridge/node-pty-prebuilt-multiarch': 'commonjs @homebridge/node-pty-prebuilt-multiarch',
+    '@github/copilot-sdk': 'commonjs @github/copilot-sdk',
   },
 };

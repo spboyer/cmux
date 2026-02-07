@@ -122,6 +122,15 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
         </button>
       </div>
       <div className="pane-content">
+        {/* Persistent Chat button */}
+        <div
+          className={`chat-nav-item ${state.viewMode === 'chat' ? 'active' : ''}`}
+          onClick={() => dispatch({ type: 'SET_VIEW_MODE', payload: { mode: 'chat' } })}
+        >
+          <Icon name="copilot" size="sm" />
+          <span className="chat-nav-label">Copilot Chat</span>
+        </div>
+
         {state.agents.length === 0 ? (
           <p className="empty-message">No agents open</p>
         ) : (
