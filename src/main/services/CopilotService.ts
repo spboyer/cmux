@@ -9,7 +9,7 @@ async function loadSdk() {
 
 export class CopilotService {
   private client: CopilotClientType | null = null;
-  private session: CopilotSessionType | null = null;
+  private sessions: Map<string, CopilotSessionType> = new Map();
 
   async start(): Promise<void> {
     const { CopilotClient } = await loadSdk();
@@ -17,7 +17,28 @@ export class CopilotService {
     await this.client.start();
   }
 
+  private async getOrCreateSession(conversationId: string): Promise<CopilotSessionType> {
+    let session = this.sessions.get(conversationId);
+    if (!session) {
+      if (!this.client) {
+        await this.start();
+      }
+      session = await this.client!.createSession();
+      this.sessions.set(conversationId, session);
+    }
+    return session;
+  }
+
+  async destroySession(conversationId: string): Promise<void> {
+    const session = this.sessions.get(conversationId);
+    if (session) {
+      await session.destroy().catch(() => {});
+      this.sessions.delete(conversationId);
+    }
+  }
+
   async sendMessage(
+    conversationId: string,
     prompt: string,
     messageId: string,
     onChunk: (messageId: string, content: string) => void,
@@ -25,24 +46,18 @@ export class CopilotService {
     onError: (messageId: string, error: string) => void,
   ): Promise<void> {
     try {
-      if (!this.client) {
-        await this.start();
-      }
-
-      if (!this.session) {
-        this.session = await this.client!.createSession();
-      }
+      const session = await this.getOrCreateSession(conversationId);
 
       let receivedChunks = false;
 
       // Stream deltas as they arrive
-      const unsubDelta = this.session.on('assistant.message_delta', (event) => {
+      const unsubDelta = session.on('assistant.message_delta', (event) => {
         receivedChunks = true;
         onChunk(messageId, event.data.deltaContent);
       });
 
       // sendAndWait blocks until the full response is ready
-      const response = await this.session.sendAndWait({ prompt });
+      const response = await session.sendAndWait({ prompt });
 
       unsubDelta();
 
@@ -59,9 +74,9 @@ export class CopilotService {
   }
 
   async stop(): Promise<void> {
-    if (this.session) {
-      await this.session.destroy().catch(() => {});
-      this.session = null;
+    for (const [id, session] of this.sessions) {
+      await session.destroy().catch(() => {});
+      this.sessions.delete(id);
     }
     if (this.client) {
       await this.client.stop().catch(() => {});

@@ -67,6 +67,13 @@ function AppContent() {
     const restoreSession = async () => {
       try {
         const sessionData = await window.electronAPI.session.load();
+
+        // Always restore conversation list
+        const conversations = await window.electronAPI.conversation.list();
+        if (conversations.length > 0) {
+          dispatch({ type: 'SET_CONVERSATIONS', payload: { conversations } });
+        }
+
         if (sessionData && sessionData.agents.length > 0) {
           // Restore each agent
           for (const agent of sessionData.agents) {
@@ -104,6 +111,19 @@ function AppContent() {
             });
           }
         }
+
+        // Restore active conversation and its messages
+        if (sessionData?.activeConversationId && conversations.some(c => c.id === sessionData.activeConversationId)) {
+          dispatch({ type: 'SET_ACTIVE_CONVERSATION', payload: { id: sessionData.activeConversationId } });
+          const convData = await window.electronAPI.conversation.load(sessionData.activeConversationId);
+          if (convData) {
+            dispatch({ type: 'SET_CHAT_MESSAGES', payload: { messages: convData.messages } });
+          }
+          // Restore chat view mode if that was the last active view
+          if (!sessionData.activeItemId && sessionData.activeConversationId) {
+            dispatch({ type: 'SET_VIEW_MODE', payload: { mode: 'chat' } });
+          }
+        }
       } catch (error) {
         console.error('Failed to restore session:', error);
       }
@@ -119,6 +139,7 @@ function AppContent() {
         agents: state.agents,
         activeItemId: state.activeItemId,
         activeAgentId: state.activeAgentId,
+        activeConversationId: state.activeConversationId,
       });
     };
 

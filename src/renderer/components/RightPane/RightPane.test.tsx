@@ -42,6 +42,8 @@ describe('RightPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -60,6 +62,8 @@ describe('RightPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -84,6 +88,8 @@ describe('RightPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -104,6 +110,8 @@ describe('RightPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -125,6 +133,8 @@ describe('RightPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state1);
@@ -143,6 +153,8 @@ describe('RightPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state2);
@@ -159,6 +171,8 @@ describe('RightPane', () => {
       viewMode: 'chat',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);

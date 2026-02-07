@@ -35,11 +35,20 @@ A modern Electron-based agent manager for working across multiple repositories s
 - Non-disruptive updates - install on next restart
 - Toast notifications for update status
 
+### 💬 Copilot Chat
+- Integrated GitHub Copilot chat powered by `@github/copilot-sdk`
+- Multiple conversations with automatic naming from first message
+- Streamed responses displayed in real-time
+- Conversations persisted to disk and restored on restart
+- Manage conversations in the right pane — create, switch, rename, and delete
+- Each conversation gets its own isolated AI context
+
 ## Installation
 
 ### Prerequisites
 - Node.js 18+ 
 - npm 9+
+- GitHub CLI (`gh`) authenticated via `gh auth login` (required for Copilot Chat)
 
 ### Setup
 
@@ -63,6 +72,8 @@ npm start
 4. **Open Files**: Click any file to view it with syntax highlighting
 5. **Switch Views**: Click agents or files in the left pane to switch between them
 6. **Close Items**: Right-click on agents or files for context menu options
+7. **Chat with Copilot**: Click "Copilot Chat" in the left pane to start a conversation
+8. **Manage Conversations**: Use the right pane to create new conversations, switch between them, or right-click to rename/delete
 
 ### Keyboard Shortcuts
 - `Ctrl+Tab` - Next agent
@@ -81,6 +92,7 @@ npm start
 - **xterm.js** - Terminal emulator
 - **node-pty** - Pseudo-terminal for full shell support
 - **Monaco Editor** - Code editor with syntax highlighting
+- **@github/copilot-sdk** - GitHub Copilot chat integration
 - **Electron Forge** - Build and packaging toolchain
 
 ## Project Structure
@@ -95,9 +107,13 @@ src/
 ├── main/
 │   ├── services/
 │   │   ├── AgentService.ts     # PTY management
+│   │   ├── CopilotService.ts   # Copilot SDK integration
+│   │   ├── ConversationService.ts # Chat conversation persistence
 │   │   └── FileService.ts      # File system operations
 │   └── ipc/
 │       ├── agent.ts        # Agent IPC handlers
+│       ├── copilot.ts      # Copilot chat IPC handlers
+│       ├── conversation.ts # Conversation CRUD IPC handlers
 │       └── files.ts        # File IPC handlers
 └── renderer/
     ├── App.tsx             # Main React component
@@ -132,6 +148,8 @@ npm run make
 
 - Agent resize may have slight delay during rapid window resizing
 - Some complex TUI applications may have minor rendering differences compared to native terminals
+- Copilot Chat requires `gh` CLI authentication — run `gh auth login` before using
+- Restored chat conversations display previous messages but the AI does not retain context from prior sessions
 
 ## License
 

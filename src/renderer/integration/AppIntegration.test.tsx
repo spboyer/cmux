@@ -61,6 +61,13 @@ beforeAll(() => {
       onDone: jest.fn().mockReturnValue(() => {}),
       onError: jest.fn().mockReturnValue(() => {}),
     },
+    conversation: {
+      list: jest.fn().mockResolvedValue([]),
+      load: jest.fn().mockResolvedValue(null),
+      save: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      rename: jest.fn().mockResolvedValue(undefined),
+    },
   };
 });
 

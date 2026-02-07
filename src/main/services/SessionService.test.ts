@@ -36,6 +36,7 @@ describe('SessionService', () => {
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+        activeConversationId: null as string | null,
       };
 
       sessionService.save(data);
@@ -45,7 +46,7 @@ describe('SessionService', () => {
       expect(filePath).toBe(path.join('/mock/userData', 'session.json'));
       
       const parsed = JSON.parse(content as string);
-      expect(parsed.version).toBe(2);
+      expect(parsed.version).toBe(3);
       expect(parsed.agents).toEqual(data.agents);
       expect(parsed.activeItemId).toBe('agent-1');
     });
@@ -60,6 +61,7 @@ describe('SessionService', () => {
           agents: [],
           activeItemId: null,
           activeAgentId: null,
+          activeConversationId: null,
         });
       }).not.toThrow();
     });
@@ -221,12 +223,13 @@ describe('SessionService', () => {
     it('should return valid session data', () => {
       mockExistsSync.mockImplementation((p) => true);
       mockReadFileSync.mockReturnValue(JSON.stringify({
-        version: 2,
+        version: 3,
         agents: [
           { id: 'agent-1', label: 'Test', cwd: '/home', openFiles: [] },
         ],
         activeItemId: 'agent-1',
         activeAgentId: 'agent-1',
+        activeConversationId: null,
       }));
 
       const result = sessionService.load();
@@ -257,11 +260,12 @@ describe('SessionService', () => {
       const result = sessionService.load();
 
       expect(result).not.toBeNull();
-      expect(result?.version).toBe(2);
+      expect(result?.version).toBe(3);
       expect(result?.agents).toHaveLength(1);
       expect(result?.agents[0].id).toBe('term-1');
       expect(result?.agents[0].openFiles[0].parentAgentId).toBe('term-1');
       expect(result?.activeAgentId).toBe('term-1');
+      expect(result?.activeConversationId).toBeNull();
     });
   });
 });

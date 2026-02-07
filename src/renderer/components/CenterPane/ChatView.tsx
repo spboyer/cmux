@@ -3,11 +3,23 @@ import { useRef, useEffect } from 'react';
 import { useAppState } from '../../contexts/AppStateContext';
 import { Icon } from '../Icon';
 
+function generateTitle(content: string): string {
+  const firstLine = content.split('\n')[0].trim();
+  if (firstLine.length <= 50) return firstLine;
+  return firstLine.substring(0, 50) + '…';
+}
+
 export function ChatView() {
   const { state, dispatch } = useAppState();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [inputValue, setInputValue] = React.useState('');
+  const conversationIdRef = useRef<string | null>(state.activeConversationId);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    conversationIdRef.current = state.activeConversationId;
+  }, [state.activeConversationId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView?.({ behavior: 'smooth' });
@@ -19,6 +31,22 @@ export function ChatView() {
       inputRef.current?.focus();
     }
   }, [state.chatLoading]);
+
+  // Save conversation to disk after streaming completes
+  const saveConversation = React.useCallback((messages: typeof state.chatMessages) => {
+    const convId = conversationIdRef.current;
+    if (!convId) return;
+    const conv = state.conversations.find(c => c.id === convId);
+    if (!conv) return;
+
+    window.electronAPI.conversation.save({
+      id: convId,
+      title: conv.title,
+      messages,
+      createdAt: conv.createdAt,
+      updatedAt: Date.now(),
+    });
+  }, [state.conversations]);
 
   // Listen for streaming chunks from main process
   useEffect(() => {
@@ -42,9 +70,33 @@ export function ChatView() {
     };
   }, [dispatch]);
 
+  // Save conversation when loading finishes (streaming done/error)
+  const prevLoadingRef = useRef(state.chatLoading);
+  useEffect(() => {
+    if (prevLoadingRef.current && !state.chatLoading) {
+      saveConversation(state.chatMessages);
+    }
+    prevLoadingRef.current = state.chatLoading;
+  }, [state.chatLoading, state.chatMessages, saveConversation]);
+
   const handleSend = () => {
     const content = inputValue.trim();
     if (!content || state.chatLoading) return;
+
+    let convId = state.activeConversationId;
+
+    // Create a new conversation if none is active
+    if (!convId) {
+      convId = `conv-${Date.now()}`;
+      const now = Date.now();
+      const title = generateTitle(content);
+      dispatch({
+        type: 'ADD_CONVERSATION',
+        payload: {
+          conversation: { id: convId, title, createdAt: now, updatedAt: now },
+        },
+      });
+    }
 
     const userMessage = {
       id: `msg-${Date.now()}`,
@@ -68,7 +120,7 @@ export function ChatView() {
     dispatch({ type: 'SET_CHAT_LOADING', payload: { loading: true } });
 
     // Send to main process via IPC
-    window.electronAPI.copilot.send(content, assistantMessage.id);
+    window.electronAPI.copilot.send(convId, content, assistantMessage.id);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -87,7 +139,7 @@ export function ChatView() {
         {state.chatMessages.length === 0 ? (
           <div className="chat-empty">
             <Icon name="copilot" size={48} />
-            <p>Start a conversation with Copilot</p>
+            <p>{state.activeConversationId ? 'No messages yet' : 'Start a new conversation'}</p>
           </div>
         ) : (
           state.chatMessages.map(msg => (

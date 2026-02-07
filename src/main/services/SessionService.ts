@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const SESSION_FILE = 'session.json';
-const SESSION_VERSION = 2;
+const SESSION_VERSION = 3;
 
 export interface SessionAgent {
   id: string;
@@ -24,6 +24,7 @@ export interface SessionData {
   agents: SessionAgent[];
   activeItemId: string | null;
   activeAgentId: string | null;
+  activeConversationId: string | null;
 }
 
 // Legacy v1 types for migration
@@ -79,6 +80,15 @@ class SessionService {
       })),
       activeItemId: data.activeItemId,
       activeAgentId: data.activeTerminalId,
+      activeConversationId: null,
+    };
+  }
+
+  private migrateV2ToV3(data: Omit<SessionData, 'activeConversationId'> & { version: 2 }): SessionData {
+    return {
+      ...data,
+      version: 3,
+      activeConversationId: null,
     };
   }
 
@@ -97,6 +107,12 @@ class SessionService {
       if (data.version === 1) {
         console.log('Migrating session data from v1 to v2');
         data = this.migrateV1ToV2(data as LegacySessionDataV1);
+      }
+
+      // Migrate v2 to v3
+      if (data.version === 2) {
+        console.log('Migrating session data from v2 to v3');
+        data = this.migrateV2ToV3(data);
       }
 
       // Validate version

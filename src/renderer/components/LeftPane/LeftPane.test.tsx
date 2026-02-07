@@ -49,6 +49,8 @@ describe('LeftPane', () => {
       viewMode: 'chat',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
     const chatItem = screen.getByText('Copilot Chat').closest('.chat-nav-item');
@@ -66,6 +68,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -84,6 +88,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -109,6 +115,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -127,6 +135,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -154,6 +164,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -175,6 +187,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={onCloseAgent} />, state);
@@ -196,6 +210,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -222,6 +238,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(
@@ -250,6 +268,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(
@@ -280,6 +300,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(
@@ -309,6 +331,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(
@@ -340,6 +364,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -359,6 +385,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -377,6 +405,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -398,6 +428,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -428,6 +460,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -453,6 +487,8 @@ describe('LeftPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);

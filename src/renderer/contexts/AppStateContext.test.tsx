@@ -286,6 +286,8 @@ describe('selectors', () => {
         viewMode: 'agents',
         chatMessages: [],
         chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       const result = getActiveAgent(state);
@@ -306,6 +308,8 @@ describe('selectors', () => {
         viewMode: 'agents',
         chatMessages: [],
         chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       const result = getActiveItem(state);
@@ -328,6 +332,8 @@ describe('selectors', () => {
         viewMode: 'agents',
         chatMessages: [],
         chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       const result = getActiveItem(state);
@@ -356,6 +362,8 @@ describe('selectors', () => {
         viewMode: 'agents',
         chatMessages: [],
         chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
       };
 
       const result = getFilesForAgent(state, 'agent-1');

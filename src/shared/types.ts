@@ -13,6 +13,21 @@ export interface ChatMessage {
   timestamp: number;
 }
 
+export interface Conversation {
+  id: string;
+  title: string;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface ConversationData {
+  id: string;
+  title: string;
+  messages: ChatMessage[];
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface OpenFile {
   id: string;
   path: string;
@@ -33,6 +48,8 @@ export interface AppState {
   activeItemId: string | null;
   activeAgentId: string | null;
   viewMode: ViewMode;
+  conversations: Conversation[];
+  activeConversationId: string | null;
   chatMessages: ChatMessage[];
   chatLoading: boolean;
 }
@@ -42,6 +59,7 @@ export interface SessionData {
   agents: Agent[];
   activeItemId: string | null;
   activeAgentId: string | null;
+  activeConversationId: string | null;
 }
 
 export type AppAction =
@@ -55,7 +73,13 @@ export type AppAction =
   | { type: 'SET_VIEW_MODE'; payload: { mode: ViewMode } }
   | { type: 'ADD_CHAT_MESSAGE'; payload: { message: ChatMessage } }
   | { type: 'APPEND_CHAT_CHUNK'; payload: { messageId: string; content: string } }
-  | { type: 'SET_CHAT_LOADING'; payload: { loading: boolean } };
+  | { type: 'SET_CHAT_LOADING'; payload: { loading: boolean } }
+  | { type: 'SET_CONVERSATIONS'; payload: { conversations: Conversation[] } }
+  | { type: 'ADD_CONVERSATION'; payload: { conversation: Conversation } }
+  | { type: 'REMOVE_CONVERSATION'; payload: { id: string } }
+  | { type: 'RENAME_CONVERSATION'; payload: { id: string; title: string } }
+  | { type: 'SET_ACTIVE_CONVERSATION'; payload: { id: string | null } }
+  | { type: 'SET_CHAT_MESSAGES'; payload: { messages: ChatMessage[] } };
 
 // Auto-update types
 export type UpdateStatus = 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error' | 'dev-mode';

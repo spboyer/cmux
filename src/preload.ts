@@ -32,6 +32,7 @@ export interface SessionData {
   }>;
   activeItemId: string | null;
   activeAgentId: string | null;
+  activeConversationId: string | null;
 }
 
 export interface ElectronAPI {
@@ -65,6 +66,13 @@ export interface ElectronAPI {
     save: (data: Omit<SessionData, 'version'>) => Promise<void>;
     load: () => Promise<SessionData | null>;
   };
+  conversation: {
+    list: () => Promise<Array<{ id: string; title: string; createdAt: number; updatedAt: number }>>;
+    load: (id: string) => Promise<{ id: string; title: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number } | null>;
+    save: (data: { id: string; title: string; messages: Array<{ id: string; role: 'user' | 'assistant'; content: string; timestamp: number }>; createdAt: number; updatedAt: number }) => Promise<void>;
+    delete: (id: string) => Promise<void>;
+    rename: (id: string, title: string) => Promise<void>;
+  };
   updates: {
     check: () => Promise<void>;
     download: () => Promise<void>;
@@ -73,7 +81,7 @@ export interface ElectronAPI {
     onProgress: (callback: (progress: { percent: number; bytesPerSecond: number; transferred: number; total: number }) => void) => () => void;
   };
   copilot: {
-    send: (message: string, messageId: string) => Promise<void>;
+    send: (conversationId: string, message: string, messageId: string) => Promise<void>;
     onChunk: (callback: (messageId: string, content: string) => void) => () => void;
     onDone: (callback: (messageId: string) => void) => () => void;
     onError: (callback: (messageId: string, error: string) => void) => () => void;
@@ -144,6 +152,13 @@ const electronAPI: ElectronAPI = {
     save: (data) => ipcRenderer.invoke('session:save', data),
     load: () => ipcRenderer.invoke('session:load'),
   },
+  conversation: {
+    list: () => ipcRenderer.invoke('conversation:list'),
+    load: (id) => ipcRenderer.invoke('conversation:load', id),
+    save: (data) => ipcRenderer.invoke('conversation:save', data),
+    delete: (id) => ipcRenderer.invoke('conversation:delete', id),
+    rename: (id, title) => ipcRenderer.invoke('conversation:rename', id, title),
+  },
   updates: {
     check: () => ipcRenderer.invoke('updates:check'),
     download: () => ipcRenderer.invoke('updates:download'),
@@ -168,7 +183,7 @@ const electronAPI: ElectronAPI = {
     },
   },
   copilot: {
-    send: (message, messageId) => ipcRenderer.invoke('copilot:send', message, messageId),
+    send: (conversationId, message, messageId) => ipcRenderer.invoke('copilot:send', conversationId, message, messageId),
     onChunk: (callback) => {
       const handler = (_event: Electron.IpcRendererEvent, messageId: string, content: string) => {
         callback(messageId, content);

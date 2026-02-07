@@ -5,6 +5,7 @@ import { setupGitIPC } from './main/ipc/git';
 import { setupSessionIPC } from './main/ipc/session';
 import { setupUpdatesIPC, getUpdateService } from './main/ipc/updates';
 import { setupCopilotIPC, getCopilotService } from './main/ipc/copilot';
+import { setupConversationIPC } from './main/ipc/conversation';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
@@ -54,6 +55,9 @@ const createWindow = (): void => {
 
   // Set up Copilot chat IPC handlers
   setupCopilotIPC(mainWindow);
+
+  // Set up conversation persistence IPC handlers
+  setupConversationIPC();
 
   // Check for updates after window is ready (give it a moment to load)
   mainWindow.webContents.once('did-finish-load', () => {

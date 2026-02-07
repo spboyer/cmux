@@ -163,6 +163,61 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Conversation list */
+.conversation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.conversation-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  transition: background-color 0.15s;
+}
+
+.conversation-item:hover {
+  background-color: var(--hover);
+}
+
+.conversation-item.active {
+  background-color: var(--accent-glow);
+  border-left-color: var(--accent);
+}
+
+.conversation-title {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-primary);
+}
+
+.conversation-item.active .conversation-title {
+  color: var(--accent);
+}
+
+.conversation-time {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.conversation-rename-input {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent);
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  padding: 2px 4px;
+  border-radius: 3px;
+  outline: none;
+  width: 100%;
+}
+
 /* Terminal list */
 .agent-list {
   list-style: none;

@@ -4,8 +4,9 @@ import { CopilotService } from '../services/CopilotService';
 const copilotService = new CopilotService();
 
 export function setupCopilotIPC(mainWindow: BrowserWindow): void {
-  ipcMain.handle('copilot:send', async (_event, message: string, messageId: string) => {
+  ipcMain.handle('copilot:send', async (_event, conversationId: string, message: string, messageId: string) => {
     await copilotService.sendMessage(
+      conversationId,
       message,
       messageId,
       (msgId, content) => {

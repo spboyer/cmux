@@ -52,6 +52,8 @@ describe('CenterPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -71,6 +73,8 @@ describe('CenterPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -98,6 +102,8 @@ describe('CenterPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -123,6 +129,8 @@ describe('CenterPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
@@ -141,6 +149,8 @@ describe('CenterPane', () => {
       viewMode: 'agents',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
@@ -159,6 +169,8 @@ describe('CenterPane', () => {
       viewMode: 'chat',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
@@ -178,6 +190,8 @@ describe('CenterPane', () => {
       viewMode: 'chat',
       chatMessages: [],
       chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
     };
 
     renderWithProvider(<CenterPane />, state);

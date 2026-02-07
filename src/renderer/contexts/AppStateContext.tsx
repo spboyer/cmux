@@ -7,6 +7,8 @@ export const initialState: AppState = {
   activeItemId: null,
   activeAgentId: null,
   viewMode: 'agents',
+  conversations: [],
+  activeConversationId: null,
   chatMessages: [],
   chatLoading: false,
 };
@@ -127,6 +129,57 @@ export function appReducer(state: AppState, action: AppAction): AppState {
       return {
         ...state,
         chatLoading: action.payload.loading,
+      };
+    }
+
+    case 'SET_CONVERSATIONS': {
+      return {
+        ...state,
+        conversations: action.payload.conversations,
+      };
+    }
+
+    case 'ADD_CONVERSATION': {
+      return {
+        ...state,
+        conversations: [action.payload.conversation, ...state.conversations],
+        activeConversationId: action.payload.conversation.id,
+        chatMessages: [],
+      };
+    }
+
+    case 'REMOVE_CONVERSATION': {
+      const filtered = state.conversations.filter(c => c.id !== action.payload.id);
+      const wasActive = state.activeConversationId === action.payload.id;
+      return {
+        ...state,
+        conversations: filtered,
+        activeConversationId: wasActive ? (filtered[0]?.id ?? null) : state.activeConversationId,
+        chatMessages: wasActive ? [] : state.chatMessages,
+      };
+    }
+
+    case 'RENAME_CONVERSATION': {
+      return {
+        ...state,
+        conversations: state.conversations.map(c =>
+          c.id === action.payload.id ? { ...c, title: action.payload.title } : c
+        ),
+      };
+    }
+
+    case 'SET_ACTIVE_CONVERSATION': {
+      return {
+        ...state,
+        activeConversationId: action.payload.id,
+        chatMessages: [],
+      };
+    }
+
+    case 'SET_CHAT_MESSAGES': {
+      return {
+        ...state,
+        chatMessages: action.payload.messages,
       };
     }
 
