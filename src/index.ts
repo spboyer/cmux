@@ -17,6 +17,11 @@ if (require('electron-squirrel-startup')) {
   app.quit();
 }
 
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+}
+
 let mainWindow: BrowserWindow | null = null;
 
 const createWindow = (): void => {
@@ -80,6 +85,13 @@ ipcMain.handle('dialog:openDirectory', async () => {
     properties: ['openDirectory'],
   });
   return result.canceled ? null : result.filePaths[0];
+});
+
+app.on('second-instance', () => {
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  }
 });
 
 app.on('ready', createWindow);
