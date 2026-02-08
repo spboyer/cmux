@@ -229,6 +229,19 @@ export interface UpdateState {
   error?: string;
 }
 
+// File system types
+export interface FileEntry {
+  name: string;
+  path: string;
+  isDirectory: boolean;
+  children?: FileEntry[];
+}
+
+export interface GitStatusChangeEvent {
+  type: 'git-status-changed';
+  repoRoot: string;
+}
+
 // Git status types
 export type GitFileStatus = 'modified' | 'added' | 'deleted' | 'untracked' | 'ignored' | 'staged' | 'renamed';
 export type GitStatusMap = Record<string, GitFileStatus>;

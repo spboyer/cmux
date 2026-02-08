@@ -1,8 +1,8 @@
 import { spawn } from 'child_process';
 import * as path from 'path';
+import type { GitFileStatus, GitStatusMap } from '../../shared/types';
 
-export type GitFileStatus = 'modified' | 'added' | 'deleted' | 'untracked' | 'ignored' | 'staged' | 'renamed';
-export type GitStatusMap = Record<string, GitFileStatus>;
+export type { GitFileStatus, GitStatusMap };
 
 class GitService {
   /**

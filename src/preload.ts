@@ -1,40 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
+import type { FileEntry, FileWatchEvent, GitFileStatus, GitStatusMap, SessionData } from './shared/types';
 
-export interface FileEntry {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-  children?: FileEntry[];
-}
-
-export interface FileWatchEvent {
-  type: 'change' | 'rename';
-  directory: string;
-  filename: string | null;
-}
-
-// Git status types
-export type GitFileStatus = 'modified' | 'added' | 'deleted' | 'untracked' | 'ignored' | 'staged' | 'renamed';
-export type GitStatusMap = Record<string, GitFileStatus>;
-
-export interface SessionData {
-  version: number;
-  agents: Array<{
-    id: string;
-    label: string;
-    cwd: string;
-    openFiles: Array<{
-      id: string;
-      path: string;
-      name: string;
-      parentAgentId: string;
-    }>;
-    hasSession?: boolean;
-  }>;
-  activeItemId: string | null;
-  activeAgentId: string | null;
-  activeConversationId: string | null;
-}
+export type { FileEntry, FileWatchEvent, GitFileStatus, GitStatusMap, SessionData };
 
 export interface ElectronAPI {
   openDirectory: () => Promise<string | null>;

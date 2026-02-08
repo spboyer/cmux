@@ -1,21 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { FileTreeNode } from './FileTreeNode';
-
-interface FileEntry {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-  children?: FileEntry[];
-}
-
-interface FileWatchEvent {
-  type: 'change' | 'rename';
-  directory: string;
-  filename: string | null;
-}
-
-type GitFileStatus = 'modified' | 'added' | 'deleted' | 'untracked' | 'ignored' | 'staged' | 'renamed';
-type GitStatusMap = Record<string, GitFileStatus>;
+import type { FileEntry, FileWatchEvent, GitStatusMap } from '../../../shared/types';
 
 interface FileTreeProps {
   rootPath: string;

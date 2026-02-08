@@ -1,15 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Icon, getFileIcon } from '../Icon';
-
-interface FileEntry {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-  children?: FileEntry[];
-}
-
-type GitFileStatus = 'modified' | 'added' | 'deleted' | 'untracked' | 'ignored' | 'staged' | 'renamed';
-type GitStatusMap = Record<string, GitFileStatus>;
+import type { FileEntry, GitFileStatus, GitStatusMap } from '../../../shared/types';
 
 // Priority order for folder status (lower = higher priority)
 const STATUS_PRIORITY: Record<GitFileStatus, number> = {

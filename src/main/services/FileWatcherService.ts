@@ -1,17 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { BrowserWindow } from 'electron';
+import type { FileWatchEvent, GitStatusChangeEvent } from '../../shared/types';
 
-export interface FileWatchEvent {
-  type: 'change' | 'rename';
-  directory: string;
-  filename: string | null;
-}
-
-export interface GitStatusChangeEvent {
-  type: 'git-status-changed';
-  repoRoot: string;
-}
+export type { FileWatchEvent };
+export type { GitStatusChangeEvent };
 
 type WatcherCallback = (event: FileWatchEvent) => void;
 type GitStatusCallback = (event: GitStatusChangeEvent) => void;

@@ -1,12 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import type { FileEntry } from '../../shared/types';
 
-export interface FileEntry {
-  name: string;
-  path: string;
-  isDirectory: boolean;
-  children?: FileEntry[];
-}
+export type { FileEntry };
 
 class FileService {
   private allowedRoots: Set<string> = new Set();
