@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { CopilotService } from '../services/CopilotService';
-import { createOrchestratorTools, setOnAgentCreated, ORCHESTRATOR_SYSTEM_MESSAGE } from '../services/OrchestratorTools';
+import { createOrchestratorTools, setOnAgentCreated, getActiveAgents, ORCHESTRATOR_SYSTEM_MESSAGE } from '../services/OrchestratorTools';
 
 const copilotService = new CopilotService();
 let toolsInitialized = false;
@@ -13,6 +13,7 @@ async function ensureToolsInitialized(mainWindow: BrowserWindow): Promise<void> 
     const tools = await createOrchestratorTools();
     copilotService.setTools(tools);
     copilotService.setSystemMessage(ORCHESTRATOR_SYSTEM_MESSAGE);
+    copilotService.setAgentContextProvider(getActiveAgents);
 
     // When orchestrator creates an agent, notify renderer to add it to UI
     setOnAgentCreated((info) => {

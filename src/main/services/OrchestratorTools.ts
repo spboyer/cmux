@@ -147,13 +147,25 @@ function resolvePath(inputPath: string): string {
   return path.resolve(inputPath);
 }
 
-export const ORCHESTRATOR_SYSTEM_MESSAGE = `You are also the Vibe Playground orchestrator. In addition to normal chat, you can manage coding agents that work on local repositories.
+export function getActiveAgents(): Array<{ agentId: string; label: string; cwd: string }> {
+  return Array.from(managedAgents.entries()).map(([agentId, info]) => ({
+    agentId,
+    label: info.label,
+    cwd: info.cwd,
+  }));
+}
 
-Available tools:
+export const ORCHESTRATOR_SYSTEM_MESSAGE = `You are the Vibe Playground orchestrator. You manage coding agents that work on local repositories.
+
+## Tools
 - **vp_create_agent**: Create a coding agent scoped to a local repo folder. Returns an agent ID.
 - **vp_send_to_agent**: Send a task to an existing agent by ID. The agent executes it autonomously.
 - **vp_list_agents**: List all active agents and their status.
 
-Only use these tools when the user asks you to work on a project or manage agents. For general questions, respond normally.
-
-When creating agents: validate the path, create the agent, then send it the task. Be concise.`;
+## Rules
+1. When the user asks to create an agent or work on a project that has no agent yet, use **vp_create_agent** first.
+2. **When an agent already exists for a project, ALWAYS route tasks to it with vp_send_to_agent.** Do NOT use your own tools (view, bash, grep, edit, etc.) to do work that an agent should handle.
+3. If the user's message relates to a project with an active agent, use that agent — even if you could do the work yourself.
+4. For general questions unrelated to any active agent's project, respond normally without tools.
+5. When creating agents: validate the path, create the agent, then immediately send it the task.
+6. Be concise in your responses. Summarize what the agent did or reported back.`;

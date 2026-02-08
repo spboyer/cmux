@@ -24,6 +24,7 @@ export class CopilotService {
   private activeAbortControllers: Map<string, AbortController> = new Map();
   private tools: ToolType[] = [];
   private systemMessage: string | null = null;
+  private agentContextProvider: (() => Array<{ agentId: string; label: string; cwd: string }>) | null = null;
 
   /** Register tools that will be provided to all new chat sessions. */
   setTools(tools: ToolType[]): void {
@@ -33,6 +34,11 @@ export class CopilotService {
   /** Set a system message appended to all new chat sessions. */
   setSystemMessage(message: string): void {
     this.systemMessage = message;
+  }
+
+  /** Set a provider that returns active agents for dynamic context injection. */
+  setAgentContextProvider(provider: () => Array<{ agentId: string; label: string; cwd: string }>): void {
+    this.agentContextProvider = provider;
   }
 
   async listModels(): Promise<Array<{ id: string; name: string }>> {
@@ -102,6 +108,16 @@ export class CopilotService {
     try {
       const session = await this.getOrCreateSession(conversationId, model);
 
+      // Inject active agent context so the model knows which agents exist
+      let enrichedPrompt = prompt;
+      if (this.agentContextProvider) {
+        const agents = this.agentContextProvider();
+        if (agents.length > 0) {
+          const agentList = agents.map(a => `- ${a.label} (ID: ${a.agentId}, path: ${a.cwd})`).join('\n');
+          enrichedPrompt = `<active_agents>\n${agentList}\n</active_agents>\n\n${prompt}`;
+        }
+      }
+
       let receivedChunks = false;
 
       // Log all events for debugging
@@ -123,7 +139,7 @@ export class CopilotService {
       // 5 min timeout — orchestrator tool calls (vp_send_to_agent) can take minutes
       console.log(`[CopilotService] Sending prompt to session ${conversationId}`);
       logToFile(`Sending prompt to session ${conversationId}`);
-      const response = await session.sendAndWait({ prompt }, 300_000);
+      const response = await session.sendAndWait({ prompt: enrichedPrompt }, 300_000);
       console.log(`[CopilotService] sendAndWait resolved for ${conversationId}`);
       logToFile(`sendAndWait resolved for ${conversationId}`);
 
