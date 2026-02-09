@@ -27,7 +27,7 @@ export class UpdateService {
       autoUpdater.setFeedURL({
         provider: 'github',
         owner: 'ipdelete',
-        repo: 'vibe-playground',
+        repo: 'cmux',
       });
     }
 

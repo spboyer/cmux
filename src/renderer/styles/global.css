@@ -48,6 +48,23 @@ body {
   -webkit-app-region: drag;
 }
 
+.cmux-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  color: var(--text-secondary);
+}
+
+.cmux-icon-badge {
+  position: absolute;
+  bottom: -3px;
+  right: -5px;
+  color: var(--accent);
+  line-height: 1;
+}
+
 .app-content {
   flex: 1;
   overflow: hidden;

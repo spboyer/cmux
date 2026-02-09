@@ -2,7 +2,7 @@
 
 ## Overview
 
-The chat orchestrator unifies Vibe Playground's two core features — terminal agents and Copilot chat — into a single workflow where **chat is the control plane** and **agents are the workers**. You tell chat what you want done, it creates agents scoped to local repos, and you watch the work happen in a live activity feed.
+The chat orchestrator unifies cmux's two core features — terminal agents and Copilot chat — into a single workflow where **chat is the control plane** and **agents are the workers**. You tell chat what you want done, it creates agents scoped to local repos, and you watch the work happen in a live activity feed.
 
 ## User Flow
 

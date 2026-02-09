@@ -1,5 +1,5 @@
 // Orchestrator tools — custom SDK tools that the chat session can call
-// to create and manage agents in Vibe Playground.
+// to create and manage agents in cmux.
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -155,7 +155,7 @@ export function getActiveAgents(): Array<{ agentId: string; label: string; cwd: 
   }));
 }
 
-export const ORCHESTRATOR_SYSTEM_MESSAGE = `You are the Vibe Playground orchestrator. You manage coding agents that work on local repositories.
+export const ORCHESTRATOR_SYSTEM_MESSAGE = `You are the cmux orchestrator. You manage coding agents that work on local repositories.
 
 ## Tools
 - **vp_create_agent**: Create a coding agent scoped to a local repo folder. Returns an agent ID.

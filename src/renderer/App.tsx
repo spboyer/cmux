@@ -7,6 +7,7 @@ import { RightPane } from './components/RightPane';
 import { HotkeyHelp } from './components/HotkeyHelp';
 import { ScratchPad } from './components/ScratchPad';
 import { UpdateToast } from './components/UpdateToast';
+import { Icon } from './components/Icon';
 import { AppStateProvider, useAppState, getActiveItem } from './contexts/AppStateContext';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { useAutoUpdater } from './hooks/useAutoUpdater';
@@ -184,7 +185,11 @@ function AppContent() {
   return (
     <div className="app-container">
       <div className="title-bar">
-        <span className="title-bar-text">Vibe Playground</span>
+        <span className="cmux-icon">
+          <Icon name="copilot" size={14} />
+          <span className="cmux-icon-badge"><Icon name="terminal" size={8} /></span>
+        </span>
+        <span className="title-bar-text">cmux</span>
       </div>
       <div className="app-content">
         <ThreePaneLayout

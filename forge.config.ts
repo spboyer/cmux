@@ -22,7 +22,8 @@ const enableMacOSNotarization =
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    executableName: 'vibe-playground',
+    icon: './img/cmux-icon-256',
+    executableName: 'cmux',
     extraResource: ['./app-update.yml'],
     ...(enableMacOSSigning
       ? {
@@ -46,7 +47,7 @@ const config: ForgeConfig = {
       config: {
         repository: {
           owner: 'ipdelete',
-          name: 'vibe-playground',
+          name: 'cmux',
         },
         prerelease: false,
         draft: false,

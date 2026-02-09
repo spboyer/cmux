@@ -1,4 +1,4 @@
-# Vibe Playground
+# cmux
 
 A modern Electron-based agent manager for working across multiple repositories simultaneously. Features a three-pane layout with integrated file browsing and syntax-highlighted file viewing.
 
@@ -64,8 +64,8 @@ A modern Electron-based agent manager for working across multiple repositories s
 
 ```bash
 # Clone the repository
-git clone https://github.com/ipdelete/vibe-playground.git
-cd vibe-playground
+git clone https://github.com/ipdelete/cmux.git
+cd cmux
 
 # Install dependencies
 npm install
