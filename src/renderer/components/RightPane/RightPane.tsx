@@ -3,16 +3,14 @@ import { useState, useRef, useEffect } from 'react';
 import { useAppState, getActiveAgent } from '../../contexts/AppStateContext';
 import { FileTree } from './FileTree';
 import { Icon } from '../Icon';
+import { useContextMenu } from '../../hooks/useContextMenu';
 
 interface RightPaneProps {
   onFileClick: (filePath: string, fileName: string) => void;
 }
 
-interface ContextMenuState {
-  visible: boolean;
-  x: number;
-  y: number;
-  conversationId: string | null;
+interface RightPaneMenuTarget {
+  conversationId: string;
 }
 
 function formatRelativeTime(timestamp: number): string {
@@ -33,9 +31,7 @@ export function RightPane({ onFileClick }: RightPaneProps) {
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const renameInputRef = useRef<HTMLInputElement>(null);
-  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
-    visible: false, x: 0, y: 0, conversationId: null,
-  });
+  const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu<RightPaneMenuTarget>();
 
   const handleRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
@@ -53,14 +49,7 @@ export function RightPane({ onFileClick }: RightPaneProps) {
     }
   }, [renamingId]);
 
-  // Close context menu on click outside
-  useEffect(() => {
-    const handleClick = () => setContextMenu(prev => ({ ...prev, visible: false }));
-    if (contextMenu.visible) {
-      window.addEventListener('click', handleClick);
-      return () => window.removeEventListener('click', handleClick);
-    }
-  }, [contextMenu.visible]);
+  // Close context menu on click outside — handled by useContextMenu hook
 
   const handleConversationClick = async (id: string) => {
     if (id === state.activeConversationId) return;
@@ -84,17 +73,16 @@ export function RightPane({ onFileClick }: RightPaneProps) {
   };
 
   const handleContextMenu = (e: React.MouseEvent, conversationId: string) => {
-    e.preventDefault();
-    setContextMenu({ visible: true, x: e.clientX, y: e.clientY, conversationId });
+    openContextMenu(e, { conversationId });
   };
 
   const handleRenameStart = () => {
-    const conv = state.conversations.find(c => c.id === contextMenu.conversationId);
+    const conv = state.conversations.find(c => c.id === contextMenu.target?.conversationId);
     if (conv) {
       setRenamingId(conv.id);
       setRenameValue(conv.title);
     }
-    setContextMenu(prev => ({ ...prev, visible: false }));
+    closeContextMenu();
   };
 
   const handleRenameComplete = (id: string, newTitle: string | null) => {
@@ -114,12 +102,12 @@ export function RightPane({ onFileClick }: RightPaneProps) {
   };
 
   const handleDelete = () => {
-    const id = contextMenu.conversationId;
+    const id = contextMenu.target?.conversationId;
     if (id) {
       dispatch({ type: 'REMOVE_CONVERSATION', payload: { id } });
       window.electronAPI.conversation.delete(id);
     }
-    setContextMenu(prev => ({ ...prev, visible: false }));
+    closeContextMenu();
   };
 
   if (state.viewMode === 'chat') {

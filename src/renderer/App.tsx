@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { ThreePaneLayout } from './components/Layout';
 import { LeftPane } from './components/LeftPane';
 import { CenterPane } from './components/CenterPane';
@@ -8,56 +8,15 @@ import { HotkeyHelp } from './components/HotkeyHelp';
 import { UpdateToast } from './components/UpdateToast';
 import { AppStateProvider, useAppState, getActiveItem } from './contexts/AppStateContext';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
-import { UpdateState, AgentEvent } from '../shared/types';
+import { useAutoUpdater } from './hooks/useAutoUpdater';
+import { useSessionRestore } from './hooks/useSessionRestore';
+import { AgentEvent } from '../shared/types';
 
 function AppContent() {
   const { state, dispatch } = useAppState();
-  const hasRestoredRef = useRef(false);
   const [showHotkeyHelp, setShowHotkeyHelp] = useState(false);
   const [renamingAgentId, setRenamingAgentId] = useState<string | null>(null);
-  const [updateState, setUpdateState] = useState<UpdateState>({ status: 'idle' });
-  const [isUpdateDismissed, setIsUpdateDismissed] = useState(false);
-
-  // Set up auto-update listeners
-  useEffect(() => {
-    const unsubStatus = window.electronAPI.updates.onStatus((data) => {
-      setUpdateState(prev => ({
-        ...prev,
-        status: data.status as UpdateState['status'],
-        info: data.info as UpdateState['info'],
-        error: data.message,
-      }));
-      // Reset dismissed state when a new update becomes available or ready
-      if (data.status === 'available' || data.status === 'ready') {
-        setIsUpdateDismissed(false);
-      }
-    });
-
-    const unsubProgress = window.electronAPI.updates.onProgress((progress) => {
-      setUpdateState(prev => ({
-        ...prev,
-        status: 'downloading',
-        progress,
-      }));
-    });
-
-    return () => {
-      unsubStatus();
-      unsubProgress();
-    };
-  }, []);
-
-  const handleDownloadUpdate = useCallback(() => {
-    window.electronAPI.updates.download();
-  }, []);
-
-  const handleInstallUpdate = useCallback(() => {
-    window.electronAPI.updates.install();
-  }, []);
-
-  const handleDismissUpdate = useCallback(() => {
-    setIsUpdateDismissed(true);
-  }, []);
+  const { updateState, isUpdateDismissed, handleDownload: handleDownloadUpdate, handleInstall: handleInstallUpdate, handleDismiss: handleDismissUpdate } = useAutoUpdater();
 
   // Listen for agent session events from main process
   useEffect(() => {
@@ -100,93 +59,7 @@ function AppContent() {
   }, [dispatch]);
 
   // Restore session on mount
-  useEffect(() => {
-    if (hasRestoredRef.current) return;
-    hasRestoredRef.current = true;
-
-    const restoreSession = async () => {
-      try {
-        const sessionData = await window.electronAPI.session.load();
-
-        // Always restore conversation list
-        const conversations = await window.electronAPI.conversation.list();
-        if (conversations.length > 0) {
-          dispatch({ type: 'SET_CONVERSATIONS', payload: { conversations } });
-        }
-
-        if (sessionData && sessionData.agents.length > 0) {
-          // Restore each agent
-          for (const agent of sessionData.agents) {
-            if (agent.hasSession) {
-              // SDK-driven agent — register file access but skip PTY
-              await window.electronAPI.fs.addAllowedRoot(agent.cwd);
-              dispatch({
-                type: 'ADD_AGENT',
-                payload: {
-                  id: agent.id,
-                  label: agent.label,
-                  cwd: agent.cwd,
-                  hasSession: true,
-                },
-              });
-            } else {
-              // Terminal agent — create PTY process
-              const result = await window.electronAPI.agent.create(agent.id, agent.cwd);
-              dispatch({
-                type: 'ADD_AGENT',
-                payload: { 
-                  id: agent.id, 
-                  label: agent.label, 
-                  cwd: agent.cwd,
-                  isWorktree: result.isWorktree,
-                },
-              });
-            }
-
-            // Restore open files for this agent
-            for (const file of agent.openFiles) {
-              dispatch({
-                type: 'ADD_FILE',
-                payload: { agentId: agent.id, file },
-              });
-            }
-          }
-
-          // Restore active item selection
-          if (sessionData.activeItemId) {
-            dispatch({
-              type: 'SET_ACTIVE_ITEM',
-              payload: { 
-                id: sessionData.activeItemId, 
-                agentId: sessionData.activeAgentId ?? undefined 
-              },
-            });
-          }
-        }
-
-        // Restore active conversation and its messages
-        if (sessionData?.activeConversationId && conversations.some(c => c.id === sessionData.activeConversationId)) {
-          dispatch({ type: 'SET_ACTIVE_CONVERSATION', payload: { id: sessionData.activeConversationId } });
-          const convData = await window.electronAPI.conversation.load(sessionData.activeConversationId);
-          if (convData) {
-            dispatch({ type: 'SET_CHAT_MESSAGES', payload: { messages: convData.messages } });
-            // Restore the conversation's model selection
-            if (convData.model) {
-              dispatch({ type: 'SET_SELECTED_MODEL', payload: { model: convData.model } });
-            }
-          }
-          // Restore chat view mode if that was the last active view
-          if (!sessionData.activeItemId && sessionData.activeConversationId) {
-            dispatch({ type: 'SET_VIEW_MODE', payload: { mode: 'chat' } });
-          }
-        }
-      } catch (error) {
-        console.error('Failed to restore session:', error);
-      }
-    };
-
-    restoreSession();
-  }, [dispatch]);
+  useSessionRestore(dispatch);
 
   // Save session on close
   useEffect(() => {

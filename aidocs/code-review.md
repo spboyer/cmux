@@ -13,7 +13,7 @@ The codebase is generally well-structured with clear separation between main pro
 | Severity | Count | Resolved |
 |----------|-------|----------|
 | High     | 7     | 6        |
-| Medium   | 15    | 3        |
+| Medium   | 15    | 6        |
 | Low      | 10    | 3        |
 
 ---
@@ -165,11 +165,13 @@ The codebase is generally well-structured with clear separation between main pro
 
 ---
 
-### M7. Mixed Concerns in FileTree Component
+### M7. ~~Mixed Concerns in FileTree Component~~ ✅ RESOLVED
 
-`src/renderer/components/RightPane/FileTree.tsx` — three separate `useEffect` hooks (lines 56-72, 112-135, 137-165) handle directory loading, file watching, and git status watching respectively.
+**Resolved in v0.10.11** — Extracted `useDirectoryLoader`, `useFileWatcher`, and `useGitStatusWatcher` hooks from FileTree (213→56 lines). Added 21 new unit tests. All 320 tests pass.
 
-**Fix:** Extract to `useDirectoryLoader`, `useFileWatcher`, `useGitStatusWatcher` hooks.
+~~`src/renderer/components/RightPane/FileTree.tsx` — three separate `useEffect` hooks (lines 56-72, 112-135, 137-165) handle directory loading, file watching, and git status watching respectively.~~
+
+~~**Fix:** Extract to `useDirectoryLoader`, `useFileWatcher`, `useGitStatusWatcher` hooks.~~
 
 ---
 
@@ -181,21 +183,25 @@ The codebase is generally well-structured with clear separation between main pro
 
 ---
 
-### M9. App.tsx Session Restoration is Monolithic
+### M9. ~~App.tsx Session Restoration is Monolithic~~ ✅ RESOLVED
 
-`src/renderer/App.tsx:103-189` — session restoration logic has 5 levels of nesting with multiple `useEffect` hooks registering IPC listeners interleaved with auto-update listeners (lines 22-48).
+**Resolved in v0.10.11** — Extracted `useAutoUpdater` (update state + IPC subscriptions) and `useSessionRestore` (one-time session restore) hooks from App.tsx. Added 18 new unit tests. All 320 tests pass.
 
-**Fix:** Extract `useSessionRestore()` and `useAutoUpdater()` custom hooks.
+~~`src/renderer/App.tsx:103-189` — session restoration logic has 5 levels of nesting with multiple `useEffect` hooks registering IPC listeners interleaved with auto-update listeners (lines 22-48).~~
+
+~~**Fix:** Extract `useSessionRestore()` and `useAutoUpdater()` custom hooks.~~
 
 ---
 
-### M10. Context Menu Logic Duplicated
+### M10. ~~Context Menu Logic Duplicated~~ ✅ RESOLVED
 
-Context menu state and handlers are independently implemented in both:
-- `src/renderer/components/LeftPane/LeftPane.tsx` (lines 13-88)
-- `src/renderer/components/RightPane/RightPane.tsx` (lines 11-63)
+**Resolved in v0.10.11** — Extracted generic `useContextMenu<T>` hook replacing duplicate context menu state/handlers in both LeftPane and RightPane. Added 7 new unit tests. All 320 tests pass.
 
-**Fix:** Extract a `useContextMenu()` hook.
+~~Context menu state and handlers are independently implemented in both:~~
+~~- `src/renderer/components/LeftPane/LeftPane.tsx` (lines 13-88)~~
+~~- `src/renderer/components/RightPane/RightPane.tsx` (lines 11-63)~~
+
+~~**Fix:** Extract a `useContextMenu()` hook.~~
 
 ---
 
@@ -336,5 +342,5 @@ Several test files have unused imports:
 | 4 | ~~Extract ChatView into hooks (H3)~~ | ✅ Done (v0.10.8) |
 | 5 | ~~Extract preload.ts listener helper (M3)~~ | ✅ Done (v0.10.9) |
 | 6 | ~~Break up CopilotService.sendMessage (H4)~~ | ✅ Done (v0.10.10) |
-| 7 | Extract renderer custom hooks (M7, M9, M10) | Cleaner component boundaries |
+| 7 | ~~Extract renderer custom hooks (M7, M9, M10)~~ | ✅ Done (v0.10.11) |
 | 8 | Convert ConversationService to async (M11) | Unblocks main thread |

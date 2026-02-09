@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useAppState } from '../../contexts/AppStateContext';
 import { Icon, getFileIcon } from '../Icon';
+import { useContextMenu } from '../../hooks/useContextMenu';
 
 interface LeftPaneProps {
   onAddAgent: () => void;
@@ -10,23 +11,14 @@ interface LeftPaneProps {
   onRenameComplete?: (id: string, newLabel: string | null) => void;
 }
 
-interface ContextMenuState {
-  visible: boolean;
-  x: number;
-  y: number;
-  agentId: string | null;
+interface LeftPaneMenuTarget {
+  agentId: string;
   fileId: string | null;
 }
 
 export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameComplete }: LeftPaneProps) {
   const { state, dispatch } = useAppState();
-  const [contextMenu, setContextMenu] = useState<ContextMenuState>({
-    visible: false,
-    x: 0,
-    y: 0,
-    agentId: null,
-    fileId: null,
-  });
+  const { contextMenu, openContextMenu, closeContextMenu } = useContextMenu<LeftPaneMenuTarget>();
   const [renameValue, setRenameValue] = useState('');
   const renameInputRef = useRef<HTMLInputElement>(null);
 
@@ -62,56 +54,29 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
   };
 
   const handleAgentContextMenu = (e: React.MouseEvent, agentId: string) => {
-    e.preventDefault();
-    setContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      agentId,
-      fileId: null,
-    });
+    openContextMenu(e, { agentId, fileId: null });
   };
 
   const handleFileContextMenu = (e: React.MouseEvent, fileId: string, agentId: string) => {
-    e.preventDefault();
-    setContextMenu({
-      visible: true,
-      x: e.clientX,
-      y: e.clientY,
-      agentId,
-      fileId,
-    });
-  };
-
-  const closeContextMenu = () => {
-    setContextMenu({ visible: false, x: 0, y: 0, agentId: null, fileId: null });
+    openContextMenu(e, { agentId, fileId });
   };
 
   const handleCloseAgent = () => {
-    if (contextMenu.agentId) {
-      onCloseAgent(contextMenu.agentId);
+    if (contextMenu.target?.agentId) {
+      onCloseAgent(contextMenu.target.agentId);
     }
     closeContextMenu();
   };
 
   const handleCloseFile = () => {
-    if (contextMenu.agentId && contextMenu.fileId) {
+    if (contextMenu.target?.agentId && contextMenu.target?.fileId) {
       dispatch({
         type: 'REMOVE_FILE',
-        payload: { agentId: contextMenu.agentId, fileId: contextMenu.fileId },
+        payload: { agentId: contextMenu.target.agentId, fileId: contextMenu.target.fileId },
       });
     }
     closeContextMenu();
   };
-
-  // Close context menu on click outside
-  React.useEffect(() => {
-    const handleClick = () => closeContextMenu();
-    if (contextMenu.visible) {
-      window.addEventListener('click', handleClick);
-      return () => window.removeEventListener('click', handleClick);
-    }
-  }, [contextMenu.visible]);
 
   return (
     <>
@@ -196,7 +161,7 @@ export function LeftPane({ onAddAgent, onCloseAgent, renamingAgentId, onRenameCo
           className="context-menu"
           style={{ top: contextMenu.y, left: contextMenu.x }}
         >
-          {contextMenu.fileId ? (
+          {contextMenu.target?.fileId ? (
             <button onClick={handleCloseFile}>
               <Icon name="close" size="sm" />
               Close File
