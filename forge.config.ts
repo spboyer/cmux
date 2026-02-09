@@ -22,7 +22,7 @@ const enableMacOSNotarization =
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: './img/cmux-icon-256',
+    icon: './img/cmux-icon',
     executableName: 'cmux',
     extraResource: ['./app-update.yml'],
     ...(enableMacOSSigning
@@ -56,7 +56,9 @@ const config: ForgeConfig = {
   ],
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      setupIcon: './img/cmux-icon.ico',
+    }),
     new MakerZIP({}, ['darwin', 'linux']),
     new MakerDeb({}),
     // MakerRpm disabled - fails with prebuilt native modules containing ARM binaries
