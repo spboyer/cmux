@@ -8,37 +8,36 @@ class ConversationService {
     return path.join(app.getPath('userData'), 'conversations');
   }
 
-  private ensureDir(): void {
-    const dir = this.getConversationsDir();
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+  private async ensureDir(): Promise<void> {
+    await fs.promises.mkdir(this.getConversationsDir(), { recursive: true });
   }
 
-  list(): Conversation[] {
-    this.ensureDir();
+  async list(): Promise<Conversation[]> {
+    await this.ensureDir();
     const dir = this.getConversationsDir();
 
     try {
-      const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'));
-      const conversations: Conversation[] = [];
+      const files = (await fs.promises.readdir(dir)).filter(f => f.endsWith('.json'));
 
-      for (const file of files) {
-        try {
-          const content = fs.readFileSync(path.join(dir, file), 'utf-8');
-          const data = JSON.parse(content) as ConversationData;
-          conversations.push({
-            id: data.id,
-            title: data.title,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-          });
-        } catch {
-          console.warn(`Failed to read conversation file: ${file}`);
-        }
-      }
+      const results = await Promise.all(
+        files.map(async (file): Promise<Conversation | null> => {
+          try {
+            const content = await fs.promises.readFile(path.join(dir, file), 'utf-8');
+            const data = JSON.parse(content) as ConversationData;
+            return {
+              id: data.id,
+              title: data.title,
+              createdAt: data.createdAt,
+              updatedAt: data.updatedAt,
+            };
+          } catch {
+            console.warn(`Failed to read conversation file: ${file}`);
+            return null;
+          }
+        })
+      );
 
-      // Sort by updatedAt descending (most recent first)
+      const conversations = results.filter((c): c is Conversation => c !== null);
       conversations.sort((a, b) => b.updatedAt - a.updatedAt);
       return conversations;
     } catch (error) {
@@ -47,55 +46,53 @@ class ConversationService {
     }
   }
 
-  load(id: string): ConversationData | null {
-    this.ensureDir();
+  async load(id: string): Promise<ConversationData | null> {
+    await this.ensureDir();
     const filePath = path.join(this.getConversationsDir(), `${id}.json`);
 
     try {
-      if (!fs.existsSync(filePath)) {
-        return null;
-      }
-      const content = fs.readFileSync(filePath, 'utf-8');
+      const content = await fs.promises.readFile(filePath, 'utf-8');
       return JSON.parse(content) as ConversationData;
     } catch (error) {
-      console.error(`Failed to load conversation ${id}:`, error);
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        console.error(`Failed to load conversation ${id}:`, error);
+      }
       return null;
     }
   }
 
-  save(data: ConversationData): void {
-    this.ensureDir();
+  async save(data: ConversationData): Promise<void> {
+    await this.ensureDir();
     const filePath = path.join(this.getConversationsDir(), `${data.id}.json`);
     const tmpPath = filePath + '.tmp';
 
     try {
-      fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf-8');
-      fs.renameSync(tmpPath, filePath);
+      await fs.promises.writeFile(tmpPath, JSON.stringify(data, null, 2), 'utf-8');
+      await fs.promises.rename(tmpPath, filePath);
     } catch (error) {
       console.error(`Failed to save conversation ${data.id}:`, error);
-      // Clean up temp file if rename failed
-      try { fs.unlinkSync(tmpPath); } catch { /* ignore */ }
+      try { await fs.promises.unlink(tmpPath); } catch { /* ignore */ }
     }
   }
 
-  delete(id: string): void {
+  async delete(id: string): Promise<void> {
     const filePath = path.join(this.getConversationsDir(), `${id}.json`);
 
     try {
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      await fs.promises.unlink(filePath);
     } catch (error) {
-      console.error(`Failed to delete conversation ${id}:`, error);
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+        console.error(`Failed to delete conversation ${id}:`, error);
+      }
     }
   }
 
-  rename(id: string, title: string): void {
-    const data = this.load(id);
+  async rename(id: string, title: string): Promise<void> {
+    const data = await this.load(id);
     if (data) {
       data.title = title;
       data.updatedAt = Date.now();
-      this.save(data);
+      await this.save(data);
     }
   }
 }

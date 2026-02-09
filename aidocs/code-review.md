@@ -13,7 +13,7 @@ The codebase is generally well-structured with clear separation between main pro
 | Severity | Count | Resolved |
 |----------|-------|----------|
 | High     | 7     | 6        |
-| Medium   | 15    | 6        |
+| Medium   | 15    | 7        |
 | Low      | 10    | 3        |
 
 ---
@@ -205,11 +205,13 @@ The codebase is generally well-structured with clear separation between main pro
 
 ---
 
-### M11. Blocking I/O in ConversationService.list()
+### M11. ~~Blocking I/O in ConversationService.list()~~ ✅ RESOLVED
 
-`src/main/services/ConversationService.ts:18-48` — uses `fs.readdirSync` and `fs.readFileSync` in a loop, blocking the main Electron thread.
+**Resolved in v0.10.12** — Converted all 6 ConversationService methods from sync `fs` to async `fs.promises`. `ensureDir` simplified to idempotent `mkdir({ recursive: true })`. `list()` uses `Promise.all` for parallel file reads. Added 15 new unit tests. All 338 tests pass.
 
-**Fix:** Convert to `fs.promises.readdir` / `fs.promises.readFile` with `Promise.all`.
+~~`src/main/services/ConversationService.ts:18-48` — uses `fs.readdirSync` and `fs.readFileSync` in a loop, blocking the main Electron thread.~~
+
+~~**Fix:** Convert to `fs.promises.readdir` / `fs.promises.readFile` with `Promise.all`.~~
 
 ---
 
@@ -343,4 +345,4 @@ Several test files have unused imports:
 | 5 | ~~Extract preload.ts listener helper (M3)~~ | ✅ Done (v0.10.9) |
 | 6 | ~~Break up CopilotService.sendMessage (H4)~~ | ✅ Done (v0.10.10) |
 | 7 | ~~Extract renderer custom hooks (M7, M9, M10)~~ | ✅ Done (v0.10.11) |
-| 8 | Convert ConversationService to async (M11) | Unblocks main thread |
+| 8 | ~~Convert ConversationService to async (M11)~~ | ✅ Done (v0.10.12) |

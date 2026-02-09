@@ -12,14 +12,14 @@ export function setupConversationIPC(): void {
   });
 
   ipcMain.handle('conversation:save', (_event, data: ConversationData) => {
-    conversationService.save(data);
+    return conversationService.save(data);
   });
 
   ipcMain.handle('conversation:delete', (_event, id: string) => {
-    conversationService.delete(id);
+    return conversationService.delete(id);
   });
 
   ipcMain.handle('conversation:rename', (_event, id: string, title: string) => {
-    conversationService.rename(id, title);
+    return conversationService.rename(id, title);
   });
 }
