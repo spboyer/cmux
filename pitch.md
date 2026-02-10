@@ -27,7 +27,7 @@ Built on `@github/copilot-sdk`. Each agent session gets a `workingDirectory` tha
 - **Version**: 0.13.3
 - **Tests**: Unit tests via Jest, E2E via Playwright  
 - **Packaging**: Electron Forge with auto-updates via GitHub releases
-- **Auth**: Requires `gh auth login` (uses existing Copilot entitlement)
+- **Auth**: Uses Copilot CLI `/login` (existing GitHub Copilot entitlement)
 
 ## What We Need
 
@@ -39,7 +39,7 @@ Built on `@github/copilot-sdk`. Each agent session gets a `workingDirectory` tha
 
 Download the latest release: https://github.com/ipdelete/cmux/releases
 
-Requires `gh` CLI authenticated (`gh auth login`).
+Requires `@github/copilot` CLI authenticated via `/login`.
 
 ## Contact
 

@@ -14,12 +14,13 @@ npm install
 
 - Node.js 18+
 - npm 9+
-- GitHub CLI (`gh`) authenticated via `gh auth login`
 - Copilot CLI and SDK:
 
 ```bash
 npm install -g @github/copilot @github/copilot-sdk
 ```
+
+On first launch, use the `/login` command in the Copilot CLI to authenticate.
 
 ## Running the App
 

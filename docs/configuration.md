@@ -25,11 +25,10 @@ VP_AUTO_COPILOT=1 npm start
 
 ## Authentication & Global Dependencies
 
-cmux requires the GitHub CLI and Copilot packages:
+cmux requires the Copilot CLI and SDK:
 
 ```bash
-gh auth login
 npm install -g @github/copilot @github/copilot-sdk
 ```
 
-This is a one-time setup. The app uses your existing Copilot entitlement through the CLI.
+On first launch, use the `/login` command in the Copilot CLI to authenticate with your GitHub account. Alternatively, set `GH_TOKEN` or `GITHUB_TOKEN` environment variables with a personal access token.

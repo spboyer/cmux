@@ -22,12 +22,13 @@ See [Features](docs/features.md) for details.
 ### Prerequisites
 - Node.js 18+
 - npm 9+
-- GitHub CLI (`gh`) authenticated via `gh auth login`
 - Copilot CLI and SDK:
 
 ```bash
 npm install -g @github/copilot @github/copilot-sdk
 ```
+
+On first launch, use the `/login` command in the Copilot CLI to authenticate with your GitHub account.
 
 ### Install from Releases
 
@@ -63,7 +64,7 @@ npm run make       # Create distributable
 
 - Workspace resize may have slight delay during rapid window resizing
 - Some complex TUI applications may have minor rendering differences compared to native terminals
-- Copilot Chat requires `gh` CLI authentication — run `gh auth login` before using
+- Copilot Chat requires authentication — use `/login` in the Copilot CLI on first run
 - Restored chat conversations display previous messages but the AI does not retain context from prior sessions
 
 ## Contributing

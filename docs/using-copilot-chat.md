@@ -46,4 +46,4 @@ Right-click a conversation and select **Delete**. This removes it from disk perm
 
 - Conversations are saved to disk automatically and restored on restart
 - The AI does **not** retain context from prior sessions — restored conversations show previous messages for reference, but the AI starts fresh
-- Chat requires `gh` CLI authentication — run `gh auth login` before using
+- On first use, authenticate with `/login` in the Copilot CLI
