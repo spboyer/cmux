@@ -9,7 +9,7 @@
 
 A modern Electron-based workspace and agent manager for working across multiple repositories simultaneously. Features a three-pane layout with integrated file browsing, Copilot Chat, and AI-powered agents.
 
-![Workspace Overview](img/agent-screenshot.png)
+![cmux demo](img/hero-demo.gif)
 
 ## Features
 
