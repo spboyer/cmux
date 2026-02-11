@@ -8,6 +8,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
 import { pathToFileURL } from 'url';
+import { getCopilotLogsDir } from './AppPaths';
 
 type CopilotClientType = import('@github/copilot-sdk').CopilotClient;
 
@@ -250,7 +251,7 @@ export async function getSharedClient(): Promise<CopilotClientType> {
   startPromise = (async () => {
     const { CopilotClient } = await loadSdk();
     const cliPath = getCopilotCliPath();
-    const logDir = path.join(os.homedir(), '.copilot', 'logs');
+    const logDir = getCopilotLogsDir();
     fs.mkdirSync(logDir, { recursive: true });
     clientInstance = new CopilotClient({
       cliPath,

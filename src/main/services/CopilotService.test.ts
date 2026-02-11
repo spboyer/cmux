@@ -6,6 +6,9 @@ jest.mock('electron', () => ({
 // Mock fs.appendFile to suppress log writes
 jest.mock('fs', () => ({
   appendFile: jest.fn(),
+  existsSync: jest.fn().mockReturnValue(false),
+  mkdirSync: jest.fn(),
+  renameSync: jest.fn(),
 }));
 
 // Mock SdkLoader

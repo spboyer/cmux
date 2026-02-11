@@ -20,6 +20,7 @@ jest.mock('fs', () => ({
     readFile: jest.fn(),
     writeFile: jest.fn(),
     rename: jest.fn(),
+    copyFile: jest.fn(),
     unlink: jest.fn(),
   },
 }));
@@ -33,9 +34,10 @@ const mockReaddir = fs.promises.readdir as jest.MockedFunction<typeof fs.promise
 const mockReadFile = fs.promises.readFile as jest.MockedFunction<typeof fs.promises.readFile>;
 const mockWriteFile = fs.promises.writeFile as jest.MockedFunction<typeof fs.promises.writeFile>;
 const mockRename = fs.promises.rename as jest.MockedFunction<typeof fs.promises.rename>;
+const mockExistsSync = fs.existsSync as jest.MockedFunction<typeof fs.existsSync>;
 const mockUnlink = fs.promises.unlink as jest.MockedFunction<typeof fs.promises.unlink>;
 
-const CONV_DIR = path.join('/mock/userData', 'conversations');
+const CONV_DIR = path.join('/mock/userData', 'state', 'conversations');
 
 const makeConvData = (overrides: Partial<ConversationData> = {}): ConversationData => ({
   id: 'conv-1',
@@ -50,6 +52,7 @@ describe('ConversationService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockMkdir.mockResolvedValue(undefined);
+    mockExistsSync.mockReturnValue(false);
   });
 
   describe('list()', () => {

@@ -9,6 +9,9 @@ jest.mock('electron', () => ({
 
 // Mock fs module
 jest.mock('fs', () => ({
+  mkdirSync: jest.fn(),
+  renameSync: jest.fn(),
+  copyFileSync: jest.fn(),
   writeFileSync: jest.fn(),
   readFileSync: jest.fn(),
   existsSync: jest.fn(),
@@ -20,10 +23,16 @@ import { sessionService, SessionData, SessionFile } from './SessionService';
 const mockWriteFileSync = fs.writeFileSync as jest.MockedFunction<typeof fs.writeFileSync>;
 const mockReadFileSync = fs.readFileSync as jest.MockedFunction<typeof fs.readFileSync>;
 const mockExistsSync = fs.existsSync as jest.MockedFunction<typeof fs.existsSync>;
+const mockMkdirSync = fs.mkdirSync as jest.MockedFunction<typeof fs.mkdirSync>;
+const mockRenameSync = fs.renameSync as jest.MockedFunction<typeof fs.renameSync>;
+const mockCopyFileSync = fs.copyFileSync as jest.MockedFunction<typeof fs.copyFileSync>;
 
 describe('SessionService', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockMkdirSync.mockReturnValue(undefined);
+    mockRenameSync.mockReturnValue(undefined);
+    mockCopyFileSync.mockReturnValue(undefined);
   });
 
   describe('save', () => {
@@ -41,7 +50,7 @@ describe('SessionService', () => {
 
       expect(mockWriteFileSync).toHaveBeenCalledTimes(1);
       const [filePath, content] = mockWriteFileSync.mock.calls[0];
-      expect(filePath).toBe(path.join('/mock/userData', 'session.json'));
+      expect(filePath).toBe(path.join('/mock/userData', 'state', 'session.json'));
       
       const parsed = JSON.parse(content as string);
       expect(parsed.version).toBe(4);
@@ -107,7 +116,7 @@ describe('SessionService', () => {
 
     it('should filter out agents with non-existent directories', () => {
       mockExistsSync.mockImplementation((p) => {
-        if (p === path.join('/mock/userData', 'session.json')) return true;
+        if (p === path.join('/mock/userData', 'state', 'session.json')) return true;
         if (p === '/existing/dir') return true;
         if (p === '/missing/dir') return false;
         return false;
@@ -130,7 +139,7 @@ describe('SessionService', () => {
 
     it('should filter out non-existent files from agents', () => {
       mockExistsSync.mockImplementation((p) => {
-        if (p === path.join('/mock/userData', 'session.json')) return true;
+        if (p === path.join('/mock/userData', 'state', 'session.json')) return true;
         if (p === '/home') return true;
         if (p === '/home/exists.txt') return true;
         if (p === '/home/missing.txt') return false;
@@ -161,7 +170,7 @@ describe('SessionService', () => {
 
     it('should fix activeAgentId when pointing to removed agent', () => {
       mockExistsSync.mockImplementation((p) => {
-        if (p === path.join('/mock/userData', 'session.json')) return true;
+        if (p === path.join('/mock/userData', 'state', 'session.json')) return true;
         if (p === '/home') return true;
         if (p === '/removed') return false;
         return false;
@@ -183,7 +192,7 @@ describe('SessionService', () => {
 
     it('should fix activeItemId when pointing to removed item', () => {
       mockExistsSync.mockImplementation((p) => {
-        if (p === path.join('/mock/userData', 'session.json')) return true;
+        if (p === path.join('/mock/userData', 'state', 'session.json')) return true;
         if (p === '/home') return true;
         if (p === '/home/missing.txt') return false;
         return false;

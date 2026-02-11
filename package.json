@@ -1,7 +1,7 @@
 {
   "name": "cmux",
   "productName": "cmux",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "description": "Workspace and agent manager for multiple repositories",
   "main": ".webpack/main",
   "private": true,

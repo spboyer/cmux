@@ -1,6 +1,6 @@
-import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getSessionPath, getStateDir, getUserDataDir } from './AppPaths';
 
 const SESSION_FILE = 'session.json';
 const SESSION_VERSION = 4;
@@ -49,7 +49,48 @@ interface LegacySessionDataV1 {
 
 class SessionService {
   private getSessionPath(): string {
-    return path.join(app.getPath('userData'), SESSION_FILE);
+    return getSessionPath();
+  }
+
+  private getLegacySessionPath(): string {
+    return path.join(getUserDataDir(), SESSION_FILE);
+  }
+
+  private ensureStateDir(): void {
+    fs.mkdirSync(getStateDir(), { recursive: true });
+  }
+
+  private migrateLegacySessionIfNeeded(): void {
+    const sessionPath = this.getSessionPath();
+    const legacyPath = this.getLegacySessionPath();
+
+    if (!fs.existsSync(sessionPath) && fs.existsSync(legacyPath)) {
+      this.ensureStateDir();
+      try {
+        fs.renameSync(legacyPath, sessionPath);
+      } catch (error) {
+        console.warn('Failed to migrate legacy session file, copying instead:', error);
+        try {
+          fs.copyFileSync(legacyPath, sessionPath);
+        } catch (copyError) {
+          console.warn('Failed to copy legacy session file:', copyError);
+        }
+      }
+    }
+  }
+
+  private getReadableSessionPath(): string | null {
+    const sessionPath = this.getSessionPath();
+    if (fs.existsSync(sessionPath)) {
+      return sessionPath;
+    }
+
+    const legacyPath = this.getLegacySessionPath();
+    if (fs.existsSync(legacyPath)) {
+      return legacyPath;
+    }
+
+    return null;
   }
 
   save(data: Omit<SessionData, 'version'>): void {
@@ -59,6 +100,7 @@ class SessionService {
     };
 
     try {
+      this.ensureStateDir();
       const sessionPath = this.getSessionPath();
       fs.writeFileSync(sessionPath, JSON.stringify(sessionData, null, 2), 'utf-8');
     } catch (error) {
@@ -104,9 +146,10 @@ class SessionService {
 
   load(): SessionData | null {
     try {
-      const sessionPath = this.getSessionPath();
-      
-      if (!fs.existsSync(sessionPath)) {
+      this.migrateLegacySessionIfNeeded();
+      const sessionPath = this.getReadableSessionPath();
+
+      if (!sessionPath) {
         return null;
       }
 

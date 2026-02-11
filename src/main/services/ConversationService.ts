@@ -1,20 +1,53 @@
-import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import { Conversation, ConversationData } from '../../shared/types';
+import { getConversationsDir, getStateDir, getUserDataDir } from './AppPaths';
 
 class ConversationService {
   private getConversationsDir(): string {
-    return path.join(app.getPath('userData'), 'conversations');
+    return getConversationsDir();
   }
 
-  private async ensureDir(): Promise<void> {
-    await fs.promises.mkdir(this.getConversationsDir(), { recursive: true });
+  private getLegacyConversationsDir(): string {
+    return path.join(getUserDataDir(), 'conversations');
+  }
+
+  private async ensureDir(): Promise<string> {
+    const dir = this.getConversationsDir();
+    if (fs.existsSync(dir)) {
+      return dir;
+    }
+
+    const legacyDir = this.getLegacyConversationsDir();
+    if (fs.existsSync(legacyDir)) {
+      await fs.promises.mkdir(getStateDir(), { recursive: true });
+      try {
+        await fs.promises.rename(legacyDir, dir);
+        return dir;
+      } catch (error) {
+        console.warn('Failed to migrate legacy conversations directory, copying instead:', error);
+        try {
+          await fs.promises.mkdir(dir, { recursive: true });
+          const legacyFiles = await fs.promises.readdir(legacyDir);
+          await Promise.all(
+            legacyFiles.map(file =>
+              fs.promises.copyFile(path.join(legacyDir, file), path.join(dir, file))
+            )
+          );
+          return dir;
+        } catch (copyError) {
+          console.warn('Failed to copy legacy conversations; using legacy directory:', copyError);
+          return legacyDir;
+        }
+      }
+    }
+
+    await fs.promises.mkdir(dir, { recursive: true });
+    return dir;
   }
 
   async list(): Promise<Conversation[]> {
-    await this.ensureDir();
-    const dir = this.getConversationsDir();
+    const dir = await this.ensureDir();
 
     try {
       const files = (await fs.promises.readdir(dir)).filter(f => f.endsWith('.json'));
@@ -47,8 +80,8 @@ class ConversationService {
   }
 
   async load(id: string): Promise<ConversationData | null> {
-    await this.ensureDir();
-    const filePath = path.join(this.getConversationsDir(), `${id}.json`);
+    const dir = await this.ensureDir();
+    const filePath = path.join(dir, `${id}.json`);
 
     try {
       const content = await fs.promises.readFile(filePath, 'utf-8');
@@ -62,8 +95,8 @@ class ConversationService {
   }
 
   async save(data: ConversationData): Promise<void> {
-    await this.ensureDir();
-    const filePath = path.join(this.getConversationsDir(), `${data.id}.json`);
+    const dir = await this.ensureDir();
+    const filePath = path.join(dir, `${data.id}.json`);
     const tmpPath = filePath + '.tmp';
 
     try {
@@ -76,7 +109,8 @@ class ConversationService {
   }
 
   async delete(id: string): Promise<void> {
-    const filePath = path.join(this.getConversationsDir(), `${id}.json`);
+    const dir = await this.ensureDir();
+    const filePath = path.join(dir, `${id}.json`);
 
     try {
       await fs.promises.unlink(filePath);

@@ -1,7 +1,7 @@
 // Uses shared SDK loader for ESM-only @github/copilot-sdk in CJS Electron main process
-import { app } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
+import { getCopilotChatLogPath, getLogsDir, getUserDataDir } from './AppPaths';
 import { getSharedClient } from './SdkLoader';
 
 type CopilotSessionType = import('@github/copilot-sdk').CopilotSession;
@@ -10,8 +10,27 @@ type ToolType = import('@github/copilot-sdk').Tool;
 let logFilePath: string | null = null;
 
 function logToFile(message: string): void {
-  const filePath = logFilePath ?? (logFilePath = path.join(app.getPath('userData'), 'copilot-chat.log'));
-  fs.appendFile(filePath, `${new Date().toISOString()} ${message}\n`, (err) => {
+  if (!logFilePath) {
+    const logsDir = getLogsDir();
+    try {
+      fs.mkdirSync(logsDir, { recursive: true });
+    } catch (error) {
+      console.error('[CopilotService] Failed to create logs directory:', error);
+    }
+
+    const legacyPath = path.join(getUserDataDir(), 'copilot-chat.log');
+    const newPath = getCopilotChatLogPath();
+    if (!fs.existsSync(newPath) && fs.existsSync(legacyPath)) {
+      try {
+        fs.renameSync(legacyPath, newPath);
+      } catch (error) {
+        console.warn('[CopilotService] Failed to migrate copilot chat log:', error);
+      }
+    }
+    logFilePath = newPath;
+  }
+
+  fs.appendFile(logFilePath, `${new Date().toISOString()} ${message}\n`, (err) => {
     if (err) {
       console.error('[CopilotService] Failed to write log file:', err);
     }
