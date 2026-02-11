@@ -1,6 +1,6 @@
 import { ipcMain, BrowserWindow } from 'electron';
 import { CopilotService } from '../services/CopilotService';
-import { createOrchestratorTools, setOnAgentCreated, getActiveAgents, ORCHESTRATOR_SYSTEM_MESSAGE } from '../services/OrchestratorTools';
+import { createOrchestratorTools, setOnAgentCreated, getActiveAgents, registerAgent, ORCHESTRATOR_SYSTEM_MESSAGE } from '../services/OrchestratorTools';
 
 const copilotService = new CopilotService();
 let toolsInitialized = false;
@@ -28,6 +28,10 @@ async function ensureToolsInitialized(mainWindow: BrowserWindow): Promise<void> 
 export function setupCopilotIPC(mainWindow: BrowserWindow): void {
   ipcMain.handle('copilot:listModels', async () => {
     return copilotService.listModels();
+  });
+
+  ipcMain.handle('orchestrator:register-agent', (_event, agentId: string, label: string, cwd: string) => {
+    registerAgent(agentId, label, cwd);
   });
 
   ipcMain.handle('copilot:send', async (_event, conversationId: string, message: string, messageId: string, model?: string) => {

@@ -65,6 +65,7 @@ export interface ElectronAPI {
     send: (agentId: string, prompt: string) => Promise<void>;
     stop: (agentId: string) => Promise<void>;
     destroy: (agentId: string) => Promise<void>;
+    registerAgent: (agentId: string, label: string, cwd: string) => Promise<void>;
     onEvent: (callback: (agentId: string, event: unknown) => void) => () => void;
     onPermissionRequest: (callback: (agentId: string, request: { toolCallId?: string; kind: string }) => void) => () => void;
     respondPermission: (agentId: string, toolCallId: string, decision: string) => Promise<void>;
@@ -133,6 +134,7 @@ const electronAPI: ElectronAPI = {
     send: (agentId, prompt) => ipcRenderer.invoke('agent-session:send', agentId, prompt),
     stop: (agentId) => ipcRenderer.invoke('agent-session:stop', agentId),
     destroy: (agentId) => ipcRenderer.invoke('agent-session:destroy', agentId),
+    registerAgent: (agentId, label, cwd) => ipcRenderer.invoke('orchestrator:register-agent', agentId, label, cwd),
     onEvent: (callback) => createIpcListener(ipcRenderer, 'agent-session:event', callback),
     onPermissionRequest: (callback) => createIpcListener(ipcRenderer, 'agent-session:permission-request', callback),
     respondPermission: (agentId, toolCallId, decision) =>

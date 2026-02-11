@@ -22,6 +22,7 @@ export function useSessionRestore(dispatch: React.Dispatch<AppAction>): void {
           for (const agent of sessionData.agents) {
             if (agent.hasSession) {
               await window.electronAPI.fs.addAllowedRoot(agent.cwd);
+              await window.electronAPI.agentSession.registerAgent(agent.id, agent.label, agent.cwd);
               dispatch({
                 type: 'ADD_AGENT',
                 payload: {

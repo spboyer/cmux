@@ -8,6 +8,7 @@ describe('useSessionRestore', () => {
   let mockConversationLoad: jest.Mock;
   let mockAgentCreate: jest.Mock;
   let mockAddAllowedRoot: jest.Mock;
+  let mockRegisterAgent: jest.Mock;
 
   beforeEach(() => {
     dispatch = jest.fn();
@@ -16,6 +17,7 @@ describe('useSessionRestore', () => {
     mockConversationLoad = jest.fn();
     mockAgentCreate = jest.fn();
     mockAddAllowedRoot = jest.fn().mockResolvedValue(undefined);
+    mockRegisterAgent = jest.fn().mockResolvedValue(undefined);
 
     (window as any).electronAPI = {
       session: { load: mockSessionLoad },
@@ -25,6 +27,7 @@ describe('useSessionRestore', () => {
       },
       agent: { create: mockAgentCreate },
       fs: { addAllowedRoot: mockAddAllowedRoot },
+      agentSession: { registerAgent: mockRegisterAgent },
     };
   });
 
@@ -82,11 +85,30 @@ describe('useSessionRestore', () => {
     await new Promise(r => setTimeout(r, 50));
 
     expect(mockAddAllowedRoot).toHaveBeenCalledWith('/tmp/a2');
+    expect(mockRegisterAgent).toHaveBeenCalledWith('a2', 'SDK Agent', '/tmp/a2');
     expect(mockAgentCreate).not.toHaveBeenCalled();
     expect(dispatch).toHaveBeenCalledWith({
       type: 'ADD_AGENT',
       payload: { id: 'a2', label: 'SDK Agent', cwd: '/tmp/a2', hasSession: true },
     });
+  });
+
+  it('should not call registerAgent for non-SDK agents', async () => {
+    mockAgentCreate.mockResolvedValue({ isWorktree: false });
+    mockConversationList.mockResolvedValue([]);
+    mockSessionLoad.mockResolvedValue({
+      agents: [{
+        id: 'a1', label: 'Terminal Agent', cwd: '/tmp/a1',
+        openFiles: [], hasSession: false,
+      }],
+      activeItemId: 'a1',
+      activeAgentId: 'a1',
+    });
+
+    renderHook(() => useSessionRestore(dispatch));
+    await new Promise(r => setTimeout(r, 50));
+
+    expect(mockRegisterAgent).not.toHaveBeenCalled();
   });
 
   it('should restore open files for agents', async () => {

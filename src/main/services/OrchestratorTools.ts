@@ -95,8 +95,14 @@ export async function createOrchestratorTools(): Promise<ToolType[]> {
       required: ['agentId', 'prompt'],
     },
     handler: async (args: { agentId: string; prompt: string }) => {
-      if (!agentSessionService.hasSession(args.agentId)) {
+      const info = managedAgents.get(args.agentId);
+      if (!info) {
         return { error: `No active session for agent ${args.agentId}. Create one first with vp_create_agent.` };
+      }
+
+      // Lazy-create SDK session for restored agents that have no active session
+      if (!agentSessionService.hasSession(args.agentId)) {
+        await agentSessionService.createSession(args.agentId, info.cwd);
       }
 
       try {
@@ -145,6 +151,11 @@ function resolvePath(inputPath: string): string {
     return path.join(home, inputPath.slice(2));
   }
   return path.resolve(inputPath);
+}
+
+/** Register a previously-persisted agent so the orchestrator knows about it. */
+export function registerAgent(agentId: string, label: string, cwd: string): void {
+  managedAgents.set(agentId, { label, cwd });
 }
 
 export function getActiveAgents(): Array<{ agentId: string; label: string; cwd: string }> {
