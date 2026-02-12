@@ -1,4 +1,5 @@
 import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import * as fs from 'fs';
 import { setupAgentIPC } from './main/ipc/agent';
 import { setupFileIPC } from './main/ipc/files';
 import { setupGitIPC } from './main/ipc/git';
@@ -12,6 +13,16 @@ import { agentSessionService } from './main/services/AgentSessionService';
 
 declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
+
+const isSquirrelUninstall = process.argv.includes('--squirrel-uninstall');
+if (isSquirrelUninstall && process.platform === 'win32' && app.isPackaged) {
+  try {
+    const userDataDir = app.getPath('userData');
+    fs.rmSync(userDataDir, { recursive: true, force: true });
+  } catch (error) {
+    console.error('[UninstallCleanup] Failed to remove user data directory:', error);
+  }
+}
 
 if (require('electron-squirrel-startup')) {
   app.quit();
