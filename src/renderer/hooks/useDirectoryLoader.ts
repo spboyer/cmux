@@ -15,7 +15,7 @@ export interface UseDirectoryLoaderResult {
   getChildren: (dirPath: string) => FileEntry[];
 }
 
-export function useDirectoryLoader(rootPath: string, refreshTrigger: number): UseDirectoryLoaderResult {
+export function useDirectoryLoader(rootPath: string, refreshTrigger: number, showHidden?: boolean): UseDirectoryLoaderResult {
   const [rootEntries, setRootEntries] = useState<FileEntry[]>([]);
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -25,14 +25,14 @@ export function useDirectoryLoader(rootPath: string, refreshTrigger: number): Us
 
   const loadDirectory = useCallback(async (dirPath: string): Promise<FileEntry[]> => {
     try {
-      const entries = await window.electronAPI.fs.readDirectory(dirPath);
+      const entries = await window.electronAPI.fs.readDirectory(dirPath, showHidden);
       childrenCacheRef.current.set(dirPath, entries);
       return entries;
     } catch (err) {
       console.error('Error loading directory:', err);
       return [];
     }
-  }, []);
+  }, [showHidden]);
 
   const refreshDirectory = useCallback(async (dirPath: string) => {
     const entries = await loadDirectory(dirPath);

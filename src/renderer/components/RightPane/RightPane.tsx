@@ -37,6 +37,11 @@ export function RightPane({ onFileClick }: RightPaneProps) {
     setRefreshTrigger(prev => prev + 1);
   };
 
+  const handleToggleHidden = () => {
+    dispatch({ type: 'SET_SHOW_HIDDEN_FILES', payload: { show: !state.showHiddenFiles } });
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   const handleFileClick = (filePath: string) => {
     const fileName = filePath.split(/[/\\]/).pop() || filePath;
     onFileClick(filePath, fileName);
@@ -193,6 +198,14 @@ export function RightPane({ onFileClick }: RightPaneProps) {
     <>
       <div className="pane-header">
         <span>Files</span>
+        <button
+          className="toggle-hidden-button"
+          onClick={handleToggleHidden}
+          title={state.showHiddenFiles ? 'Hide hidden files' : 'Show hidden files'}
+          aria-label={state.showHiddenFiles ? 'Hide hidden files' : 'Show hidden files'}
+        >
+          <Icon name={state.showHiddenFiles ? 'eye' : 'eye-closed'} size="sm" />
+        </button>
         <button 
           className="refresh-button" 
           onClick={handleRefresh}
@@ -207,6 +220,7 @@ export function RightPane({ onFileClick }: RightPaneProps) {
           rootPath={activeAgent.cwd} 
           onFileClick={handleFileClick}
           refreshTrigger={refreshTrigger}
+          showHiddenFiles={state.showHiddenFiles}
         />
       </div>
     </>
