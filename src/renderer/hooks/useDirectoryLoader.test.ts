@@ -148,7 +148,41 @@ describe('useDirectoryLoader', () => {
     rerender({ trigger: 1 });
 
     await waitFor(() => {
-      expect(mockReadDirectory).toHaveBeenCalledWith('/root');
+      expect(mockReadDirectory).toHaveBeenCalledWith('/root', undefined);
     });
+  });
+
+  it('should pass showHidden to readDirectory calls', async () => {
+    mockReadDirectory.mockResolvedValue([]);
+
+    const { result } = renderHook(() => useDirectoryLoader('/root', 0, true));
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(mockReadDirectory).toHaveBeenCalledWith('/root', true);
+  });
+
+  it('should not pass showHidden when false', async () => {
+    mockReadDirectory.mockResolvedValue([]);
+
+    const { result } = renderHook(() => useDirectoryLoader('/root', 0, false));
+
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    expect(mockReadDirectory).toHaveBeenCalledWith('/root', false);
+  });
+
+  it('should pass showHidden when loading children', async () => {
+    const children = [{ name: 'c.ts', path: '/root/sub/c.ts', isDirectory: false }];
+    mockReadDirectory.mockResolvedValue(children);
+
+    const { result } = renderHook(() => useDirectoryLoader('/root', 0, true));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+
+    await act(async () => {
+      await result.current.loadChildren('/root/sub');
+    });
+
+    expect(mockReadDirectory).toHaveBeenCalledWith('/root/sub', true);
   });
 });

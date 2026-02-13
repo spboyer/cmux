@@ -55,6 +55,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
     const chatItem = screen.getByText('Copilot Chat').closest('.chat-nav-item');
@@ -78,6 +79,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -102,6 +104,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -133,6 +136,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -157,6 +161,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -190,6 +195,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -217,6 +223,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={onCloseAgent} />, state);
@@ -244,6 +251,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -276,6 +284,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(
@@ -310,6 +319,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(
@@ -346,6 +356,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(
@@ -381,6 +392,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(
@@ -418,6 +430,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -443,6 +456,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -467,6 +481,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -494,6 +509,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -530,6 +546,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);
@@ -561,6 +578,7 @@ describe('LeftPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
       };
 
       renderWithProvider(<LeftPane onAddAgent={() => {}} onCloseAgent={() => {}} />, state);

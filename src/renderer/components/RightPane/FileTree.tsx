@@ -8,14 +8,15 @@ interface FileTreeProps {
   rootPath: string;
   onFileClick: (filePath: string) => void;
   refreshTrigger?: number;
+  showHiddenFiles?: boolean;
 }
 
-export const FileTree: React.FC<FileTreeProps> = ({ rootPath, onFileClick, refreshTrigger }) => {
+export const FileTree: React.FC<FileTreeProps> = ({ rootPath, onFileClick, refreshTrigger, showHiddenFiles }) => {
   const {
     rootEntries, loading, error, expandedDirs,
     watchedDirsRef, refreshDirectory,
     handleDirectoryToggle, loadChildren, getChildren,
-  } = useDirectoryLoader(rootPath, refreshTrigger ?? 0);
+  } = useDirectoryLoader(rootPath, refreshTrigger ?? 0, showHiddenFiles);
 
   const { gitStatusMap, refreshGitStatus } = useGitStatusWatcher(rootPath);
 
@@ -58,4 +59,4 @@ export const FileTree: React.FC<FileTreeProps> = ({ rootPath, onFileClick, refre
     </div>
   );
 };
-
+

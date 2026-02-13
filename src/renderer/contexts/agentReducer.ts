@@ -14,6 +14,7 @@ type AgentAction = Extract<AppAction,
   | { type: 'ADD_AGENT_EVENT' }
   | { type: 'CLEAR_AGENT_EVENTS' }
   | { type: 'SET_AGENT_NOTES' }
+  | { type: 'SET_SHOW_HIDDEN_FILES' }
 >;
 
 export function agentReducer(state: AppState, action: AgentAction): AppState {
@@ -153,6 +154,9 @@ export function agentReducer(state: AppState, action: AgentAction): AppState {
           [action.payload.agentId]: action.payload.content,
         },
       };
+
+    case 'SET_SHOW_HIDDEN_FILES':
+      return { ...state, showHiddenFiles: action.payload.show };
 
     default:
       return state;

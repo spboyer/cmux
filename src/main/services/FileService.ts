@@ -22,7 +22,7 @@ class FileService {
     return false;
   }
 
-  async readDirectory(dirPath: string): Promise<FileEntry[]> {
+  async readDirectory(dirPath: string, options?: { showHidden?: boolean }): Promise<FileEntry[]> {
     if (!this.isPathAllowed(dirPath)) {
       console.error('Access denied: path outside allowed roots:', dirPath);
       return [];
@@ -32,7 +32,7 @@ class FileService {
       const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
       
       const fileEntries: FileEntry[] = entries
-        .filter(entry => !entry.name.startsWith('.')) // Hide hidden files
+        .filter(entry => options?.showHidden || !entry.name.startsWith('.'))
         .map(entry => ({
           name: entry.name,
           path: path.join(dirPath, entry.name),

@@ -71,6 +71,11 @@ export function useSessionRestore(dispatch: React.Dispatch<AppAction>): void {
               }
             }
           }
+
+          // Restore hidden files preference
+          if (sessionData.showHiddenFiles !== undefined) {
+            dispatch({ type: 'SET_SHOW_HIDDEN_FILES', payload: { show: sessionData.showHiddenFiles } });
+          }
         }
 
         // Restore active conversation and its messages

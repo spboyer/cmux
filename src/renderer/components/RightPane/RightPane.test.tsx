@@ -6,8 +6,8 @@ import { AppState } from '../../../shared/types';
 
 // Mock FileTree component which has complex IPC dependencies
 jest.mock('./FileTree', () => ({
-  FileTree: ({ rootPath, onFileClick }: { rootPath: string; onFileClick: (path: string) => void }) => (
-    <div data-testid="file-tree" data-root={rootPath}>
+  FileTree: ({ rootPath, onFileClick, showHiddenFiles }: { rootPath: string; onFileClick: (path: string) => void; showHiddenFiles?: boolean }) => (
+    <div data-testid="file-tree" data-root={rootPath} data-show-hidden={showHiddenFiles}>
       <button onClick={() => onFileClick('/home/test.ts')}>test.ts</button>
     </div>
   ),
@@ -48,6 +48,7 @@ describe('RightPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -72,6 +73,7 @@ describe('RightPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
@@ -102,6 +104,7 @@ describe('RightPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -128,6 +131,7 @@ describe('RightPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<RightPane onFileClick={onFileClick} />, state);
@@ -155,6 +159,7 @@ describe('RightPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state1);
@@ -179,6 +184,7 @@ describe('RightPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state2);
@@ -201,11 +207,87 @@ describe('RightPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<RightPane onFileClick={() => {}} />, state);
 
     expect(screen.getByText('Chat')).toBeInTheDocument();
     expect(screen.queryByTestId('file-tree')).not.toBeInTheDocument();
+  });
+
+  it('should show toggle hidden files button when agent is active', () => {
+    const state: AppState = {
+      agents: [
+        { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+      ],
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
+      agentEvents: {},
+      agentNotes: {},
+      showHiddenFiles: false,
+    };
+
+    renderWithProvider(<RightPane onFileClick={() => {}} />, state);
+
+    expect(screen.getByRole('button', { name: 'Show hidden files' })).toBeInTheDocument();
+  });
+
+  it('should pass showHiddenFiles to FileTree', () => {
+    const state: AppState = {
+      agents: [
+        { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+      ],
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
+      agentEvents: {},
+      agentNotes: {},
+      showHiddenFiles: true,
+    };
+
+    renderWithProvider(<RightPane onFileClick={() => {}} />, state);
+
+    expect(screen.getByTestId('file-tree')).toHaveAttribute('data-show-hidden', 'true');
+  });
+
+  it('should dispatch SET_SHOW_HIDDEN_FILES on toggle click', () => {
+    const state: AppState = {
+      agents: [
+        { id: 'agent-1', label: 'Agent 1', cwd: '/home', openFiles: [] },
+      ],
+      activeItemId: 'agent-1',
+      activeAgentId: 'agent-1',
+      viewMode: 'agents',
+      chatMessages: [],
+      chatLoading: false,
+      conversations: [],
+      activeConversationId: null,
+      availableModels: [],
+      selectedModel: null,
+      agentEvents: {},
+      agentNotes: {},
+      showHiddenFiles: false,
+    };
+
+    renderWithProvider(<RightPane onFileClick={() => {}} />, state);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Show hidden files' }));
+
+    // After clicking, the button label should change to "Hide hidden files"
+    expect(screen.getByRole('button', { name: 'Hide hidden files' })).toBeInTheDocument();
   });
 });

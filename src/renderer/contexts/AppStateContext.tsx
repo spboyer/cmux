@@ -17,6 +17,7 @@ export const initialState: AppState = {
   selectedModel: null,
   agentEvents: {},
   agentNotes: {},
+  showHiddenFiles: false,
 };
 
 export function appReducer(state: AppState, action: AppAction): AppState {
@@ -34,6 +35,7 @@ export function appReducer(state: AppState, action: AppAction): AppState {
     case 'ADD_AGENT_EVENT':
     case 'CLEAR_AGENT_EVENTS':
     case 'SET_AGENT_NOTES':
+    case 'SET_SHOW_HIDDEN_FILES':
       return agentReducer(state, action);
 
     case 'ADD_CHAT_MESSAGE':

@@ -3,8 +3,8 @@ import { fileService, FileEntry } from '../services/FileService';
 import { fileWatcherService, FileWatchEvent } from '../services/FileWatcherService';
 
 export function setupFileIPC(): void {
-  ipcMain.handle('fs:readDirectory', async (_event, dirPath: string): Promise<FileEntry[]> => {
-    return fileService.readDirectory(dirPath);
+  ipcMain.handle('fs:readDirectory', async (_event, dirPath: string, showHidden?: boolean): Promise<FileEntry[]> => {
+    return fileService.readDirectory(dirPath, { showHidden });
   });
 
   ipcMain.handle('fs:readFile', async (_event, filePath: string): Promise<string> => {

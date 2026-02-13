@@ -32,7 +32,7 @@ export function useModelPicker(
         }
       })
       .catch(() => { /* models unavailable — picker will be hidden */ });
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   // Close picker on outside click
   useEffect(() => {

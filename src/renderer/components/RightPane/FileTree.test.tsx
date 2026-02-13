@@ -149,7 +149,7 @@ describe('FileTree', () => {
     const { rerender } = render(<FileTree rootPath="/home" onFileClick={() => {}} />);
 
     await waitFor(() => {
-      expect(mockReadDirectory).toHaveBeenCalledWith('/home');
+      expect(mockReadDirectory).toHaveBeenCalledWith('/home', undefined);
     });
 
     mockReadDirectory.mockClear();
@@ -160,7 +160,7 @@ describe('FileTree', () => {
     rerender(<FileTree rootPath="/project" onFileClick={() => {}} />);
 
     await waitFor(() => {
-      expect(mockReadDirectory).toHaveBeenCalledWith('/project');
+      expect(mockReadDirectory).toHaveBeenCalledWith('/project', undefined);
     });
   });
 

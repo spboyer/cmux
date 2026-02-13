@@ -44,7 +44,9 @@ export type IconName =
   | 'play'
   | 'check'
   | 'error'
-  | 'person';
+  | 'person'
+  | 'eye'
+  | 'eye-closed';
 
 interface IconProps {
   name: IconName;
@@ -158,4 +160,4 @@ export function getFileIcon(filename: string): IconName {
   
   return 'file';
 }
-
+

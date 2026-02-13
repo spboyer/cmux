@@ -67,8 +67,8 @@ describe('CopilotService', () => {
 
   describe('sendMessage', () => {
     it('T001: calls onChunk with streamed delta content', async () => {
-      let deltaHandler: Function | null = null;
-      mockSession.on.mockImplementation((eventOrHandler: string | Function, handler?: Function) => {
+      let deltaHandler: ((...args: unknown[]) => void) | null = null;
+      mockSession.on.mockImplementation((eventOrHandler: string | ((...args: unknown[]) => void), handler?: (...args: unknown[]) => void) => {
         if (eventOrHandler === 'assistant.message_delta' && handler) {
           deltaHandler = handler;
         }
@@ -140,8 +140,8 @@ describe('CopilotService', () => {
 
     it('T008: ignores chunks after abort', async () => {
       // Capture the delta handler so we can fire it after abort
-      let deltaHandler: Function | null = null;
-      mockSession.on.mockImplementation((eventOrHandler: string | Function, handler?: Function) => {
+      let deltaHandler: ((...args: unknown[]) => void) | null = null;
+      mockSession.on.mockImplementation((eventOrHandler: string | ((...args: unknown[]) => void), handler?: (...args: unknown[]) => void) => {
         if (eventOrHandler === 'assistant.message_delta' && handler) {
           deltaHandler = handler;
         }

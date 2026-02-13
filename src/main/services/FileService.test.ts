@@ -151,6 +151,49 @@ describe('FileService', () => {
 
       expect(mockReaddir).toHaveBeenCalledWith('/test/dir', { withFileTypes: true });
     });
+
+    it('should filter dotfiles when showHidden is false', async () => {
+      const mockEntries = [
+        { name: '.hidden', isDirectory: () => false },
+        { name: '.git', isDirectory: () => true },
+        { name: 'visible.txt', isDirectory: () => false },
+      ];
+      mockReaddir.mockResolvedValue(mockEntries as any);
+
+      const result = await fileService.readDirectory('/test/dir', { showHidden: false });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('visible.txt');
+    });
+
+    it('should return dotfiles when showHidden is true', async () => {
+      const mockEntries = [
+        { name: '.hidden', isDirectory: () => false },
+        { name: '.git', isDirectory: () => true },
+        { name: 'visible.txt', isDirectory: () => false },
+      ];
+      mockReaddir.mockResolvedValue(mockEntries as any);
+
+      const result = await fileService.readDirectory('/test/dir', { showHidden: true });
+
+      expect(result).toHaveLength(3);
+      expect(result.map(e => e.name)).toContain('.hidden');
+      expect(result.map(e => e.name)).toContain('.git');
+      expect(result.map(e => e.name)).toContain('visible.txt');
+    });
+
+    it('should filter dotfiles by default (no options)', async () => {
+      const mockEntries = [
+        { name: '.env', isDirectory: () => false },
+        { name: 'index.ts', isDirectory: () => false },
+      ];
+      mockReaddir.mockResolvedValue(mockEntries as any);
+
+      const result = await fileService.readDirectory('/test/dir');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].name).toBe('index.ts');
+    });
   });
 
   describe('readFile', () => {

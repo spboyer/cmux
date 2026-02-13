@@ -58,6 +58,7 @@ describe('CenterPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -83,6 +84,7 @@ describe('CenterPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -116,6 +118,7 @@ describe('CenterPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<CenterPane />, state);
@@ -147,6 +150,7 @@ describe('CenterPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
@@ -171,6 +175,7 @@ describe('CenterPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
@@ -195,6 +200,7 @@ describe('CenterPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     const { container } = renderWithProvider(<CenterPane />, state);
@@ -220,6 +226,7 @@ describe('CenterPane', () => {
       selectedModel: null,
       agentEvents: {},
       agentNotes: {},
+      showHiddenFiles: false,
     };
 
     renderWithProvider(<CenterPane />, state);

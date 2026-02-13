@@ -15,7 +15,7 @@ export interface ElectronAPI {
     onExit: (callback: (id: string, exitCode: number) => void) => () => void;
   };
   fs: {
-    readDirectory: (dirPath: string) => Promise<FileEntry[]>;
+    readDirectory: (dirPath: string, showHidden?: boolean) => Promise<FileEntry[]>;
     readFile: (filePath: string) => Promise<string>;
     addAllowedRoot: (rootPath: string) => Promise<void>;
     watchDirectory: (dirPath: string) => Promise<boolean>;
@@ -87,7 +87,7 @@ const electronAPI: ElectronAPI = {
     onExit: (callback) => createIpcListener(ipcRenderer, 'agent:exit', callback),
   },
   fs: {
-    readDirectory: (dirPath) => ipcRenderer.invoke('fs:readDirectory', dirPath),
+    readDirectory: (dirPath, showHidden) => ipcRenderer.invoke('fs:readDirectory', dirPath, showHidden),
     readFile: (filePath) => ipcRenderer.invoke('fs:readFile', filePath),
     addAllowedRoot: (rootPath) => ipcRenderer.invoke('fs:addAllowedRoot', rootPath),
     watchDirectory: (dirPath) => ipcRenderer.invoke('fs:watchDirectory', dirPath),

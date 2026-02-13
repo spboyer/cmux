@@ -352,6 +352,31 @@ describe('agentReducer', () => {
     });
   });
 
+  describe('SET_SHOW_HIDDEN_FILES', () => {
+    it('should set showHiddenFiles to true', () => {
+      const result = agentReducer(initialState, {
+        type: 'SET_SHOW_HIDDEN_FILES',
+        payload: { show: true },
+      });
+
+      expect(result.showHiddenFiles).toBe(true);
+    });
+
+    it('should set showHiddenFiles to false', () => {
+      const state: AppState = {
+        ...initialState,
+        showHiddenFiles: true,
+      };
+
+      const result = agentReducer(state, {
+        type: 'SET_SHOW_HIDDEN_FILES',
+        payload: { show: false },
+      });
+
+      expect(result.showHiddenFiles).toBe(false);
+    });
+  });
+
   describe('default', () => {
     it('should return state unchanged for unknown actions', () => {
       const result = agentReducer(initialState, { type: 'UNKNOWN' } as any);

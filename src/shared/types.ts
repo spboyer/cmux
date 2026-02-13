@@ -172,6 +172,7 @@ export interface AppState {
   selectedModel: string | null;
   agentEvents: Record<string, AgentEvent[]>;
   agentNotes: Record<string, string>;
+  showHiddenFiles: boolean;
 }
 
 export interface SessionData {
@@ -181,6 +182,7 @@ export interface SessionData {
   activeAgentId: string | null;
   activeConversationId: string | null;
   agentNotes?: Record<string, string>;
+  showHiddenFiles?: boolean;
 }
 
 export type AppAction =
@@ -207,7 +209,8 @@ export type AppAction =
   | { type: 'SET_AGENT_STATUS'; payload: { agentId: string; status: AgentStatus } }
   | { type: 'CLEAR_AGENT_EVENTS'; payload: { agentId: string } }
   | { type: 'SET_AGENT_HAS_SESSION'; payload: { agentId: string; hasSession: boolean } }
-  | { type: 'SET_AGENT_NOTES'; payload: { agentId: string; content: string } };
+  | { type: 'SET_AGENT_NOTES'; payload: { agentId: string; content: string } }
+  | { type: 'SET_SHOW_HIDDEN_FILES'; payload: { show: boolean } };
 
 // Auto-update types
 export type UpdateStatus = 'idle' | 'checking' | 'available' | 'not-available' | 'downloading' | 'ready' | 'error' | 'dev-mode';
