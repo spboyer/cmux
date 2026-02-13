@@ -569,7 +569,8 @@ body {
 }
 
 /* Refresh button */
-.refresh-button {
+.refresh-button,
+.toggle-hidden-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -582,12 +583,14 @@ body {
   transition: all var(--transition-base);
 }
 
-.refresh-button:hover {
+.refresh-button:hover,
+.toggle-hidden-button:hover {
   background-color: var(--bg-hover);
   color: var(--text-primary);
 }
 
-.refresh-button:active {
+.refresh-button:active,
+.toggle-hidden-button:active {
   background-color: var(--accent-glow);
 }
 
