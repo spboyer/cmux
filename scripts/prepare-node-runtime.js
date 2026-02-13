@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const https = require('https');
 const { spawnSync } = require('child_process');
+const crypto = require('crypto');
 
 const repoRoot = path.resolve(__dirname, '..');
 const targetDir = path.join(repoRoot, 'resources', 'node');
@@ -64,6 +65,54 @@ function downloadFile(url, dest) {
   });
 }
 
+function downloadText(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (res) => {
+      if (res.statusCode !== 200) {
+        reject(new Error(`Failed to download ${url}: ${res.statusCode}`));
+        return;
+      }
+      let data = '';
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => resolve(data));
+    }).on('error', reject);
+  });
+}
+
+function computeFileHash(filePath) {
+  return new Promise((resolve, reject) => {
+    const hash = crypto.createHash('sha256');
+    const stream = fs.createReadStream(filePath);
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('end', () => resolve(hash.digest('hex')));
+    stream.on('error', reject);
+  });
+}
+
+async function verifyIntegrity(filePath, version, filename) {
+  const shasumsUrl = `https://nodejs.org/dist/v${version}/SHASUMS256.txt`;
+  console.log(`Fetching checksums from ${shasumsUrl}`);
+  const shasums = await downloadText(shasumsUrl);
+
+  const expectedLine = shasums.split('\n').find((line) => line.includes(filename));
+  if (!expectedLine) {
+    throw new Error(`Could not find checksum for ${filename} in SHASUMS256.txt`);
+  }
+  const expectedHash = expectedLine.trim().split(/\s+/)[0];
+
+  console.log('Verifying download integrity...');
+  const actualHash = await computeFileHash(filePath);
+
+  if (actualHash !== expectedHash) {
+    throw new Error(
+      `Integrity check failed for ${filename}.\n` +
+      `  Expected: ${expectedHash}\n` +
+      `  Actual:   ${actualHash}`
+    );
+  }
+  console.log('Integrity check passed.');
+}
+
 async function main() {
   const version = resolveVersion();
   const { dist, ext } = resolveDist(version);
@@ -86,6 +135,9 @@ async function main() {
 
     console.log(`Downloading ${url}`);
     await downloadFile(url, archivePath);
+
+    const archiveFilename = `${dist}.${ext}`;
+    await verifyIntegrity(archivePath, version, archiveFilename);
 
     console.log('Extracting Node runtime...');
     if (ext === 'zip') {
