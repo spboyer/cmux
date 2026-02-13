@@ -12,7 +12,6 @@ class GitService {
     return new Promise((resolve, reject) => {
       const proc = spawn('git', args, {
         cwd,
-        shell: true,
         windowsHide: true,
       });
 
