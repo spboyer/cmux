@@ -80,6 +80,7 @@ function AppContent() {
         activeAgentId: state.activeAgentId,
         activeConversationId: state.activeConversationId,
         agentNotes: state.agentNotes,
+        showHiddenFiles: state.showHiddenFiles,
       });
     };
 

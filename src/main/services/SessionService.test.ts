@@ -53,7 +53,7 @@ describe('SessionService', () => {
       expect(filePath).toBe(path.join('/mock/userData', 'state', 'session.json'));
       
       const parsed = JSON.parse(content as string);
-      expect(parsed.version).toBe(4);
+      expect(parsed.version).toBe(5);
       expect(parsed.agents).toEqual(data.agents);
       expect(parsed.activeItemId).toBe('agent-1');
     });
@@ -230,7 +230,7 @@ describe('SessionService', () => {
     it('should return valid session data', () => {
       mockExistsSync.mockImplementation((p) => true);
       mockReadFileSync.mockReturnValue(JSON.stringify({
-        version: 4,
+        version: 5,
         agents: [
           { id: 'agent-1', label: 'Test', cwd: '/home', openFiles: [] },
         ],
@@ -238,6 +238,7 @@ describe('SessionService', () => {
         activeAgentId: 'agent-1',
         activeConversationId: null,
         agentNotes: {},
+        showHiddenFiles: false,
       }));
 
       const result = sessionService.load();
@@ -268,12 +269,52 @@ describe('SessionService', () => {
       const result = sessionService.load();
 
       expect(result).not.toBeNull();
-      expect(result?.version).toBe(4);
+      expect(result?.version).toBe(5);
       expect(result?.agents).toHaveLength(1);
       expect(result?.agents[0].id).toBe('term-1');
       expect(result?.agents[0].openFiles[0].parentAgentId).toBe('term-1');
       expect(result?.activeAgentId).toBe('term-1');
       expect(result?.activeConversationId).toBeNull();
+    });
+
+    it('should migrate v4 session data to v5 with showHiddenFiles', () => {
+      mockExistsSync.mockImplementation(() => true);
+      mockReadFileSync.mockReturnValue(JSON.stringify({
+        version: 4,
+        agents: [
+          { id: 'agent-1', label: 'Test', cwd: '/home', openFiles: [] },
+        ],
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
+        activeConversationId: null,
+        agentNotes: {},
+      }));
+
+      const result = sessionService.load();
+
+      expect(result).not.toBeNull();
+      expect(result?.version).toBe(5);
+      expect(result?.showHiddenFiles).toBe(false);
+    });
+
+    it('should preserve showHiddenFiles value in v5 session data', () => {
+      mockExistsSync.mockImplementation(() => true);
+      mockReadFileSync.mockReturnValue(JSON.stringify({
+        version: 5,
+        agents: [
+          { id: 'agent-1', label: 'Test', cwd: '/home', openFiles: [] },
+        ],
+        activeItemId: 'agent-1',
+        activeAgentId: 'agent-1',
+        activeConversationId: null,
+        agentNotes: {},
+        showHiddenFiles: true,
+      }));
+
+      const result = sessionService.load();
+
+      expect(result).not.toBeNull();
+      expect(result?.showHiddenFiles).toBe(true);
     });
   });
 });

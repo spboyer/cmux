@@ -182,6 +182,7 @@ export interface SessionData {
   activeAgentId: string | null;
   activeConversationId: string | null;
   agentNotes?: Record<string, string>;
+  showHiddenFiles?: boolean;
 }
 
 export type AppAction =

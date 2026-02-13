@@ -208,4 +208,26 @@ describe('useSessionRestore', () => {
     expect(consoleSpy).toHaveBeenCalledWith('Failed to restore session:', expect.any(Error));
     consoleSpy.mockRestore();
   });
+
+  it('should restore showHiddenFiles preference', async () => {
+    mockAgentCreate.mockResolvedValue({ isWorktree: false });
+    mockConversationList.mockResolvedValue([]);
+    mockSessionLoad.mockResolvedValue({
+      agents: [{
+        id: 'a1', label: 'Agent', cwd: '/tmp',
+        openFiles: [], hasSession: false,
+      }],
+      activeItemId: 'a1',
+      activeAgentId: 'a1',
+      showHiddenFiles: true,
+    });
+
+    renderHook(() => useSessionRestore(dispatch));
+    await new Promise(r => setTimeout(r, 50));
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: 'SET_SHOW_HIDDEN_FILES',
+      payload: { show: true },
+    });
+  });
 });

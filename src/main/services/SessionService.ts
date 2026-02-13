@@ -3,7 +3,7 @@ import * as path from 'path';
 import { getSessionPath, getStateDir, getUserDataDir } from './AppPaths';
 
 const SESSION_FILE = 'session.json';
-const SESSION_VERSION = 4;
+const SESSION_VERSION = 5;
 
 export interface SessionAgent {
   id: string;
@@ -27,6 +27,7 @@ export interface SessionData {
   activeAgentId: string | null;
   activeConversationId: string | null;
   agentNotes?: Record<string, string>;
+  showHiddenFiles?: boolean;
 }
 
 // Legacy v1 types for migration
@@ -144,6 +145,14 @@ class SessionService {
     };
   }
 
+  private migrateV4ToV5(data: SessionData & { version: 4 }): SessionData {
+    return {
+      ...data,
+      version: 5,
+      showHiddenFiles: false,
+    };
+  }
+
   load(): SessionData | null {
     try {
       this.migrateLegacySessionIfNeeded();
@@ -172,6 +181,12 @@ class SessionService {
       if (data.version === 3) {
         console.log('Migrating session data from v3 to v4');
         data = this.migrateV3ToV4(data);
+      }
+
+      // Migrate v4 to v5
+      if (data.version === 4) {
+        console.log('Migrating session data from v4 to v5');
+        data = this.migrateV4ToV5(data);
       }
 
       // Validate version
