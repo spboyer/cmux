@@ -81,41 +81,45 @@ async function main() {
 
   const url = `https://nodejs.org/dist/v${version}/${dist}.${ext}`;
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cmux-node-'));
-  const archivePath = path.join(tempDir, `${dist}.${ext}`);
-
-  console.log(`Downloading ${url}`);
-  await downloadFile(url, archivePath);
-
-  console.log('Extracting Node runtime...');
-  if (ext === 'zip') {
-    runCommand('powershell', [
-      '-NoProfile',
-      '-Command',
-      `Expand-Archive -Path "${archivePath}" -DestinationPath "${tempDir}" -Force`,
-    ]);
-  } else {
-    runCommand('tar', ['-xzf', archivePath, '-C', tempDir]);
-  }
-
-  const extractedDir = path.join(tempDir, dist);
-  if (!fs.existsSync(extractedDir)) {
-    throw new Error(`Extracted Node directory not found: ${extractedDir}`);
-  }
-
-  fs.rmSync(targetDir, { recursive: true, force: true });
   try {
-    fs.renameSync(extractedDir, targetDir);
-  } catch (error) {
-    if (error && error.code === 'EXDEV') {
-      fs.cpSync(extractedDir, targetDir, { recursive: true });
-      fs.rmSync(extractedDir, { recursive: true, force: true });
-    } else {
-      throw error;
-    }
-  }
-  fs.writeFileSync(markerPath, version, 'utf-8');
+    const archivePath = path.join(tempDir, `${dist}.${ext}`);
 
-  console.log(`Bundled Node runtime ready at ${targetDir}`);
+    console.log(`Downloading ${url}`);
+    await downloadFile(url, archivePath);
+
+    console.log('Extracting Node runtime...');
+    if (ext === 'zip') {
+      runCommand('powershell', [
+        '-NoProfile',
+        '-Command',
+        `Expand-Archive -Path "${archivePath}" -DestinationPath "${tempDir}" -Force`,
+      ]);
+    } else {
+      runCommand('tar', ['-xzf', archivePath, '-C', tempDir]);
+    }
+
+    const extractedDir = path.join(tempDir, dist);
+    if (!fs.existsSync(extractedDir)) {
+      throw new Error(`Extracted Node directory not found: ${extractedDir}`);
+    }
+
+    fs.rmSync(targetDir, { recursive: true, force: true });
+    try {
+      fs.renameSync(extractedDir, targetDir);
+    } catch (error) {
+      if (error && error.code === 'EXDEV') {
+        fs.cpSync(extractedDir, targetDir, { recursive: true });
+        fs.rmSync(extractedDir, { recursive: true, force: true });
+      } else {
+        throw error;
+      }
+    }
+    fs.writeFileSync(markerPath, version, 'utf-8');
+
+    console.log(`Bundled Node runtime ready at ${targetDir}`);
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
 }
 
 main().catch((err) => {
