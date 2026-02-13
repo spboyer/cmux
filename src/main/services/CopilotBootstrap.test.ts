@@ -1,18 +1,11 @@
-import * as path from 'path';
-
-const originalPlatform = process.platform;
-
-function mockPlatform(platform: string) {
-  Object.defineProperty(process, 'platform', { value: platform, writable: true });
-}
+/* eslint-disable @typescript-eslint/no-var-requires */
 
 afterEach(() => {
-  Object.defineProperty(process, 'platform', { value: originalPlatform, writable: true });
   jest.restoreAllMocks();
   jest.resetModules();
 });
 
-// Mock electron app module
+// Mock electron
 jest.mock('electron', () => ({
   app: {
     isPackaged: false,
@@ -28,111 +21,71 @@ jest.mock('./AppPaths', () => ({
   getCopilotLogsDir: jest.fn().mockReturnValue('/tmp/copilot-logs'),
 }));
 
+// Mock fs at module level so properties are configurable
+jest.mock('fs');
+
 describe('CopilotBootstrap platform-specific behavior', () => {
-  describe('getBundledNodePath', () => {
-    test('returns node.exe on Windows', () => {
-      mockPlatform('win32');
-      jest.resetModules();
-      // On Windows, the path should end with node.exe
-      const nodePath = path.join('/app/resources/node', 'node.exe');
-      expect(nodePath).toContain('node.exe');
+  describe('getLocalCopilotCliPath', () => {
+    test('returns nested CLI path when it exists', () => {
+      const fs = require('fs');
+      fs.existsSync.mockImplementation((p: string) => {
+        return p.toString().includes('copilot-sdk') && p.toString().includes('npm-loader.js');
+      });
+
+      jest.isolateModules(() => {
+        const { getLocalCopilotCliPath } = require('./CopilotBootstrap');
+        const result = getLocalCopilotCliPath();
+        expect(result).not.toBeNull();
+        expect(result).toContain('copilot-sdk');
+        expect(result).toContain('npm-loader.js');
+      });
     });
 
-    test('returns bin/node on macOS', () => {
-      mockPlatform('darwin');
-      jest.resetModules();
-      const nodePath = path.join('/app/resources/node', 'bin', 'node');
-      expect(nodePath).toContain(path.join('bin', 'node'));
+    test('falls back to flat CLI path when nested does not exist', () => {
+      const fs = require('fs');
+      fs.existsSync.mockImplementation((p: string) => {
+        const s = p.toString();
+        // Nested path doesn't exist, flat path does
+        if (s.includes('copilot-sdk') && s.includes('npm-loader.js')) return false;
+        if (s.includes('@github') && s.includes('copilot') && s.includes('npm-loader.js')) return true;
+        return false;
+      });
+
+      jest.isolateModules(() => {
+        const { getLocalCopilotCliPath } = require('./CopilotBootstrap');
+        const result = getLocalCopilotCliPath();
+        expect(result).not.toBeNull();
+        expect(result).toContain('npm-loader.js');
+      });
     });
 
-    test('returns bin/node on Linux', () => {
-      mockPlatform('linux');
-      jest.resetModules();
-      const nodePath = path.join('/app/resources/node', 'bin', 'node');
-      expect(nodePath).toContain(path.join('bin', 'node'));
-    });
-  });
+    test('returns null when no CLI path exists', () => {
+      const fs = require('fs');
+      fs.existsSync.mockReturnValue(false);
 
-  describe('getBundledNpmCliPath', () => {
-    test('uses node_modules/npm/bin on Windows', () => {
-      mockPlatform('win32');
-      const npmPath = path.join('/app/resources/node', 'node_modules', 'npm', 'bin', 'npm-cli.js');
-      expect(npmPath).toContain(path.join('node_modules', 'npm', 'bin', 'npm-cli.js'));
-    });
-
-    test('uses lib/node_modules/npm/bin on macOS', () => {
-      mockPlatform('darwin');
-      const npmPath = path.join('/app/resources/node', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
-      expect(npmPath).toContain(path.join('lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'));
-    });
-
-    test('uses lib/node_modules/npm/bin on Linux', () => {
-      mockPlatform('linux');
-      const npmPath = path.join('/app/resources/node', 'lib', 'node_modules', 'npm', 'bin', 'npm-cli.js');
-      expect(npmPath).toContain(path.join('lib', 'node_modules', 'npm', 'bin', 'npm-cli.js'));
-    });
-  });
-
-  describe('Copilot shim generation', () => {
-    test('creates .cmd shim on Windows', () => {
-      mockPlatform('win32');
-      const shimPath = path.join('/tmp/copilot-bootstrap', 'copilot.cmd');
-      expect(shimPath).toContain('copilot.cmd');
-    });
-
-    test('creates shell shim on macOS', () => {
-      mockPlatform('darwin');
-      const shimPath = path.join('/tmp/copilot-bootstrap', 'copilot');
-      expect(shimPath).not.toContain('.cmd');
-    });
-
-    test('creates shell shim on Linux', () => {
-      mockPlatform('linux');
-      const shimPath = path.join('/tmp/copilot-bootstrap', 'copilot');
-      expect(shimPath).not.toContain('.cmd');
-    });
-  });
-
-  describe('Copilot CLI path detection', () => {
-    test('checks nested cli path under copilot-sdk/node_modules', () => {
-      const modulesDir = '/tmp/copilot-bootstrap/node_modules';
-      const nestedCli = path.join(
-        modulesDir,
-        '@github',
-        'copilot-sdk',
-        'node_modules',
-        '@github',
-        'copilot',
-        'npm-loader.js',
-      );
-      expect(nestedCli).toContain('copilot-sdk');
-      expect(nestedCli).toContain('npm-loader.js');
-    });
-
-    test('falls back to flat cli path', () => {
-      const modulesDir = '/tmp/copilot-bootstrap/node_modules';
-      const flatCli = path.join(modulesDir, '@github', 'copilot', 'npm-loader.js');
-      expect(flatCli).toContain('npm-loader.js');
-      expect(flatCli).not.toContain('copilot-sdk');
+      jest.isolateModules(() => {
+        const { getLocalCopilotCliPath } = require('./CopilotBootstrap');
+        expect(getLocalCopilotCliPath()).toBeNull();
+      });
     });
   });
 
   describe('isLocalCopilotInstallReady', () => {
     test('returns false when SDK package.json does not exist', () => {
-      jest.resetModules();
+      const fs = require('fs');
+      fs.existsSync.mockReturnValue(false);
+
       jest.isolateModules(() => {
-        const fsMock = require('fs');
-        fsMock.existsSync = jest.fn().mockReturnValue(false);
         const { isLocalCopilotInstallReady } = require('./CopilotBootstrap');
         expect(isLocalCopilotInstallReady()).toBe(false);
       });
     });
 
     test('returns true when SDK and CLI are both present', () => {
-      jest.resetModules();
+      const fs = require('fs');
+      fs.existsSync.mockReturnValue(true);
+
       jest.isolateModules(() => {
-        const fsMock = require('fs');
-        fsMock.existsSync = jest.fn().mockReturnValue(true);
         const { isLocalCopilotInstallReady } = require('./CopilotBootstrap');
         expect(isLocalCopilotInstallReady()).toBe(true);
       });
@@ -140,12 +93,20 @@ describe('CopilotBootstrap platform-specific behavior', () => {
   });
 
   describe('ensureCopilotInstalled', () => {
-    test('skips install in development mode', async () => {
-      jest.resetModules();
+    test('skips install in development mode (app.isPackaged = false)', async () => {
       jest.isolateModules(async () => {
         const { ensureCopilotInstalled } = require('./CopilotBootstrap');
-        // app.isPackaged is false in our mock, so it should return immediately
         await expect(ensureCopilotInstalled()).resolves.toBeUndefined();
+      });
+    });
+  });
+
+  describe('getLocalCopilotNodeModulesDir', () => {
+    test('returns the configured local node_modules directory', () => {
+      jest.isolateModules(() => {
+        const { getLocalCopilotNodeModulesDir } = require('./CopilotBootstrap');
+        const result = getLocalCopilotNodeModulesDir();
+        expect(result).toContain('node_modules');
       });
     });
   });
